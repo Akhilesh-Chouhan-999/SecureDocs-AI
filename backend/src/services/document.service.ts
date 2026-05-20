@@ -1,7 +1,7 @@
-import { NotFoundError, ValidationError } from "../errors";
-import { DOCUMENT_STATUSES } from "../constants";
-import { toDocumentSummary } from "../domain/entities";
-import { parsePagination, buildPagination } from "../utils/pagination";
+import { NotFoundError, ValidationError } from "../errors/index.js";
+import { DOCUMENT_STATUSES } from "../constants/index.js";
+import { toDocumentSummary } from "../domain/entities/index.js";
+import { parsePagination, buildPagination } from "../utils/pagination.js";
 
 /**
  * Service managing document life cycle uploads, listing, lookup, and OCR updates

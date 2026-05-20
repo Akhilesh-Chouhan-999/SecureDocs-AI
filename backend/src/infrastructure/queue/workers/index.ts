@@ -1,5 +1,5 @@
-import { JOB_STATUSES } from "../../../constants";
-import { updateJobRecord } from "../../../jobs";
+import { JOB_STATUSES } from "../../../constants/index.js";
+import { updateJobRecord } from "../../../jobs/index.js";
 
 /**
  * Patch job status to PROCESSING and set started timestamp

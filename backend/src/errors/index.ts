@@ -1,5 +1,5 @@
-export { AppError } from "./AppError";
-export { AuthError } from "./AuthError";
-export { ForbiddenError } from "./ForbiddenError";
-export { NotFoundError } from "./NotFoundError";
-export { ValidationError } from "./ValidationError";
+export { AppError } from "./AppError.js";
+export { AuthError } from "./AuthError.js";
+export { ForbiddenError } from "./ForbiddenError.js";
+export { NotFoundError } from "./NotFoundError.js";
+export { ValidationError } from "./ValidationError.js";

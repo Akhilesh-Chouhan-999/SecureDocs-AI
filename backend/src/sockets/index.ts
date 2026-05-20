@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import env from "../config/env";
+import env from "../config/env.js";
 
 let io: Server | undefined;
 

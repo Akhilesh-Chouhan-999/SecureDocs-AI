@@ -1,14 +1,16 @@
 import fs from "fs";
 import path from "path";
 import Tesseract from "tesseract.js";
-import pdfParse from "pdf-parse";
-import env from "../config/env";
-import { NotFoundError, ValidationError } from "../errors";
-import { DOCUMENT_STATUSES } from "../constants";
-import { buildRiskAssessment } from "../domain/usecases";
-import { normalizeHistoricalRecords } from "../infrastructure/ai/tools";
-import { runDocumentAnalysisWorkflow } from "../ai/workflows";
-import { logger } from "../logs";
+import * as pdfParseModule from "pdf-parse";
+import env from "../config/env.js";
+import { NotFoundError, ValidationError } from "../errors/index.js";
+import { DOCUMENT_STATUSES } from "../constants/index.js";
+import { buildRiskAssessment } from "../domain/usecases/index.js";
+import { normalizeHistoricalRecords } from "../infrastructure/ai/tools/index.js";
+import { runDocumentAnalysisWorkflow } from "../ai/workflows/index.js";
+import { logger } from "../logs/index.js";
+
+const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 
 /**
  * Service orchestrating Document OCR parsing pipelines and fraud heuristics workflows

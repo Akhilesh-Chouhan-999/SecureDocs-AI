@@ -1,4 +1,4 @@
-import { RISK_LEVELS } from "../../constants.js";
+import { RISK_LEVELS } from "../../constants/index.js";
 
 /**
  * Run heuristic rule analysis against raw text, segments, and historical matches
@@ -9,8 +9,12 @@ const detectFraudSignals = ({
   text,
   structuredData,
   historicalContext = [],
+}: {
+  text: any;
+  structuredData: any;
+  historicalContext?: any[];
 }) => {
-  const anomalies = [];
+  const anomalies: any[] = [];
   const normalizedText = String(text || "").toLowerCase();
 
   if (normalizedText.includes("mismatch") || normalizedText.includes("owner")) {
@@ -52,7 +56,7 @@ const detectFraudSignals = ({
     });
   }
 
-  if (historicalContext.some((match) => match.score >= 2)) {
+  if (historicalContext.some((match: any) => match.score >= 2)) {
     anomalies.push({
       type: "historical_overlap",
       severity: "low",
@@ -72,8 +76,8 @@ const detectFraudSignals = ({
  * based on flagged anomalies.
  * @param anomalies List of flagged document anomalies
  */
-const buildRiskAssessment = (anomalies = []) => {
-  const severityWeights = {
+const buildRiskAssessment = (anomalies: any[] = []) => {
+  const severityWeights: Record<string, number> = {
     critical: 50,
     high: 35,
     medium: 20,
@@ -82,7 +86,7 @@ const buildRiskAssessment = (anomalies = []) => {
 
   const riskScore = Math.min(
     Math.round(
-      anomalies.reduce((total, anomaly) => {
+      anomalies.reduce((total: number, anomaly: any) => {
         const weight = severityWeights[anomaly.severity] || 0;
         return total + weight * (anomaly.confidence || 0.5);
       }, 0),
@@ -113,16 +117,13 @@ const buildRiskAssessment = (anomalies = []) => {
     recommendations:
       anomalies.length === 0 || riskLevel === "low"
         ? ["Proceed with standard underwriting verification."]
-        : anomalies.map((anomaly) => anomaly.suggestedAction),
+        : anomalies.map((anomaly: any) => anomaly.suggestedAction),
   };
 };
 
-const usecases = {
+export const usecases = {
   detectFraudSignals,
   buildRiskAssessment,
 };
 
-export { detectFraudSignals,
-  buildRiskAssessment,
-  usecases,
- };
+export { detectFraudSignals, buildRiskAssessment };

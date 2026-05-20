@@ -12,8 +12,8 @@ export const signAccessToken = (user: any) => {
       email: user.email,
       role: user.role,
     },
-    env.jwtSecret,
-    { expiresIn: env.jwtExpiry },
+    env.jwtSecret as string,
+    { expiresIn: env.jwtExpiry as any },
   );
 };
 
@@ -27,8 +27,8 @@ export const signRefreshToken = (user: any) => {
       userId: user._id,
       tokenType: "refresh",
     },
-    env.refreshTokenSecret,
-    { expiresIn: env.refreshTokenExpiry },
+    env.refreshTokenSecret as string,
+    { expiresIn: env.refreshTokenExpiry as any },
   );
 };
 

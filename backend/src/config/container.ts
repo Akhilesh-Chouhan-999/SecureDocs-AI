@@ -3,7 +3,7 @@ import {
   DocumentRepository,
   FraudReportRepository,
   HistoricalRepository,
-} from "../repositories";
+} from "../repositories/index.js";
 
 import {
   AuthService,
@@ -12,7 +12,7 @@ import {
   HistoryService,
   ReportService,
   JobService,
-} from "../services";
+} from "../services/index.js";
 
 /**
  * Dependency Injection Container for resolving singleton instances

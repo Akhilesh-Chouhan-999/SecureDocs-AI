@@ -1,5 +1,5 @@
-import { truncateText } from "../../helpers";
-import type { DocumentEntity } from "../../types/domain";
+import { truncateText } from "../../helpers/index.js";
+import type { DocumentEntity } from "../../types/domain.js";
 
 const buildAnalysisMemory = (document: DocumentEntity) => ({
   documentId: String(document._id),

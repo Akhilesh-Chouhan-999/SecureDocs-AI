@@ -3,8 +3,4 @@ import uploadMiddleware from "./upload.middleware.js";
 import validate from "./validation.middleware.js";
 import { errorMiddleware } from "./error.middleware.js";
 
-export { authMiddleware,
-  uploadMiddleware,
-  validate,
-  errorMiddleware,
- };
+export { authMiddleware, uploadMiddleware, validate, errorMiddleware };

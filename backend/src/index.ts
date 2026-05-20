@@ -1,1 +1,1 @@
-export default require("./server");
+export default './server.ts';

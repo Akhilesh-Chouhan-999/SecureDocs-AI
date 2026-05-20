@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
-import { User } from "../infrastructure/database/models.js";
-import { AuthError } from "../errors.js";
+import User from "../infrastructure/database/models/User.js";
+import { AuthError } from "../errors/index.js";
 
-const authMiddleware = async (req, res, next) => {
+const authMiddleware = async (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
 
   try {
 
-    const decoded = jwt.verify(token, env.jwtSecret);
+    const decoded: any = jwt.verify(token, env.jwtSecret);
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {

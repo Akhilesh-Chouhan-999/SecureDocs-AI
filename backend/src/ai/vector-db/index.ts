@@ -1,4 +1,4 @@
-const compareFingerprints = (left = {}, right = {}) => {
+const compareFingerprints = (left: Record<string, number> = {}, right: Record<string, number> = {}) => {
   const sharedKeys = Object.keys(left).filter((key) => right[key]);
 
   if (sharedKeys.length === 0) {
@@ -13,5 +13,4 @@ const compareFingerprints = (left = {}, right = {}) => {
   return Number((score / sharedKeys.length).toFixed(2));
 };
 
-export { compareFingerprints,
- };
+export { compareFingerprints };

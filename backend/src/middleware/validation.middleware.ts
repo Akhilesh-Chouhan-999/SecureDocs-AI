@@ -1,19 +1,19 @@
-import { ValidationError } from "../errors.js";
+import { ValidationError } from "../errors/index.js";
 
 /**
  * Higher-order middleware to validate incoming request data using Joi schemas
  * @param schema The Joi ObjectSchema to validate against
  * @param source The property of the Request object to validate (body, query, params, etc.)
  */
-const validate = (schema, source = "body") => {
-  return (req, res, next) => {
+const validate = (schema: any, source = "body") => {
+  return (req: any, _res: any, next: any) => {
     const { error, value } = schema.validate(req[source], {
       abortEarly: false,
       stripUnknown: true,
     });
 
     if (error) {
-      const details = error.details.map((detail) => ({
+      const details = error.details.map((detail: any) => ({
         field: detail.path.join("."),
         message: detail.message,
       }));
@@ -27,4 +27,3 @@ const validate = (schema, source = "body") => {
 };
 
 export default validate;
-export const validate = validate;

@@ -173,9 +173,9 @@ export class FraudDetectionAgent {
             anomalies = [];
           }
 
-          const baseScore = anomalies.reduce((sum, a) => {
-            const severityWeight =
-              { low: 5, medium: 20, high: 35, critical: 50 }[a.severity] || 0;
+          const baseScore = anomalies.reduce((sum: number, a: FraudAnomaly) => {
+            const weights: Record<string, number> = { low: 5, medium: 20, high: 35, critical: 50 };
+            const severityWeight = weights[a.severity] || 0;
             return sum + severityWeight * (a.confidence || 0.5);
           }, 0);
 

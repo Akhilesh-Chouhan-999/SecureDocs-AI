@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { HistoryController } from "../controllers.js";
-import { authMiddleware, validate } from "../middleware.js";
-import { historyValidators } from "../validators.js";
+import { HistoryController } from "../controllers/index.js";
+import { authMiddleware, validate } from "../middleware/index.js";
+import { historyValidators } from "../validators/index.js";
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-const parseDocumentText = (text) => {
+const parseDocumentText = (text: string) => {
   const source = String(text || "");
   const nameMatch = source.match(/borrower[:\s]+([a-z ,.'-]+)/i);
   const incomeMatch = source.match(/income[:\s$]+([\d,]+)/i);
@@ -13,5 +13,4 @@ const parseDocumentText = (text) => {
   };
 };
 
-export { parseDocumentText,
- };
+export { parseDocumentText };

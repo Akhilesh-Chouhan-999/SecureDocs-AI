@@ -3,7 +3,7 @@ import type {
   DocumentRepository,
   FraudReportRepository,
   HistoricalRepository,
-} from "../repositories";
+} from "../repositories/index.js";
 import type {
   AuthService,
   DocumentService,
@@ -11,7 +11,7 @@ import type {
   HistoryService,
   ReportService,
   JobService,
-} from "../services";
+} from "../services/index.js";
 
 /** Registry mapping of registered singleton classes in the DI Container */
 export interface ServiceRegistry {

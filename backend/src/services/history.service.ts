@@ -1,5 +1,5 @@
-import { ForbiddenError, NotFoundError } from "../errors";
-import { parsePagination, buildPagination } from "../utils/pagination";
+import { ForbiddenError, NotFoundError } from "../errors/index.js";
+import { parsePagination, buildPagination } from "../utils/pagination.js";
 
 /**
  * Service managing historical record queries for fraud cross-checks and auditing

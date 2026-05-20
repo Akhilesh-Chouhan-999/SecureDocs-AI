@@ -5,7 +5,7 @@ import type {
   LLMResult,
 } from "@langchain/core/language_models/llm";
 import type { BaseLanguageModel } from "@langchain/core/language_models/base";
-import { logger } from "../../logs";
+import { logger } from "../../logs/index.js";
 
 /**
  * LLM Configuration for SecureDoc AI

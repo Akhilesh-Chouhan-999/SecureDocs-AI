@@ -1,9 +1,9 @@
-import { ForbiddenError, NotFoundError } from "../errors";
-import { REVIEW_DECISIONS } from "../constants";
-import { buildRiskAssessment } from "../domain/usecases";
-import { toReportSummary } from "../domain/entities";
-import { parsePagination, buildPagination } from "../utils/pagination";
-import { buildReportPdf } from "../utils/reportPdf";
+import { ForbiddenError, NotFoundError } from "../errors/index.js";
+import { REVIEW_DECISIONS } from "../constants/index.js";
+import { buildRiskAssessment } from "../domain/usecases/index.js";
+import { toReportSummary } from "../domain/entities/index.js";
+import { parsePagination, buildPagination } from "../utils/pagination.js";
+import { buildReportPdf } from "../utils/reportPdf.js";
 
 /**
  * Service managing fraud detection reports (lifecycle generation, search, review/audit decision, PDF render download)

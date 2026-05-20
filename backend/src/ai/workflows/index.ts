@@ -1,13 +1,17 @@
-import { parseDocumentText } from "../parsers.js";
-import { buildAnalysisMemory } from "../memory.js";
-import { buildHistoricalContext } from "../rag.js";
-import { buildCorpusEntry } from "../ingestion.js";
-import { runFraudDetectionAgent } from "../../infrastructure/ai/agents.js";
+import { parseDocumentText } from "../parsers/index.js";
+import { buildAnalysisMemory } from "../memory/index.js";
+import { buildHistoricalContext } from "../rag/index.js";
+import { buildCorpusEntry } from "../ingestion/index.js";
+import { runFraudDetectionAgent } from "../../infrastructure/ai/agents/index.js";
 
 const runDocumentAnalysisWorkflow = ({
   document,
   text,
   historicalRecords = [],
+}: {
+  document: any;
+  text: string;
+  historicalRecords?: any[];
 }) => {
   const structuredData = parseDocumentText(text);
   const memory = buildAnalysisMemory(document);
@@ -27,5 +31,4 @@ const runDocumentAnalysisWorkflow = ({
   };
 };
 
-export { runDocumentAnalysisWorkflow,
- };
+export { runDocumentAnalysisWorkflow };

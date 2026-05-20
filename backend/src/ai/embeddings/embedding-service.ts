@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import * as fs from "fs";
 import * as path from "path";
@@ -264,7 +265,6 @@ export class EmbeddingService {
    * Private: Hash text for cache key
    */
   private hashText(text: string): string {
-    import crypto from "crypto";
     return crypto
       .createHash("md5")
       .update(text.trim().toLowerCase())

@@ -261,7 +261,7 @@ describe("Authentication Flow Integration Tests", () => {
       const response = await request(app)
         .post("/api/auth/logout")
         .set("Authorization", `Bearer ${authToken}`)
-        .send();
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -275,7 +275,7 @@ describe("Authentication Flow Integration Tests", () => {
       const response = await request(app)
         .post("/api/auth/logout")
         .set("Authorization", `Bearer ${authToken}`)
-        .send();
+        .send({});
 
       expect(response.status).toBe(200);
       expect(mockAuthService.logout).toHaveBeenCalled();

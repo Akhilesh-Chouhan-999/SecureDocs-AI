@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import { env } from "./config.js";
-import { authRoutes, documentRoutes, analysisRoutes, historyRoutes, reportRoutes, jobRoutes, systemRoutes,  } from "./routes.js";
-import { errorMiddleware } from "./middleware.js";
-import { getApiOverview, routeCatalog } from "./docs.js";
+import { env } from "./config/index.js";
+import { authRoutes, documentRoutes, analysisRoutes, historyRoutes, reportRoutes, jobRoutes, systemRoutes } from "./routes/index.js";
+import { errorMiddleware } from "./middleware/index.js";
+import { getApiOverview, routeCatalog } from "./docs/index.js";
 
 const app = express();
 

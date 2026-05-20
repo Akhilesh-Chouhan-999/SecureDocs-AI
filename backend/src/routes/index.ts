@@ -1,10 +1,10 @@
-import authRoutes from "./auth.routes";
-import documentRoutes from "./documents.routes";
-import analysisRoutes from "./analysis.routes";
-import historyRoutes from "./history.routes";
-import reportRoutes from "./reports.routes";
-import jobRoutes from "./jobs.routes";
-import systemRoutes from "./system.routes";
+import authRoutes from "./auth.routes.js";
+import documentRoutes from "./documents.routes.js";
+import analysisRoutes from "./analysis.routes.js";
+import historyRoutes from "./history.routes.js";
+import reportRoutes from "./reports.routes.js";
+import jobRoutes from "./jobs.routes.js";
+import systemRoutes from "./system.routes.js";
 
 export {
   authRoutes,

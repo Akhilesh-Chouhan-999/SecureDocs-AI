@@ -1,9 +1,9 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import { APP_NAME } from "../constants";
-import { withMeta } from "../decorators";
-import { folderUsage, getApiOverview, routeCatalog } from "../docs";
-import { SERVICE_TOKENS } from "../interfaces";
+import { APP_NAME } from "../constants/index.js";
+import { withMeta } from "../decorators/index.js";
+import { folderUsage, getApiOverview, routeCatalog } from "../docs/index.js";
+import { SERVICE_TOKENS } from "../interfaces/index.js";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.get("/info", (req, res) => {
   res.json(
     withMeta({
       success: true,
-      name: APP_NAME,
+      appName: APP_NAME,
       ...getApiOverview(),
       databaseState: mongoose.connection.readyState,
       dependencyTokens: SERVICE_TOKENS,

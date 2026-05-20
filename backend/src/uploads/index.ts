@@ -1,4 +1,4 @@
-import { getStorageConfiguration } from "../infrastructure/storage";
+import { getStorageConfiguration } from "../infrastructure/storage/index.js";
 
 /**
  * Fetch formatted summary of uploads configuration

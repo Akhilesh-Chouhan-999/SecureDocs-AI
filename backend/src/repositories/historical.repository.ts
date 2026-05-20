@@ -1,5 +1,5 @@
-import { BaseRepository } from "./base.repository";
-import HistoricalRecord from "../infrastructure/database/models/HistoricalRecord";
+import { BaseRepository } from "./base.repository.js";
+import HistoricalRecord from "../infrastructure/database/models/HistoricalRecord.js";
 
 /**
  * Repository layer handling Historical records cross-check persistence operations

@@ -1,14 +1,14 @@
 import Queue from "bull";
 import EventEmitter from "events";
-import env from "../config/env";
-import { NotFoundError, ValidationError } from "../errors";
-import { JOB_EVENTS } from "../events";
-import { createJobRecord } from "../jobs";
-import { registerJobListeners } from "../listeners";
-import { markJobCanceled, markJobCompleted, markJobFailed, markJobProcessing } from "../infrastructure/queue/workers";
-import { emitJobUpdate } from "../sockets";
-import { JOB_STATUSES } from "../constants";
-import { parsePagination, buildPagination } from "../utils/pagination";
+import env from "../config/env.js";
+import { NotFoundError, ValidationError } from "../errors/index.js";
+import { JOB_EVENTS } from "../events/index.js";
+import { createJobRecord } from "../jobs/index.js";
+import { registerJobListeners } from "../listeners/index.js";
+import { markJobCanceled, markJobCompleted, markJobFailed, markJobProcessing } from "../infrastructure/queue/workers/index.js";
+import { emitJobUpdate } from "../sockets/index.js";
+import { JOB_STATUSES } from "../constants/index.js";
+import { parsePagination, buildPagination } from "../utils/pagination.js";
 
 /**
  * Service managing background document analysis jobs

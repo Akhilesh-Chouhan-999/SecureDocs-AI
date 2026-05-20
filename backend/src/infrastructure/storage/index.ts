@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import env from "../../config/env";
-import { SUPPORTED_DOCUMENT_MIME_TYPES } from "../../types";
+import env from "../../config/env.js";
+import { SUPPORTED_DOCUMENT_MIME_TYPES } from "../../types/index.js";
 
 /**
  * Resolve absolute directory path where uploads are saved

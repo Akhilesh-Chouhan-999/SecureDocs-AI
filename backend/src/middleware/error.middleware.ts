@@ -2,9 +2,17 @@
  * Global error handling middleware to catch all operational and programming errors
  * and format them into consistent JSON responses.
  */
-const errorMiddleware = (err, req, res, next) => {
+const handleErrorMiddleware = (err: any, req: any, res: any, next: any) => {
   const statusCode = err.statusCode || err.status || 500;
-  const payload = {
+  const payload: {
+    success: boolean;
+    error: {
+      code: any;
+      message: any;
+      details?: unknown;
+      stack?: string;
+    };
+  } = {
     success: false,
     error: {
       code: err.code || "INTERNAL_ERROR",
@@ -23,5 +31,5 @@ const errorMiddleware = (err, req, res, next) => {
   return res.status(statusCode).json(payload);
 };
 
-export { errorMiddleware  };
-export const default = errorMiddleware;
+export { handleErrorMiddleware as errorMiddleware };
+export default handleErrorMiddleware;

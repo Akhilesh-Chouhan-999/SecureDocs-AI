@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import env from "../config/env";
-import { AuthError, ValidationError } from "../errors";
-import { signAccessToken, signRefreshToken } from "../utils/tokens";
-import { sanitizeUser } from "../domain/entities";
+import env from "../config/env.js";
+import { AuthError, ValidationError } from "../errors/index.js";
+import { signAccessToken, signRefreshToken } from "../utils/tokens.js";
+import { sanitizeUser } from "../domain/entities/index.js";
 
 /**
  * Service orchestrating authentication flows (login, register, token refresh)

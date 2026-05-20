@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import type { SanitizedUser } from "./domain";
+import type { SanitizedUser } from "./domain.js";
 
 /** Multer uploaded file metadata format */
 export interface UploadedFile {
@@ -33,7 +33,7 @@ export interface AuthenticatedRequest<
   ResBody = unknown,
   ReqBody = Record<string, unknown>,
   ReqQuery = Record<string, unknown>,
-> extends Request<Params, ResBody, ReqBody, ReqQuery> {
+> extends Omit<Request<Params, ResBody, ReqBody, ReqQuery>, "file"> {
   user: SanitizedUser & { _id: unknown };
   file?: UploadedFile;
 }

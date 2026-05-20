@@ -1,7 +1,7 @@
-import { APP_NAME } from "../constants";
-import { ROUTE_GROUPS } from "../types";
-import { getUploadSummary } from "../uploads";
-import { scheduledTasks } from "../schedulers";
+import { APP_NAME } from "../constants/index.js";
+import { ROUTE_GROUPS } from "../types/index.js";
+import { getUploadSummary } from "../uploads/index.js";
+import { scheduledTasks } from "../schedulers/index.js";
 
 export const routeCatalog = [
   { method: "GET", path: "/", group: "system", auth: false, purpose: "API landing payload" },

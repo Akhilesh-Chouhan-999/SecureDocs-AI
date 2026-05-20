@@ -1,11 +1,11 @@
-import { createKeywordFingerprint } from "../embeddings.js";
-import { compareFingerprints } from "../vector-db.js";
+import { createKeywordFingerprint } from "../embeddings/index.js";
+import { compareFingerprints } from "../vector-db/index.js";
 
-const buildHistoricalContext = (text, historicalRecords = []) => {
+const buildHistoricalContext = (text: string, historicalRecords: any[] = []) => {
   const currentFingerprint = createKeywordFingerprint(text);
 
   return historicalRecords
-    .map((record) => {
+    .map((record: any) => {
       const referenceText = JSON.stringify(record.value || record);
       return {
         key: record.key || "unknown",
@@ -16,9 +16,8 @@ const buildHistoricalContext = (text, historicalRecords = []) => {
         ),
       };
     })
-    .sort((left, right) => right.score - left.score)
+    .sort((left: any, right: any) => right.score - left.score)
     .slice(0, 3);
 };
 
-export { buildHistoricalContext,
- };
+export { buildHistoricalContext };

@@ -13,10 +13,10 @@ const escapePdfText = (value = "") =>
  * Basic pure PDF generator creating Helvetica page stream
  * @param lines Text lines to display
  */
-const renderPdfBuffer = (lines = []) => {
+const renderPdfBuffer = (lines: string[] = []) => {
   const sanitizedLines = lines.filter(Boolean);
   const body = sanitizedLines
-    .map((line, index) => `BT /F1 12 Tf 50 ${770 - index * 18} Td (${escapePdfText(line)}) Tj ET`)
+    .map((line: string, index: number) => `BT /F1 12 Tf 50 ${770 - index * 18} Td (${escapePdfText(line)}) Tj ET`)
     .join("\n");
 
   const objects = [
@@ -52,8 +52,8 @@ const renderPdfBuffer = (lines = []) => {
  * Generate a PDF document report buffer from FraudReportEntity details
  * @param report The fraud report object context
  */
-const buildReportPdf = (report) => {
-  const lines = [
+export const buildReportPdf = (report: any) => {
+  const lines: string[] = [
     "SecureDocs AI Fraud Report",
     `Report ID: ${report._id}`,
     `Document ID: ${report.document?._id || report.document || "unknown"}`,
@@ -68,10 +68,10 @@ const buildReportPdf = (report) => {
     report.summary || "No summary available",
     "",
     "Recommendations:",
-    ...(report.recommendations || []).map((item, index) => `${index + 1}. ${item}`),
+    ...(report.recommendations || []).map((item: string, index: number) => `${index + 1}. ${item}`),
     "",
     "Anomalies:",
-    ...((report.anomalies || []).map((anomaly, index) =>
+    ...((report.anomalies || []).map((anomaly: any, index: number) =>
       `${index + 1}. [${anomaly.severity}] ${anomaly.type} - ${anomaly.description}`,
     )),
   ];
@@ -79,10 +79,6 @@ const buildReportPdf = (report) => {
   return renderPdfBuffer(lines);
 };
 
-const reportPdf = {
+export const reportPdf = {
   buildReportPdf,
 };
-
-export { buildReportPdf,
-  reportPdf,
- };
