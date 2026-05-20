@@ -1,0 +1,180 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+*.js.map
+*.css.map
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.netbeans/
+.vscode-test-web/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+.coverage
+
+# Testing
+.jest_cache/
+*.lcov
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Uploads (user-generated content)
+uploads/*
+!uploads/.gitkeep
+
+# Cache
+.cache/
+.eslintcache
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# TypeScript
+*.tsbuildinfo
+dist/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+mongo_data/
+
+# Redis
+dump.rdb
+
+# Bundles
+dist/
+build/
+*.bundle.js
+
+# Docker
+docker-compose.override.yml
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# System files
+*.exe
+*.dll
+
+# Node
+node_modules
+npm-debug.log
+
+# Production
+/build
+/dist
+
+# Misc
+.prettierignore
+.prettierrc
+.eslintignore
+
+# Local development
+.dev
+.local
+
+# Archives
+*.zip
+*.tar
+*.rar
+*.7z
+*.gz
+
+# Database backups
+*.sql
+*.bak
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+out/
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+*.lnk
