@@ -7,11 +7,11 @@ export const DOCUMENT_STATUSES = Object.freeze({
   PROCESSING: "processing",
   COMPLETED: "completed",
   FAILED: "failed",
-} as const);
+});
 
 export const JOB_TYPES = Object.freeze({
   ANALYSIS: "analysis",
-} as const);
+});
 
 export const JOB_STATUSES = Object.freeze({
   QUEUED: "queued",
@@ -19,15 +19,15 @@ export const JOB_STATUSES = Object.freeze({
   COMPLETED: "completed",
   FAILED: "failed",
   CANCELED: "canceled",
-} as const);
+});
 
-export const RISK_LEVELS = Object.freeze(["low", "medium", "high", "critical"] as const);
+export const RISK_LEVELS = Object.freeze(["low", "medium", "high", "critical"]);
 export const REVIEW_DECISIONS = Object.freeze([
   "pending",
   "approved",
   "rejected",
   "manual_review",
-] as const);
+]);
 
 export const constants = {
   APP_NAME,
@@ -39,5 +39,3 @@ export const constants = {
   RISK_LEVELS,
   REVIEW_DECISIONS,
 };
-
-export default constants;

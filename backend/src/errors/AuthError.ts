@@ -8,7 +8,7 @@ export class AuthError extends AppError {
    * @param message Error message
    * @param details Additional error details context
    */
-  constructor(message: string = "Authentication failed", details: unknown = null) {
+  constructor(message = "Authentication failed", details: any = null) {
     super(message, 401, "AUTH_ERROR", details);
   }
 }

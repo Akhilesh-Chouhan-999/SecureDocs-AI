@@ -6,17 +6,17 @@ import { logger } from "../logs";
  * Connect to MongoDB database
  * @returns Connected Mongoose instance
  */
-export const connectDB = async (): Promise<typeof mongoose> => {
+const connectDB = async () => {
   try {
-
     const conn = await mongoose.connect(env.mongoUri);
     logger.info("MongoDB connected", { host: conn.connection.host });
-    
     return conn;
-  } catch (error: any) {
-    logger.error("MongoDB connection error", { message: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error("MongoDB connection error", { message });
     throw error;
   }
 };
 
 export default connectDB;
+export { connectDB };

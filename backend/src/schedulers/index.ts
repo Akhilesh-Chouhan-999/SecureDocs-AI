@@ -1,4 +1,4 @@
-export const scheduledTasks = [
+const scheduledTasks = [
   {
     name: "stale-document-review",
     enabled: false,
@@ -11,6 +11,5 @@ export const scheduledTasks = [
   },
 ];
 
-export default {
-  scheduledTasks,
-};
+export { scheduledTasks,
+ };

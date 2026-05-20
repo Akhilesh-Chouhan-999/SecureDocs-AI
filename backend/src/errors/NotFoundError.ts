@@ -8,7 +8,7 @@ export class NotFoundError extends AppError {
    * @param message Error message
    * @param details Additional error details context
    */
-  constructor(message: string = "Resource not found", details: unknown = null) {
+  constructor(message = "Resource not found", details: any = null) {
     super(message, 404, "NOT_FOUND", details);
   }
 }

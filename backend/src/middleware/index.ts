@@ -1,11 +1,10 @@
-import authMiddleware from "./auth.middleware";
-import uploadMiddleware from "./upload.middleware";
-import validate from "./validation.middleware";
-import errorMiddleware from "./error.middleware";
+import authMiddleware from "./auth.middleware.js";
+import uploadMiddleware from "./upload.middleware.js";
+import validate from "./validation.middleware.js";
+import { errorMiddleware } from "./error.middleware.js";
 
-export {
-  authMiddleware,
+export { authMiddleware,
   uploadMiddleware,
   validate,
   errorMiddleware,
-};
+ };

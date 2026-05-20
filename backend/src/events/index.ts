@@ -5,8 +5,4 @@ export const JOB_EVENTS = Object.freeze({
   FAILED: "job.failed",
   CANCELED: "job.canceled",
   RETRIED: "job.retried",
-} as const);
-
-export default {
-  JOB_EVENTS,
-};
+});

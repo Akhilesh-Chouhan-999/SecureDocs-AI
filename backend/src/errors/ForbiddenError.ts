@@ -8,7 +8,7 @@ export class ForbiddenError extends AppError {
    * @param message Error message
    * @param details Additional error details context
    */
-  constructor(message: string = "Forbidden", details: unknown = null) {
+  constructor(message = "Forbidden", details: any = null) {
     super(message, 403, "FORBIDDEN", details);
   }
 }

@@ -2,16 +2,14 @@ import { NotFoundError, ValidationError } from "../errors";
 import { DOCUMENT_STATUSES } from "../constants";
 import { toDocumentSummary } from "../domain/entities";
 import { parsePagination, buildPagination } from "../utils/pagination";
-import type { DocumentRepository } from "../repositories/document.repository";
-import type { DocumentDocument } from "../types/domain";
 
 /**
  * Service managing document life cycle uploads, listing, lookup, and OCR updates
  */
 export class DocumentService {
-  private documentRepository: DocumentRepository;
+  private documentRepository: any;
 
-  constructor(documentRepository: DocumentRepository) {
+  constructor(documentRepository: any) {
     this.documentRepository = documentRepository;
   }
 
@@ -20,7 +18,7 @@ export class DocumentService {
    * @param file Express Multer uploaded file metadata
    * @param userId The ID of the analyst who uploaded the file
    */
-  public async upload(file: any, userId: string): Promise<DocumentDocument> {
+  async upload(file: any, userId: any) {
     if (!file) {
       throw new ValidationError("No file uploaded");
     }
@@ -40,11 +38,11 @@ export class DocumentService {
    * @param userId Owner User ObjectId string
    * @param query Request query params containing filter/pagination criteria
    */
-  public async listForUser(userId: string, query: Record<string, unknown> = {}): Promise<any> {
+  async listForUser(userId: any, query: Record<string, any> = {}) {
     const { page, limit, skip } = parsePagination(query);
     const filters = {
-      status: query.status as string | undefined,
-      search: query.search as string | undefined,
+      status: query.status,
+      search: query.search,
     };
     const [documents, total] = await Promise.all([
       this.documentRepository.searchByUser(userId, filters, { page, limit, skip }),
@@ -63,7 +61,7 @@ export class DocumentService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async getOwnedDocument(documentId: string, userId: string): Promise<DocumentDocument> {
+  async getOwnedDocument(documentId: any, userId: any) {
     const document = await this.documentRepository.findOwnedById(documentId, userId);
 
     if (!document) {
@@ -78,9 +76,9 @@ export class DocumentService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async deleteOwnedDocument(documentId: string, userId: string): Promise<DocumentDocument> {
+  async deleteOwnedDocument(documentId: any, userId: any) {
     const document = await this.getOwnedDocument(documentId, userId);
-    await this.documentRepository.deleteById(document._id as string);
+    await this.documentRepository.deleteById(document._id);
     return document;
   }
 
@@ -89,7 +87,7 @@ export class DocumentService {
    * @param document Document DB model document context
    * @param result OCR processing results
    */
-  public async updateOcrResult(document: DocumentDocument, result: any): Promise<DocumentDocument> {
+  async updateOcrResult(document: any, result: any) {
     document.ocrText = result.text;
     document.ocrConfidence = result.confidence;
     document.structuredData = result.structuredData || {};
@@ -98,5 +96,3 @@ export class DocumentService {
     return document.save();
   }
 }
-
-export default DocumentService;

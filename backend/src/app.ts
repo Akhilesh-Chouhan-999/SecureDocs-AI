@@ -1,18 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const { env } = require("./config");
-const {
-  authRoutes,
-  documentRoutes,
-  analysisRoutes,
-  historyRoutes,
-  reportRoutes,
-  jobRoutes,
-  systemRoutes,
-} = require("./routes");
-const { errorMiddleware } = require("./middleware");
-const { getApiOverview, routeCatalog } = require("./docs");
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import { env } from "./config.js";
+import { authRoutes, documentRoutes, analysisRoutes, historyRoutes, reportRoutes, jobRoutes, systemRoutes,  } from "./routes.js";
+import { errorMiddleware } from "./middleware.js";
+import { getApiOverview, routeCatalog } from "./docs.js";
 
 const app = express();
 
@@ -71,4 +63,4 @@ app.use("/api/jobs", jobRoutes);
 
 app.use(errorMiddleware);
 
-module.exports = app;
+export default app;

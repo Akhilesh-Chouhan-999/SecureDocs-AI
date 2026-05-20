@@ -1,12 +1,8 @@
-const { detectFraudSignals } = require("../../../domain/usecases");
+import { detectFraudSignals } from "../../../domain/usecases";
 
-const runFraudDetectionAgent = ({ text, structuredData, historicalContext }) =>
+export const runFraudDetectionAgent = ({ text, structuredData, historicalContext }: { text: any; structuredData: any; historicalContext: any }) =>
   detectFraudSignals({
     text,
     structuredData,
     historicalContext,
   });
-
-module.exports = {
-  runFraudDetectionAgent,
-};

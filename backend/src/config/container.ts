@@ -14,13 +14,11 @@ import {
   JobService,
 } from "../services";
 
-import type { ServiceRegistry } from "../types/container";
-
 /**
  * Dependency Injection Container for resolving singleton instances
  */
 class Container {
-  private singletons: Map<keyof ServiceRegistry, any>;
+  private singletons: Map<string, any>;
 
   constructor() {
     this.singletons = new Map();
@@ -30,7 +28,7 @@ class Container {
    * Resolve a registered dependency by its token name
    * @param name Name of the dependency token to retrieve
    */
-  public get<K extends keyof ServiceRegistry>(name: K): ServiceRegistry[K] {
+  get(name: string): any {
     if (!this.singletons.has(name)) {
       this.singletons.set(name, this.create(name));
     }
@@ -41,43 +39,43 @@ class Container {
    * Factory method to create new instances of requested dependencies
    * @param name Name of the dependency to construct
    */
-  private create<K extends keyof ServiceRegistry>(name: K): ServiceRegistry[K] {
+  create(name: string): any {
     switch (name) {
       case "userRepository":
-        return new UserRepository() as any;
+        return new UserRepository();
 
       case "documentRepository":
-        return new DocumentRepository() as any;
+        return new DocumentRepository();
 
       case "fraudReportRepository":
-        return new FraudReportRepository() as any;
+        return new FraudReportRepository();
 
       case "historicalRepository":
-        return new HistoricalRepository() as any;
+        return new HistoricalRepository();
 
       case "authService":
-        return new AuthService(this.get("userRepository")) as any;
+        return new AuthService(this.get("userRepository"));
 
       case "documentService":
-        return new DocumentService(this.get("documentRepository")) as any;
+        return new DocumentService(this.get("documentRepository"));
 
       case "analysisService":
         return new AnalysisService(
           this.get("documentService"),
           this.get("historicalRepository"),
-        ) as any;
+        );
 
       case "historyService":
-        return new HistoryService(this.get("historicalRepository")) as any;
+        return new HistoryService(this.get("historicalRepository"));
 
       case "reportService":
         return new ReportService(
           this.get("documentService"),
           this.get("fraudReportRepository"),
-        ) as any;
+        );
 
       case "jobService":
-        return new JobService(this.get("analysisService")) as any;
+        return new JobService(this.get("analysisService"));
 
       default:
         throw new Error(`Dependency '${name}' is not registered`);
@@ -85,5 +83,7 @@ class Container {
   }
 }
 
-export const container = new Container();
+const container = new Container();
+
 export default container;
+export { container };

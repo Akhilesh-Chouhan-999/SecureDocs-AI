@@ -1,8 +1,8 @@
-const { parseDocumentText } = require("../parsers");
-const { buildAnalysisMemory } = require("../memory");
-const { buildHistoricalContext } = require("../rag");
-const { buildCorpusEntry } = require("../ingestion");
-const { runFraudDetectionAgent } = require("../../infrastructure/ai/agents");
+import { parseDocumentText } from "../parsers.js";
+import { buildAnalysisMemory } from "../memory.js";
+import { buildHistoricalContext } from "../rag.js";
+import { buildCorpusEntry } from "../ingestion.js";
+import { runFraudDetectionAgent } from "../../infrastructure/ai/agents.js";
 
 const runDocumentAnalysisWorkflow = ({
   document,
@@ -27,6 +27,5 @@ const runDocumentAnalysisWorkflow = ({
   };
 };
 
-module.exports = {
-  runDocumentAnalysisWorkflow,
-};
+export { runDocumentAnalysisWorkflow,
+ };

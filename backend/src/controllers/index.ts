@@ -1,21 +1,14 @@
-import AuthController from "./auth.controller";
-import DocumentController from "./document.controller";
-import AnalysisController from "./analysis.controller";
-import HistoryController from "./history.controller";
-import ReportController from "./report.controller";
-import JobController from "./job.controller";
+import { AuthController } from "./auth.controller.js";
+import { DocumentController } from "./document.controller.js";
+import { AnalysisController } from "./analysis.controller.js";
+import { HistoryController } from "./history.controller.js";
+import { ReportController } from "./report.controller.js";
+import { JobController } from "./job.controller.js";
 
-export {
-  AuthController,
+export { AuthController,
   DocumentController,
   AnalysisController,
   HistoryController,
   ReportController,
   JobController,
-};
-export * from "./auth.controller";
-export * from "./document.controller";
-export * from "./analysis.controller";
-export * from "./history.controller";
-export * from "./report.controller";
-export * from "./job.controller";
+ };

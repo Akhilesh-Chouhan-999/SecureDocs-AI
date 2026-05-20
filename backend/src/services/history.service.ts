@@ -1,14 +1,13 @@
 import { ForbiddenError, NotFoundError } from "../errors";
 import { parsePagination, buildPagination } from "../utils/pagination";
-import type { HistoricalRepository } from "../repositories/historical.repository";
 
 /**
  * Service managing historical record queries for fraud cross-checks and auditing
  */
 export class HistoryService {
-  private historicalRepository: HistoricalRepository;
+  private historicalRepository: any;
 
-  constructor(historicalRepository: HistoricalRepository) {
+  constructor(historicalRepository: any) {
     this.historicalRepository = historicalRepository;
   }
 
@@ -16,7 +15,7 @@ export class HistoryService {
    * Look up historical context profile matching email
    * @param email Target audit lookup email string
    */
-  public async getHistoryByEmail(email: string): Promise<any> {
+  async getHistoryByEmail(email: string) {
     const record = await this.historicalRepository.findByEmail(email);
 
     if (!record) {
@@ -38,17 +37,17 @@ export class HistoryService {
    * @param query Request query params containing search inputs
    * @param user Authenticated user details requesting query
    */
-  public async searchHistory(query: Record<string, unknown> = {}, user: any): Promise<any> {
+  async searchHistory(query: Record<string, any> = {}, user: any) {
     if (!["admin", "manager"].includes(user.role)) {
       throw new ForbiddenError("Only admin or manager users can search history records");
     }
 
     const { page, limit, skip } = parsePagination(query);
     const filters = {
-      email: query.email as string | undefined,
-      key: query.key as string | undefined,
-      source: query.source as string | undefined,
-      search: query.search as string | undefined,
+      email: query.email,
+      key: query.key,
+      source: query.source,
+      search: query.search,
     };
 
     const [records, total] = await Promise.all([
@@ -57,7 +56,7 @@ export class HistoryService {
     ]);
 
     return {
-      records: records.map((record) => ({
+      records: records.map((record: any) => ({
         id: record._id,
         key: record.key,
         source: record.source || "historical-record",
@@ -69,5 +68,3 @@ export class HistoryService {
     };
   }
 }
-
-export default HistoryService;

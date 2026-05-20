@@ -1,13 +1,13 @@
 import { initializeAgentExecutorWithOptions } from "@langchain/agents";
 import type { Tool } from "@langchain/core/tools";
 import { DynamicTool } from "@langchain/core/tools";
-import { getLLMManager } from "../llm/llm-manager";
+import { getLLMManager } from "../llm/llm-manager.js";
 import type {
   FraudAnomaly,
   RiskAssessment,
   StructuredDocumentData,
-} from "../../types/domain";
-import { logger } from "../../logs";
+} from "../../types/domain.js";
+import { logger } from "../../logs/index.js";
 
 /**
  * Fraud Detection Agent

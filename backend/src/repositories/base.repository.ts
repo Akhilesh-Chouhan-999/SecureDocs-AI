@@ -1,13 +1,10 @@
-import type { Model } from "mongoose";
-import type { IRepository } from "../core/interfaces/IRepository";
-
 /**
  * Base data access implementation for Mongoose schemas
  */
-export class BaseRepository<T = any> implements IRepository<T> {
-  protected model: Model<any>;
+export class BaseRepository {
+  protected model: any;
 
-  constructor(model: Model<any>) {
+  constructor(model: any) {
     this.model = model;
   }
 
@@ -16,7 +13,7 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * @param id String identifier representation of ObjectId
    * @param options Mongoose options object
    */
-  public async findById(id: string, options: any = {}): Promise<T | null> {
+  async findById(id: any, options: Record<string, any> = {}) {
     return this.model.findById(id, null, options).exec();
   }
 
@@ -25,7 +22,7 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * @param filter Criteria query mapping
    * @param options Query execution options
    */
-  public async findOne(filter: Record<string, any> = {}, options: any = {}): Promise<T | null> {
+  async findOne(filter: Record<string, any> = {}, options: Record<string, any> = {}) {
     return this.model.findOne(filter, null, options).exec();
   }
 
@@ -34,27 +31,13 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * @param filter Match filters query object
    * @param options Sorting, limit, skip, and populate configuration properties
    */
-  public async findAll(
-    filter: Record<string, any> = {},
-    options: { sort?: any; populate?: any; limit?: number; skip?: number } = {},
-  ): Promise<T[]> {
+  async findAll(filter: Record<string, any> = {}, options: Record<string, any> = {}) {
     const query = this.model.find(filter);
 
-    if (options.sort) {
-      query.sort(options.sort);
-    }
-
-    if (options.populate) {
-      query.populate(options.populate);
-    }
-
-    if (options.limit) {
-      query.limit(options.limit);
-    }
-
-    if (options.skip) {
-      query.skip(options.skip);
-    }
+    if (options.sort) query.sort(options.sort);
+    if (options.populate) query.populate(options.populate);
+    if (options.limit) query.limit(options.limit);
+    if (options.skip) query.skip(options.skip);
 
     return query.exec();
   }
@@ -63,7 +46,7 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * Create and persist single record
    * @param data Entity record fields
    */
-  public async create(data: any): Promise<T> {
+  async create(data: any) {
     return this.model.create(data);
   }
 
@@ -73,7 +56,7 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * @param data Fields to update
    * @param options Options configuration object
    */
-  public async updateById(id: string, data: any, options: any = { new: true }): Promise<T | null> {
+  async updateById(id: any, data: any, options: Record<string, any> = { new: true }) {
     return this.model.findByIdAndUpdate(id, data, options).exec();
   }
 
@@ -81,10 +64,8 @@ export class BaseRepository<T = any> implements IRepository<T> {
    * Remove single document matching ID
    * @param id String identifier representation of ObjectId
    */
-  public async deleteById(id: string): Promise<boolean> {
+  async deleteById(id: any) {
     const result = await this.model.findByIdAndDelete(id).exec();
     return result !== null;
   }
 }
-
-export default BaseRepository;

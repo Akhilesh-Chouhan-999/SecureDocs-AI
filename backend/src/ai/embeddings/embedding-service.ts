@@ -2,7 +2,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import * as fs from "fs";
 import * as path from "path";
 import type { Document } from "@langchain/core/documents";
-import { logger } from "../../logs";
+import { logger } from "../../logs/index.js";
 
 interface CachedEmbedding {
   text: string;
@@ -264,7 +264,7 @@ export class EmbeddingService {
    * Private: Hash text for cache key
    */
   private hashText(text: string): string {
-    const crypto = require("crypto");
+    import crypto from "crypto";
     return crypto
       .createHash("md5")
       .update(text.trim().toLowerCase())

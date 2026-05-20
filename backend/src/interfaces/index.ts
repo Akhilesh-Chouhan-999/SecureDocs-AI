@@ -1,4 +1,4 @@
-const SERVICE_TOKENS = Object.freeze([
+export const SERVICE_TOKENS = Object.freeze([
   "userRepository",
   "documentRepository",
   "fraudReportRepository",
@@ -10,7 +10,3 @@ const SERVICE_TOKENS = Object.freeze([
   "reportService",
   "jobService",
 ]);
-
-module.exports = {
-  SERVICE_TOKENS,
-};

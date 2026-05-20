@@ -1,26 +1,16 @@
-import { RISK_LEVELS } from "../../constants";
-import type {
-  FraudAnomaly,
-  RiskAssessment,
-  StructuredDocumentData,
-  RiskLevel,
-} from "../../types/domain";
+import { RISK_LEVELS } from "../../constants.js";
 
 /**
  * Run heuristic rule analysis against raw text, segments, and historical matches
  * to flag potential fraud anomalies.
  * @param params Input text, segments, and historical cross-match scores
  */
-export const detectFraudSignals = ({
+const detectFraudSignals = ({
   text,
   structuredData,
   historicalContext = [],
-}: {
-  text: string;
-  structuredData: StructuredDocumentData;
-  historicalContext?: Array<{ key: string; source: string; score: number }>;
-}): FraudAnomaly[] => {
-  const anomalies: FraudAnomaly[] = [];
+}) => {
+  const anomalies = [];
   const normalizedText = String(text || "").toLowerCase();
 
   if (normalizedText.includes("mismatch") || normalizedText.includes("owner")) {
@@ -82,9 +72,7 @@ export const detectFraudSignals = ({
  * based on flagged anomalies.
  * @param anomalies List of flagged document anomalies
  */
-export const buildRiskAssessment = (
-  anomalies: FraudAnomaly[] = [],
-): RiskAssessment => {
+const buildRiskAssessment = (anomalies = []) => {
   const severityWeights = {
     critical: 50,
     high: 35,
@@ -102,7 +90,7 @@ export const buildRiskAssessment = (
     100,
   );
 
-  let riskLevel: RiskLevel = RISK_LEVELS[0]; // "low"
+  let riskLevel = RISK_LEVELS[0]; // "low"
 
   if (riskScore >= 81) {
     riskLevel = "critical";
@@ -129,9 +117,12 @@ export const buildRiskAssessment = (
   };
 };
 
-export const usecases = {
+const usecases = {
   detectFraudSignals,
   buildRiskAssessment,
 };
 
-export default usecases;
+export { detectFraudSignals,
+  buildRiskAssessment,
+  usecases,
+ };

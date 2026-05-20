@@ -6,12 +6,12 @@ import { SUPPORTED_DOCUMENT_MIME_TYPES } from "../../types";
 /**
  * Resolve absolute directory path where uploads are saved
  */
-export const resolveUploadDirectory = (): string => path.resolve(process.cwd(), env.uploadDir);
+const resolveUploadDirectory = () => path.resolve(process.cwd(), env.uploadDir);
 
 /**
  * Ensure target upload directory exists, creating recursively if not present
  */
-export const ensureUploadDirectory = (): string => {
+const ensureUploadDirectory = () => {
   const uploadDirectory = resolveUploadDirectory();
 
   if (!fs.existsSync(uploadDirectory)) {
@@ -36,4 +36,4 @@ export const storage = {
   getStorageConfiguration,
 };
 
-export default storage;
+export { ensureUploadDirectory, resolveUploadDirectory };

@@ -1,8 +1,8 @@
 import multer from "multer";
 import path from "path";
-import env from "../config/env";
-import { ValidationError } from "../errors";
-import { getStorageConfiguration } from "../infrastructure/storage";
+import env from "../config/env.js";
+import { ValidationError } from "../errors.js";
+import { getStorageConfiguration } from "../infrastructure/storage.js";
 
 const { uploadDirectory, allowedMimeTypes } = getStorageConfiguration();
 
@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
  * Multer middleware instance configured for secure local document storage.
  * Restricts uploads by size limit and whitelisted MIME types.
  */
-export const upload = multer({
+const upload = multer({
   storage,
   limits: { fileSize: env.maxFileSize },
   fileFilter: (req, file, cb) => {
@@ -31,7 +31,7 @@ export const upload = multer({
         new ValidationError("Unsupported file type", {
           allowedMimeTypes,
           received: file.mimetype,
-        }) as any,
+        }),
       );
     }
 
@@ -40,3 +40,4 @@ export const upload = multer({
 });
 
 export default upload;
+export const upload = upload;

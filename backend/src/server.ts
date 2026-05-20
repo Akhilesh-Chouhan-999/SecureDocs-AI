@@ -1,8 +1,11 @@
-const http = require("http");
-const app = require("./app");
-const { connectDB, env } = require("./config");
-const { initializeSockets } = require("./sockets");
-const { logger } = require("./logs");
+import http from "http";
+import { fileURLToPath } from "url";
+import app from "./app.js";
+import { connectDB, env } from "./config/index.js";
+import { initializeSockets } from "./sockets/index.js";
+import { logger } from "./logs/index.js";
+
+const __filename = fileURLToPath(import.meta.url);
 
 const startServer = async () => {
   await connectDB();
@@ -21,14 +24,11 @@ const startServer = async () => {
   return server;
 };
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   startServer().catch((error) => {
     logger.error("Failed to start server", { message: error.message });
     process.exit(1);
   });
 }
 
-module.exports = {
-  app,
-  startServer,
-};
+export { app, startServer };

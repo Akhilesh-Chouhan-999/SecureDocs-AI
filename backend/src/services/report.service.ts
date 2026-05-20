@@ -4,18 +4,15 @@ import { buildRiskAssessment } from "../domain/usecases";
 import { toReportSummary } from "../domain/entities";
 import { parsePagination, buildPagination } from "../utils/pagination";
 import { buildReportPdf } from "../utils/reportPdf";
-import type { DocumentService } from "./document.service";
-import type { FraudReportRepository } from "../repositories/fraud-report.repository";
-import type { FraudReportDocument, FraudAnomaly } from "../types/domain";
 
 /**
  * Service managing fraud detection reports (lifecycle generation, search, review/audit decision, PDF render download)
  */
 export class ReportService {
-  private documentService: DocumentService;
-  private reportRepository: FraudReportRepository;
+  private documentService: any;
+  private reportRepository: any;
 
-  constructor(documentService: DocumentService, reportRepository: FraudReportRepository) {
+  constructor(documentService: any, reportRepository: any) {
     this.documentService = documentService;
     this.reportRepository = reportRepository;
   }
@@ -26,11 +23,7 @@ export class ReportService {
    * @param userId Creator Analyst User ObjectId string
    * @param anomalies Flagged anomalies list context
    */
-  public async generateFraudReport(
-    documentId: string,
-    userId: string,
-    anomalies: FraudAnomaly[] = [],
-  ): Promise<FraudReportDocument> {
+  async generateFraudReport(documentId: any, userId: any, anomalies: any[] = []) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
     const assessment = buildRiskAssessment(anomalies);
 
@@ -49,7 +42,7 @@ export class ReportService {
    * Look up report by ID populating internal entity associations
    * @param reportId Report ObjectId string
    */
-  public async getReport(reportId: string): Promise<FraudReportDocument> {
+  async getReport(reportId: any) {
     const report = await this.reportRepository.findDetailedById(reportId);
 
     if (!report) {
@@ -64,12 +57,12 @@ export class ReportService {
    * @param userId Creator Analyst User ObjectId string (null for all)
    * @param query Request query filters mapping
    */
-  public async listReports(userId: string | null, query: Record<string, unknown> = {}): Promise<any> {
+  async listReports(userId: any, query: Record<string, any> = {}) {
     const { page, limit, skip } = parsePagination(query);
     const filters = {
-      riskLevel: query.riskLevel as string | undefined,
-      decision: query.decision as string | undefined,
-      search: query.search as string | undefined,
+      riskLevel: query.riskLevel,
+      decision: query.decision,
+      search: query.search,
       minRiskScore: query.minRiskScore !== undefined ? Number(query.minRiskScore) : undefined,
       maxRiskScore: query.maxRiskScore !== undefined ? Number(query.maxRiskScore) : undefined,
     };
@@ -91,17 +84,14 @@ export class ReportService {
    * @param reportId Report ObjectId string
    * @param userId Creator Analyst User ObjectId string
    */
-  public async deleteReport(reportId: string, userId: string): Promise<FraudReportDocument> {
-    const report = await this.reportRepository.findOne({
-      _id: reportId,
-      analyst: userId,
-    });
+  async deleteReport(reportId: any, userId: any) {
+    const report = await this.reportRepository.findOne({ _id: reportId, analyst: userId });
 
     if (!report) {
       throw new NotFoundError("Report");
     }
 
-    await this.reportRepository.deleteById(report._id as string);
+    await this.reportRepository.deleteById(report._id);
     return report;
   }
 
@@ -112,18 +102,18 @@ export class ReportService {
    * @param reviewer Reviewer User document context
    * @param payload Decision and comments fields
    */
-  public async reviewReport(reportId: string, reviewer: any, payload: Record<string, unknown> = {}): Promise<FraudReportDocument> {
+  async reviewReport(reportId: any, reviewer: any, payload: Record<string, any> = {}) {
     if (!["admin", "manager"].includes(reviewer.role)) {
       throw new ForbiddenError("Only admin or manager users can review reports");
     }
 
-    if (!REVIEW_DECISIONS.includes(payload.decision as any)) {
+    if (!REVIEW_DECISIONS.includes(payload.decision)) {
       throw new ForbiddenError("Unsupported review decision");
     }
 
     const report = await this.getReport(reportId);
-    report.decision = payload.decision as any;
-    report.reviewNotes = (payload.notes as string) || "";
+    report.decision = payload.decision;
+    report.reviewNotes = payload.notes || "";
     report.reviewedBy = reviewer._id;
     report.reviewedAt = new Date();
     await report.save();
@@ -134,7 +124,7 @@ export class ReportService {
    * Build basic PDF file content layout representing fraud report
    * @param reportId Report ObjectId string
    */
-  public async buildDownload(reportId: string): Promise<{ fileName: string; buffer: Buffer }> {
+  async buildDownload(reportId: any) {
     const report = await this.getReport(reportId);
 
     return {
@@ -143,5 +133,3 @@ export class ReportService {
     };
   }
 }
-
-export default ReportService;

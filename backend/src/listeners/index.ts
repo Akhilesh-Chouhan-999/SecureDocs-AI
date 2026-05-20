@@ -1,12 +1,11 @@
-import type EventEmitter from "events";
-import { JOB_EVENTS } from "../events";
-import { logger } from "../logs";
+import { JOB_EVENTS } from "../events.js";
+import { logger } from "../logs.js";
 
 /**
  * Register structured console logger outputs to respond to async job status events
  * @param emitter Job lifecycle events emitter instance
  */
-export const registerJobListeners = (emitter: EventEmitter): EventEmitter => {
+const registerJobListeners = (emitter) => {
   emitter.on(JOB_EVENTS.CREATED, (job) => {
     logger.info("Job created", { jobId: job.id, status: job.status });
   });
@@ -34,6 +33,5 @@ export const registerJobListeners = (emitter: EventEmitter): EventEmitter => {
   return emitter;
 };
 
-export default {
-  registerJobListeners,
-};
+export { registerJobListeners,
+ };

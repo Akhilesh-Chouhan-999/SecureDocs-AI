@@ -4,15 +4,14 @@ import env from "../config/env";
 import { AuthError, ValidationError } from "../errors";
 import { signAccessToken, signRefreshToken } from "../utils/tokens";
 import { sanitizeUser } from "../domain/entities";
-import type { UserRepository } from "../repositories/user.repository";
 
 /**
  * Service orchestrating authentication flows (login, register, token refresh)
  */
 export class AuthService {
-  private userRepository: UserRepository;
+  private userRepository: any;
 
-  constructor(userRepository: UserRepository) {
+  constructor(userRepository: any) {
     this.userRepository = userRepository;
   }
 
@@ -20,7 +19,7 @@ export class AuthService {
    * Register a new user
    * @param data User signup field payload
    */
-  public async register(data: any): Promise<any> {
+  async register(data: any) {
     const existingUser = await this.userRepository.findByEmail(data.email);
 
     if (existingUser) {
@@ -40,7 +39,7 @@ export class AuthService {
    * Log in an existing user verifying password hash matches
    * @param credentials User email and password credentials
    */
-  public async login({ email, password }: any): Promise<any> {
+  async login({ email, password }: { email: string; password: string }) {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
@@ -64,9 +63,9 @@ export class AuthService {
    * Refresh session tokens verifying validity of refresh token signature
    * @param refreshToken Signed refresh token string
    */
-  public async refresh(refreshToken: string): Promise<any> {
+  async refresh(refreshToken: string) {
     try {
-      const decoded = jwt.verify(refreshToken, env.refreshTokenSecret) as { userId: string };
+      const decoded: any = jwt.verify(refreshToken, env.refreshTokenSecret);
       const user = await this.userRepository.findById(decoded.userId);
 
       if (!user) {
@@ -78,10 +77,7 @@ export class AuthService {
         refreshToken: signRefreshToken(user),
       };
     } catch (error) {
-      if (error instanceof AuthError) {
-        throw error;
-      }
-
+      if (error instanceof AuthError) throw error;
       throw new AuthError("Invalid refresh token");
     }
   }
@@ -90,9 +86,7 @@ export class AuthService {
    * Get sanitized profiles payload
    * @param user The logged-in user db instance
    */
-  public getProfile(user: any): any {
+  getProfile(user: any) {
     return sanitizeUser(user);
   }
 }
-
-export default AuthService;

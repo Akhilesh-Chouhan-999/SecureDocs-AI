@@ -4,6 +4,5 @@ const analysisPrompts = {
   report: "Summarize fraud risk clearly for a human analyst.",
 };
 
-module.exports = {
-  analysisPrompts,
-};
+export { analysisPrompts,
+ };

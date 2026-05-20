@@ -1,11 +1,10 @@
-import BaseRepository from "./base.repository";
-import { Document } from "../infrastructure/database/models";
-import type { DocumentDocument, ListFilters, PaginationParams } from "../types/domain";
+import { BaseRepository } from "./base.repository";
+import Document from "../infrastructure/database/models/Document";
 
 /**
  * Repository layer handling Document persistence operations
  */
-export class DocumentRepository extends BaseRepository<DocumentDocument> {
+export class DocumentRepository extends BaseRepository {
   constructor() {
     super(Document);
   }
@@ -15,7 +14,7 @@ export class DocumentRepository extends BaseRepository<DocumentDocument> {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async findOwnedById(documentId: string, userId: string): Promise<DocumentDocument | null> {
+  async findOwnedById(documentId: any, userId: any) {
     return this.model.findOne({ _id: documentId, user: userId }).exec();
   }
 
@@ -23,7 +22,7 @@ export class DocumentRepository extends BaseRepository<DocumentDocument> {
    * Look up all documents belonging to a user sorted newest first
    * @param userId Owner User ObjectId string
    */
-  public async findByUser(userId: string): Promise<DocumentDocument[]> {
+  async findByUser(userId: any) {
     return this.model.find({ user: userId }).sort({ createdAt: -1 }).exec();
   }
 
@@ -33,17 +32,10 @@ export class DocumentRepository extends BaseRepository<DocumentDocument> {
    * @param filters Key value filters mapping (status, search term)
    * @param pagination Page, limit, skip parameters
    */
-  public async searchByUser(
-    userId: string,
-    filters: ListFilters = {},
-    pagination: PaginationParams = { page: 1, limit: 10, skip: 0 },
-  ): Promise<DocumentDocument[]> {
-    const query: any = { user: userId };
+  async searchByUser(userId: any, filters: Record<string, any> = {}, pagination = { page: 1, limit: 10, skip: 0 }) {
+    const query: Record<string, any> = { user: userId };
 
-    if (filters.status) {
-      query.status = filters.status;
-    }
-
+    if (filters.status) query.status = filters.status;
     if (filters.search) {
       query.$or = [
         { fileName: { $regex: filters.search, $options: "i" } },
@@ -65,13 +57,10 @@ export class DocumentRepository extends BaseRepository<DocumentDocument> {
    * @param userId Owner User ObjectId string
    * @param filters Filter constraints mapping
    */
-  public async countByUser(userId: string, filters: ListFilters = {}): Promise<number> {
-    const query: any = { user: userId };
+  async countByUser(userId: any, filters: Record<string, any> = {}) {
+    const query: Record<string, any> = { user: userId };
 
-    if (filters.status) {
-      query.status = filters.status;
-    }
-
+    if (filters.status) query.status = filters.status;
     if (filters.search) {
       query.$or = [
         { fileName: { $regex: filters.search, $options: "i" } },
@@ -83,5 +72,3 @@ export class DocumentRepository extends BaseRepository<DocumentDocument> {
     return this.model.countDocuments(query).exec();
   }
 }
-
-export default DocumentRepository;

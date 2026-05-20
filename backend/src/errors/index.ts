@@ -1,5 +1,5 @@
-export * from "./AppError";
-export * from "./AuthError";
-export * from "./ForbiddenError";
-export * from "./NotFoundError";
-export * from "./ValidationError";
+export { AppError } from "./AppError";
+export { AuthError } from "./AuthError";
+export { ForbiddenError } from "./ForbiddenError";
+export { NotFoundError } from "./NotFoundError";
+export { ValidationError } from "./ValidationError";

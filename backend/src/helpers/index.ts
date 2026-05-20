@@ -1,9 +1,9 @@
-const compactObject = (input = {}) =>
+export const compactObject = (input: Record<string, any> = {}) =>
   Object.fromEntries(
     Object.entries(input).filter(([, value]) => value !== undefined),
   );
 
-const truncateText = (value: string | null | undefined, maxLength = 180) => {
+export const truncateText = (value: any, maxLength = 180) => {
   const text = String(value || "")
     .replace(/\s+/g, " ")
     .trim();
@@ -15,8 +15,6 @@ const truncateText = (value: string | null | undefined, maxLength = 180) => {
   return `${text.slice(0, maxLength - 3).trim()}...`;
 };
 
-const uniqueStrings = (values: string[] = []) => [
+export const uniqueStrings = (values: any[] = []): string[] => [
   ...new Set(values.filter(Boolean)),
 ];
-
-export { compactObject, truncateText, uniqueStrings };

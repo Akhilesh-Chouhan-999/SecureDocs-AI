@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (this: any, next: Function) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -43,11 +43,11 @@ userSchema.pre("save", async function (next) {
 });
 
 // Update `updatedAt` field before saving
-userSchema.pre("save", function (next) {
+userSchema.pre("save", function (this: any, next: Function) {
   this.updatedAt = new Date();
   next();
 });
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User;
+export default User;

@@ -1,4 +1,4 @@
-const createKeywordFingerprint = (text) => {
+const createKeywordFingerprint = (text ) => {
   const tokens = String(text || "")
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
@@ -11,6 +11,5 @@ const createKeywordFingerprint = (text) => {
   }, {});
 };
 
-module.exports = {
-  createKeywordFingerprint,
-};
+export { createKeywordFingerprint,
+ };

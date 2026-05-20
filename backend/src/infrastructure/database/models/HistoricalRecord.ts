@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const historicalRecordSchema = new mongoose.Schema({
   key: {
@@ -24,4 +24,4 @@ const HistoricalRecord = mongoose.model(
   historicalRecordSchema,
 );
 
-module.exports = HistoricalRecord;
+export default HistoricalRecord;

@@ -1,12 +1,11 @@
 import { JOB_STATUSES } from "../../../constants";
 import { updateJobRecord } from "../../../jobs";
-import type { JobRecord } from "../../../types/domain";
 
 /**
  * Patch job status to PROCESSING and set started timestamp
  * @param job In-memory job record
  */
-export const markJobProcessing = (job: JobRecord): JobRecord =>
+export const markJobProcessing = (job: any) =>
   updateJobRecord(job, JOB_STATUSES.PROCESSING, {
     startedAt: new Date().toISOString(),
   });
@@ -16,7 +15,7 @@ export const markJobProcessing = (job: JobRecord): JobRecord =>
  * @param job In-memory job record
  * @param result Processing result data
  */
-export const markJobCompleted = (job: JobRecord, result: any = {}): JobRecord =>
+export const markJobCompleted = (job: any, result: Record<string, any> = {}) =>
   updateJobRecord(job, JOB_STATUSES.COMPLETED, {
     completedAt: new Date().toISOString(),
     result,
@@ -27,7 +26,7 @@ export const markJobCompleted = (job: JobRecord, result: any = {}): JobRecord =>
  * @param job In-memory job record
  * @param error Thrown error object context
  */
-export const markJobFailed = (job: JobRecord, error: any): JobRecord =>
+export const markJobFailed = (job: any, error: any) =>
   updateJobRecord(job, JOB_STATUSES.FAILED, {
     failedAt: new Date().toISOString(),
     error: {
@@ -40,15 +39,8 @@ export const markJobFailed = (job: JobRecord, error: any): JobRecord =>
  * @param job In-memory job record
  * @param reason Human readable cancellation notes
  */
-export const markJobCanceled = (job: JobRecord, reason: string = "Canceled by user"): JobRecord =>
+export const markJobCanceled = (job: any, reason = "Canceled by user") =>
   updateJobRecord(job, JOB_STATUSES.CANCELED, {
     canceledAt: new Date().toISOString(),
     result: { message: reason },
   });
-
-export default {
-  markJobProcessing,
-  markJobCompleted,
-  markJobFailed,
-  markJobCanceled,
-};

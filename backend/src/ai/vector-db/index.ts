@@ -13,6 +13,5 @@ const compareFingerprints = (left = {}, right = {}) => {
   return Number((score / sharedKeys.length).toFixed(2));
 };
 
-module.exports = {
-  compareFingerprints,
-};
+export { compareFingerprints,
+ };

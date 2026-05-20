@@ -5,6 +5,5 @@ const buildCorpusEntry = (document, text) => ({
   createdAt: document.createdAt,
 });
 
-module.exports = {
-  buildCorpusEntry,
-};
+export { buildCorpusEntry,
+ };

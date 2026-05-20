@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const fraudReportSchema = new mongoose.Schema({
   document: {
@@ -87,4 +87,4 @@ const fraudReportSchema = new mongoose.Schema({
 
 const FraudReport = mongoose.model("FraudReport", fraudReportSchema);
 
-module.exports = FraudReport;
+export default FraudReport;

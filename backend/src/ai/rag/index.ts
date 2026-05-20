@@ -1,5 +1,5 @@
-const { createKeywordFingerprint } = require("../embeddings");
-const { compareFingerprints } = require("../vector-db");
+import { createKeywordFingerprint } from "../embeddings.js";
+import { compareFingerprints } from "../vector-db.js";
 
 const buildHistoricalContext = (text, historicalRecords = []) => {
   const currentFingerprint = createKeywordFingerprint(text);
@@ -20,6 +20,5 @@ const buildHistoricalContext = (text, historicalRecords = []) => {
     .slice(0, 3);
 };
 
-module.exports = {
-  buildHistoricalContext,
-};
+export { buildHistoricalContext,
+ };

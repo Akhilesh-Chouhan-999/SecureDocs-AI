@@ -1,20 +1,15 @@
 import crypto from "crypto";
-import { JOB_STATUSES, JOB_TYPES } from "../constants";
-import type { JobRecord } from "../types/domain";
+import { JOB_STATUSES, JOB_TYPES } from "../constants.js";
 
 /**
  * Instantiate an in-memory job tracker object
  * @param params Context parameters (type, documentId, userId)
  */
-export const createJobRecord = ({
+const createJobRecord = ({
   type = JOB_TYPES.ANALYSIS,
   documentId,
   userId,
-}: {
-  type?: "analysis";
-  documentId: string;
-  userId: string;
-}): JobRecord => ({
+}) => ({
   id: crypto.randomUUID(),
   type,
   status: JOB_STATUSES.QUEUED,
@@ -30,18 +25,13 @@ export const createJobRecord = ({
  * @param status New job lifecycle status to set
  * @param patch Suffix property overrides to merge
  */
-export const updateJobRecord = (
-  job: JobRecord,
-  status: JobRecord["status"],
-  patch: Partial<JobRecord> = {},
-): JobRecord => ({
+const updateJobRecord = (job, status, patch = {}) => ({
   ...job,
   ...patch,
   status,
   updatedAt: new Date().toISOString(),
 });
 
-export default {
-  createJobRecord,
+export { createJobRecord,
   updateJobRecord,
-};
+ };

@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
-import env from "../config/env";
+import env from "../config/env.js";
 
 /**
  * Generate a JWT access token for a user session
  * @param user The user object containing id, email, and role
  */
-export const signAccessToken = (user: { _id: unknown; email: string; role: string }): string => {
+export const signAccessToken = (user: any) => {
   return jwt.sign(
     {
       userId: user._id,
@@ -21,7 +21,7 @@ export const signAccessToken = (user: { _id: unknown; email: string; role: strin
  * Generate a JWT refresh token for session renewals
  * @param user The user object containing id
  */
-export const signRefreshToken = (user: { _id: unknown }): string => {
+export const signRefreshToken = (user: any) => {
   return jwt.sign(
     {
       userId: user._id,
@@ -36,5 +36,3 @@ export const tokens = {
   signAccessToken,
   signRefreshToken,
 };
-
-export default tokens;

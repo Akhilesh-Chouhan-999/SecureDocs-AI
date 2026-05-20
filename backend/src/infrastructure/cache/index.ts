@@ -1,18 +1,14 @@
-const cacheStore = new Map();
+const cacheStore = new Map<string, any>();
 
-const memoryCache = {
-  get(key) {
+export const memoryCache = {
+  get(key: string) {
     return cacheStore.get(key);
   },
-  set(key, value) {
+  set(key: string, value: any) {
     cacheStore.set(key, value);
     return value;
   },
   clear() {
     cacheStore.clear();
   },
-};
-
-module.exports = {
-  memoryCache,
 };

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const documentSchema = new mongoose.Schema({
   user: {
@@ -52,11 +52,11 @@ const documentSchema = new mongoose.Schema({
   },
 });
 
-documentSchema.pre("save", function (next) {
+documentSchema.pre("save", function (this: any, next: Function) {
   this.updatedAt = new Date();
   next();
 });
 
 const Document = mongoose.model("Document", documentSchema);
 
-module.exports = Document;
+export default Document;

@@ -1,10 +1,8 @@
-import type { SanitizedUser, DocumentSummary, ReportSummary } from "../../types/domain";
-
 /**
  * Sanitize user entity for safe external API outputs
  * @param user User model object from Mongoose/DB
  */
-export const sanitizeUser = (user: any): SanitizedUser => ({
+export const sanitizeUser = (user: any) => ({
   id: user._id,
   email: user.email,
   organization: user.organization,
@@ -15,7 +13,7 @@ export const sanitizeUser = (user: any): SanitizedUser => ({
  * Format document db entity into metadata summary response
  * @param document Document model object
  */
-export const toDocumentSummary = (document: any): DocumentSummary => ({
+export const toDocumentSummary = (document: any) => ({
   id: document._id,
   fileName: document.fileName,
   fileType: document.fileType,
@@ -30,7 +28,7 @@ export const toDocumentSummary = (document: any): DocumentSummary => ({
  * Format fraud report db entity into summary response metadata
  * @param report Fraud report model object
  */
-export const toReportSummary = (report: any): ReportSummary => ({
+export const toReportSummary = (report: any) => ({
   id: report._id,
   riskScore: report.riskScore,
   riskLevel: report.riskLevel,
@@ -44,5 +42,3 @@ export const entities = {
   toDocumentSummary,
   toReportSummary,
 };
-
-export default entities;

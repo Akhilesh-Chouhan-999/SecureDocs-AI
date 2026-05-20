@@ -2,11 +2,11 @@
  * Base operational application error class
  */
 export class AppError extends Error {
-  public readonly statusCode: number;
-  public readonly status: number;
-  public readonly code: string;
-  public readonly details: unknown;
-  public readonly isOperational: boolean;
+  public statusCode: number;
+  public status: number;
+  public code: string;
+  public details: any;
+  public isOperational: boolean;
 
   /**
    * @param message Error message
@@ -14,12 +14,7 @@ export class AppError extends Error {
    * @param code App-specific error code string
    * @param details Additional error details context
    */
-  constructor(
-    message: string,
-    statusCode: number = 500,
-    code: string = "APP_ERROR",
-    details: unknown = null,
-  ) {
+  constructor(message: string, statusCode = 500, code = "APP_ERROR", details: any = null) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;

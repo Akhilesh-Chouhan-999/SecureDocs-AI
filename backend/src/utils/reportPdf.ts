@@ -2,7 +2,7 @@
  * Escape text characters that could corrupt PDF stream syntax
  * @param value Text block to escape
  */
-const escapePdfText = (value: string = ""): string =>
+const escapePdfText = (value = "") =>
   String(value)
     .replace(/\\/g, "\\\\")
     .replace(/\(/g, "\\(")
@@ -13,7 +13,7 @@ const escapePdfText = (value: string = ""): string =>
  * Basic pure PDF generator creating Helvetica page stream
  * @param lines Text lines to display
  */
-const renderPdfBuffer = (lines: string[] = []): Buffer => {
+const renderPdfBuffer = (lines = []) => {
   const sanitizedLines = lines.filter(Boolean);
   const body = sanitizedLines
     .map((line, index) => `BT /F1 12 Tf 50 ${770 - index * 18} Td (${escapePdfText(line)}) Tj ET`)
@@ -52,7 +52,7 @@ const renderPdfBuffer = (lines: string[] = []): Buffer => {
  * Generate a PDF document report buffer from FraudReportEntity details
  * @param report The fraud report object context
  */
-export const buildReportPdf = (report: any): Buffer => {
+const buildReportPdf = (report) => {
   const lines = [
     "SecureDocs AI Fraud Report",
     `Report ID: ${report._id}`,
@@ -68,10 +68,10 @@ export const buildReportPdf = (report: any): Buffer => {
     report.summary || "No summary available",
     "",
     "Recommendations:",
-    ...(report.recommendations || []).map((item: string, index: number) => `${index + 1}. ${item}`),
+    ...(report.recommendations || []).map((item, index) => `${index + 1}. ${item}`),
     "",
     "Anomalies:",
-    ...((report.anomalies || []).map((anomaly: any, index: number) =>
+    ...((report.anomalies || []).map((anomaly, index) =>
       `${index + 1}. [${anomaly.severity}] ${anomaly.type} - ${anomaly.description}`,
     )),
   ];
@@ -79,8 +79,10 @@ export const buildReportPdf = (report: any): Buffer => {
   return renderPdfBuffer(lines);
 };
 
-export const reportPdf = {
+const reportPdf = {
   buildReportPdf,
 };
 
-export default reportPdf;
+export { buildReportPdf,
+  reportPdf,
+ };

@@ -2,25 +2,22 @@ import fs from "fs";
 import path from "path";
 import Tesseract from "tesseract.js";
 import pdfParse from "pdf-parse";
-import { env } from "../config";
+import env from "../config/env";
 import { NotFoundError, ValidationError } from "../errors";
 import { DOCUMENT_STATUSES } from "../constants";
 import { buildRiskAssessment } from "../domain/usecases";
 import { normalizeHistoricalRecords } from "../infrastructure/ai/tools";
 import { runDocumentAnalysisWorkflow } from "../ai/workflows";
 import { logger } from "../logs";
-import type { DocumentService } from "./document.service";
-import type { HistoricalRepository } from "../repositories/historical.repository";
-import type { DocumentDocument } from "../types/domain";
 
 /**
  * Service orchestrating Document OCR parsing pipelines and fraud heuristics workflows
  */
 export class AnalysisService {
-  private documentService: DocumentService;
-  private historicalRepository: HistoricalRepository;
+  private documentService: any;
+  private historicalRepository: any;
 
-  constructor(documentService: DocumentService, historicalRepository: HistoricalRepository) {
+  constructor(documentService: any, historicalRepository: any) {
     this.documentService = documentService;
     this.historicalRepository = historicalRepository;
   }
@@ -31,7 +28,7 @@ export class AnalysisService {
    * @param documentId Target Document ObjectId string
    * @param userId Creator Analyst User ObjectId string
    */
-  public async analyzeDocument(documentId: string, userId: string): Promise<any> {
+  async analyzeDocument(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
     document.status = DOCUMENT_STATUSES.PROCESSING;
     await document.save();
@@ -56,9 +53,9 @@ export class AnalysisService {
         historicalContext: workflow.historicalContext,
         status: DOCUMENT_STATUSES.COMPLETED,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       document.status = DOCUMENT_STATUSES.FAILED;
-      document.statusMessage = error.message;
+      document.statusMessage = error instanceof Error ? error.message : String(error);
       await document.save();
       throw error;
     }
@@ -69,7 +66,7 @@ export class AnalysisService {
    * @param documentId Target Document ObjectId string
    * @param userId Creator Analyst User ObjectId string
    */
-  public async extractOcr(documentId: string, userId: string): Promise<any> {
+  async extractOcr(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
     document.status = DOCUMENT_STATUSES.PROCESSING;
     await document.save();
@@ -94,9 +91,9 @@ export class AnalysisService {
           structuredData: workflow.structuredData,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       document.status = DOCUMENT_STATUSES.FAILED;
-      document.statusMessage = error.message;
+      document.statusMessage = error instanceof Error ? error.message : String(error);
       await document.save();
       throw error;
     }
@@ -107,9 +104,8 @@ export class AnalysisService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async getStatus(documentId: string, userId: string): Promise<any> {
+  async getStatus(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
-
     return {
       documentId: document._id,
       status: document.status,
@@ -123,7 +119,7 @@ export class AnalysisService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async getResults(documentId: string, userId: string): Promise<any> {
+  async getResults(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
 
     if (!document.ocrText) {
@@ -144,7 +140,7 @@ export class AnalysisService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async detectAnomaly(documentId: string, userId: string): Promise<any[]> {
+  async detectAnomaly(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
 
     if (!document.ocrText) {
@@ -172,9 +168,8 @@ export class AnalysisService {
    * @param documentId Document ObjectId string
    * @param userId Owner User ObjectId string
    */
-  public async calculateRiskScore(documentId: string, userId: string): Promise<any> {
+  async calculateRiskScore(documentId: any, userId: any) {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
-
     const text = document.ocrText || (await this.performOCRAnalysis(document.filePath)).text;
     const workflow = await this.runWorkflow(document, text);
     const assessment = buildRiskAssessment(workflow.anomalies);
@@ -190,14 +185,13 @@ export class AnalysisService {
   /**
    * Real OCR execution using Tesseract.js (images) or pdf-parse (PDF documents).
    * Validates result confidence levels (rejecting documents with < 80% confidence).
-   * Logs execution time to console/logger.
    * @param filePath Local path to file
    */
-  public async performOCRAnalysis(filePath: string): Promise<any> {
+  async performOCRAnalysis(filePath: string) {
     const extension = path.extname(String(filePath || "")).toLowerCase();
     const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".bmp"]);
-
     const startTime = Date.now();
+
     logger.info("OCR analysis started", { filePath });
 
     try {
@@ -208,25 +202,15 @@ export class AnalysisService {
         const dataBuffer = fs.readFileSync(filePath);
         const parsedData = await pdfParse(dataBuffer);
         const duration = Date.now() - startTime;
-        logger.info("OCR analysis completed (PDF text extraction)", {
-          filePath,
-          durationMs: duration,
-          confidence: 1.0,
-        });
+        logger.info("OCR analysis completed (PDF text extraction)", { filePath, durationMs: duration, confidence: 1.0 });
 
-        return {
-          text: parsedData.text || "",
-          confidence: 1.0,
-          warning: null,
-          words: [],
-          structuredData: {},
-        };
+        return { text: parsedData.text || "", confidence: 1.0, warning: null, words: [] as string[], structuredData: {} };
+
       } else if (imageExtensions.has(extension)) {
         if (!fs.existsSync(filePath)) {
           throw new NotFoundError(`File not found: ${filePath}`);
         }
 
-        // Run Tesseract OCR recognize on file path directly
         const result = await Tesseract.recognize(filePath, "eng");
         const text = String(result.data.text || "").trim();
         const confidence = Number(result.data.confidence || 0) / 100;
@@ -235,30 +219,17 @@ export class AnalysisService {
           .filter(Boolean);
 
         const duration = Date.now() - startTime;
-        logger.info("OCR analysis completed (Tesseract image)", {
-          filePath,
-          durationMs: duration,
-          confidence,
-        });
+        logger.info("OCR analysis completed (Tesseract image)", { filePath, durationMs: duration, confidence });
 
-        // Confidence threshold validation (>= 80%)
         if (confidence < 0.80) {
-          throw new ValidationError("OCR confidence is too low (less than 80%)", {
-            confidence,
-            filePath,
-          });
+          throw new ValidationError("OCR confidence is too low (less than 80%)", { confidence, filePath });
         }
 
-        return {
-          text,
-          confidence,
-          warning: null,
-          words,
-          structuredData: {},
-        };
+        return { text, confidence, warning: null, words, structuredData: {} };
       }
-    } catch (error: any) {
-      logger.error("OCR analysis failed", { filePath, error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error("OCR analysis failed", { filePath, error: message });
       throw error;
     }
 
@@ -275,7 +246,7 @@ export class AnalysisService {
       text,
       confidence: 0.92,
       warning: "OCR fallback response used because a supported format or engine was not available.",
-      words: [],
+      words: [] as string[],
       structuredData: {},
     };
   }
@@ -285,23 +256,11 @@ export class AnalysisService {
    * @param document Document db object
    * @param text OCR extracted text block
    */
-  private async runWorkflow(document: DocumentDocument, text: string): Promise<any> {
+  async runWorkflow(document: any, text: string) {
     const historicalRecords = normalizeHistoricalRecords(
-      await this.historicalRepository.findAll(
-        {},
-        {
-          sort: { createdAt: -1 },
-          limit: 5,
-        },
-      ),
+      await this.historicalRepository.findAll({}, { sort: { createdAt: -1 }, limit: 5 }),
     );
 
-    return runDocumentAnalysisWorkflow({
-      document,
-      text,
-      historicalRecords,
-    });
+    return runDocumentAnalysisWorkflow({ document, text, historicalRecords });
   }
 }
-
-export default AnalysisService;

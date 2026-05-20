@@ -13,6 +13,5 @@ const parseDocumentText = (text) => {
   };
 };
 
-module.exports = {
-  parseDocumentText,
-};
+export { parseDocumentText,
+ };
