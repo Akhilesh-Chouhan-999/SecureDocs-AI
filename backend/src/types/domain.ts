@@ -7,7 +7,12 @@ export type UserRole = "analyst" | "admin" | "manager";
 export type DocumentStatus = "pending" | "processing" | "completed" | "failed";
 
 /** Current lifecycle status of an async job */
-export type JobStatus = "queued" | "processing" | "completed" | "failed" | "canceled";
+export type JobStatus =
+  | "queued"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "canceled";
 
 /** Type of async job */
 export type JobType = "analysis";
@@ -16,7 +21,11 @@ export type JobType = "analysis";
 export type RiskLevel = "low" | "medium" | "high" | "critical";
 
 /** Allowed decisions when reviewing a fraud report */
-export type ReviewDecision = "pending" | "approved" | "rejected" | "manual_review";
+export type ReviewDecision =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "manual_review";
 
 /** Extracted key value segments from document */
 export interface StructuredDocumentData {
@@ -38,6 +47,7 @@ export interface UserEntity {
 
 /** Document record database model */
 export interface DocumentEntity {
+  _id?: Types.ObjectId | string;
   user: Types.ObjectId | string;
   fileName: string;
   filePath: string;

@@ -13,6 +13,7 @@ export class AnalysisController {
    * @param next Next middleware function
    */
   public static async analyzeDocument(req: any, res: Response, next: NextFunction): Promise<any> {
+    
     try {
       const analysis = await container
         .get("analysisService")

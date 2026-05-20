@@ -1,5 +1,10 @@
 import { RISK_LEVELS } from "../../constants";
-import type { FraudAnomaly, RiskAssessment, StructuredDocumentData } from "../../types/domain";
+import type {
+  FraudAnomaly,
+  RiskAssessment,
+  StructuredDocumentData,
+  RiskLevel,
+} from "../../types/domain";
 
 /**
  * Run heuristic rule analysis against raw text, segments, and historical matches
@@ -25,7 +30,8 @@ export const detectFraudSignals = ({
       description: "Potential ownership inconsistency detected.",
       affectedField: "ownership",
       confidence: 0.78,
-      suggestedAction: "Compare borrower and ownership details against historical records.",
+      suggestedAction:
+        "Compare borrower and ownership details against historical records.",
     });
   }
 
@@ -36,7 +42,8 @@ export const detectFraudSignals = ({
     anomalies.push({
       type: "income_verification",
       severity: "medium",
-      description: "Declared income is high enough to require source validation.",
+      description:
+        "Declared income is high enough to require source validation.",
       affectedField: "income",
       confidence: 0.67,
       suggestedAction: "Verify income through bank statements or tax records.",
@@ -50,7 +57,8 @@ export const detectFraudSignals = ({
       description: "Borrower name could not be extracted from the document.",
       affectedField: "borrowerName",
       confidence: 0.61,
-      suggestedAction: "Review scan quality or provide a clearer source document.",
+      suggestedAction:
+        "Review scan quality or provide a clearer source document.",
     });
   }
 
@@ -58,7 +66,8 @@ export const detectFraudSignals = ({
     anomalies.push({
       type: "historical_overlap",
       severity: "low",
-      description: "Similar values appear in historical records and should be reviewed.",
+      description:
+        "Similar values appear in historical records and should be reviewed.",
       affectedField: "historical",
       confidence: 0.58,
       suggestedAction: "Cross-check the document against previous submissions.",
@@ -73,7 +82,9 @@ export const detectFraudSignals = ({
  * based on flagged anomalies.
  * @param anomalies List of flagged document anomalies
  */
-export const buildRiskAssessment = (anomalies: FraudAnomaly[] = []): RiskAssessment => {
+export const buildRiskAssessment = (
+  anomalies: FraudAnomaly[] = [],
+): RiskAssessment => {
   const severityWeights = {
     critical: 50,
     high: 35,
@@ -91,7 +102,7 @@ export const buildRiskAssessment = (anomalies: FraudAnomaly[] = []): RiskAssessm
     100,
   );
 
-  let riskLevel = RISK_LEVELS[0]; // "low"
+  let riskLevel: RiskLevel = RISK_LEVELS[0]; // "low"
 
   if (riskScore >= 81) {
     riskLevel = "critical";

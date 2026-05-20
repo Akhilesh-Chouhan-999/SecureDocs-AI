@@ -4,18 +4,18 @@
     "module": "Node16",
     "moduleResolution": "node16",
     "lib": ["ES2022"],
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["node", "jest"],
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }

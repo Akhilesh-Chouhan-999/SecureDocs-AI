@@ -3,8 +3,10 @@ const compactObject = (input = {}) =>
     Object.entries(input).filter(([, value]) => value !== undefined),
   );
 
-const truncateText = (value, maxLength = 180) => {
-  const text = String(value || "").replace(/\s+/g, " ").trim();
+const truncateText = (value: string | null | undefined, maxLength = 180) => {
+  const text = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
 
   if (text.length <= maxLength) {
     return text;
@@ -13,10 +15,8 @@ const truncateText = (value, maxLength = 180) => {
   return `${text.slice(0, maxLength - 3).trim()}...`;
 };
 
-const uniqueStrings = (values = []) => [...new Set(values.filter(Boolean))];
+const uniqueStrings = (values: string[] = []) => [
+  ...new Set(values.filter(Boolean)),
+];
 
-module.exports = {
-  compactObject,
-  truncateText,
-  uniqueStrings,
-};
+export { compactObject, truncateText, uniqueStrings };
