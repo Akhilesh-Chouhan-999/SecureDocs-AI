@@ -1,0 +1,198 @@
+{
+  "info": {
+    "_postman_id": "secure-docs-ai-auth",
+    "name": "SecureDocs AI - Authentication API",
+    "description": "Complete authentication API collection for SecureDocs AI\n\nIncludes:\n- User Registration\n- Login\n- Token Refresh\n- Logout\n- Profile Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set('accessToken', jsonData.data.token);",
+              "    pm.environment.set('refreshToken', jsonData.data.refreshToken);",
+              "    pm.environment.set('userId', jsonData.data.user.id);",
+              "    console.log('✓ Registration successful');",
+              "    console.log('Access Token saved:', jsonData.data.token.substring(0, 20) + '...');",
+              "    console.log('Refresh Token saved:', jsonData.data.refreshToken.substring(0, 20) + '...');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"name\": \"John Doe\",\n  \"company\": \"Acme Corp\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Register a new user account\n\n**Required Fields:**\n- email: User email address (must be unique)\n- password: User password (min 8 chars, must include uppercase, lowercase, number, special char)\n- name: User full name\n\n**Optional Fields:**\n- company: Company name\n- role: User role (default: user)\n\n**Response:**\n- user: Sanitized user object\n- token: JWT access token\n- refreshToken: JWT refresh token for obtaining new access tokens"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set('accessToken', jsonData.data.token);",
+              "    pm.environment.set('refreshToken', jsonData.data.refreshToken);",
+              "    pm.environment.set('userId', jsonData.data.user.id);",
+              "    console.log('✓ Login successful');",
+              "    console.log('User:', jsonData.data.user.name);",
+              "    console.log('Tokens saved to environment');",
+              "} else {",
+              "    console.log('✗ Login failed:', pm.response.status);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Login with email and password\n\n**Required Fields:**\n- email: User email address\n- password: User password\n\n**Response:**\n- user: Sanitized user object\n- token: JWT access token (expires in 1 hour)\n- refreshToken: JWT refresh token (expires in 7 days)\n\n**Auto-saves tokens** to environment variables for use in other requests"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "profile"]
+        },
+        "description": "Get authenticated user profile\n\n**Required:**\n- Authorization header with valid access token\n\n**Response:**\n- user: Sanitized user object with profile information"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Refresh Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set('accessToken', jsonData.data.token);",
+              "    pm.environment.set('refreshToken', jsonData.data.refreshToken);",
+              "    console.log('✓ Token refreshed successfully');",
+              "    console.log('New tokens saved to environment');",
+              "} else {",
+              "    console.log('✗ Token refresh failed:', pm.response.status);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/refresh-token",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "refresh-token"]
+        },
+        "description": "Refresh access token using refresh token\n\n**Required:**\n- refreshToken: Valid JWT refresh token from login/register\n\n**Response:**\n- token: New JWT access token\n- refreshToken: New JWT refresh token\n\n**Auto-saves new tokens** to environment variables\n\n**Note:** Use this endpoint when access token expires (1 hour)"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "logout"]
+        },
+        "description": "Logout current user\n\n**Required:**\n- Authorization header with valid access token\n\n**Response:**\n- message: \"Logged out successfully\"\n\n**Note:** After logout, access token becomes invalid"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

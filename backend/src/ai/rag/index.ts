@@ -1,7 +1,10 @@
 import { createKeywordFingerprint } from "../embeddings/index.js";
 import { compareFingerprints } from "../vector-db/index.js";
 
-const buildHistoricalContext = (text: string, historicalRecords: any[] = []) => {
+const buildHistoricalContext = (
+  text: string,
+  historicalRecords: any[] = [],
+) => {
   const currentFingerprint = createKeywordFingerprint(text);
 
   return historicalRecords
@@ -19,5 +22,16 @@ const buildHistoricalContext = (text: string, historicalRecords: any[] = []) => 
     .sort((left: any, right: any) => right.score - left.score)
     .slice(0, 3);
 };
+
+// Phase 4: RAG Pipeline
+export {
+  getRAGPipeline,
+  closeAllRAGPipelines,
+  RAGPipeline,
+} from "./rag-pipeline.js";
+export {
+  getContextAugmentationService,
+  ContextAugmentationService,
+} from "./context-augmentation.js";
 
 export { buildHistoricalContext };

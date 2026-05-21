@@ -1,4 +1,7 @@
-const compareFingerprints = (left: Record<string, number> = {}, right: Record<string, number> = {}) => {
+const compareFingerprints = (
+  left: Record<string, number> = {},
+  right: Record<string, number> = {},
+) => {
   const sharedKeys = Object.keys(left).filter((key) => right[key]);
 
   if (sharedKeys.length === 0) {
@@ -12,5 +15,17 @@ const compareFingerprints = (left: Record<string, number> = {}, right: Record<st
 
   return Number((score / sharedKeys.length).toFixed(2));
 };
+
+// Phase 4: RAG Vector Database
+export {
+  getChromaClient,
+  closeAllChromaClients,
+  ChromaClient,
+  ChromaError,
+} from "./chroma-client.js";
+export {
+  getSimilaritySearchService,
+  SimilaritySearchService,
+} from "./similarity-search.js";
 
 export { compareFingerprints };

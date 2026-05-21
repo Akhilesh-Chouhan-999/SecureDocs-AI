@@ -10,6 +10,7 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.mongoUri);
     logger.info("MongoDB connected", { host: conn.connection.host });
+
     return conn;
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
