@@ -129,7 +129,23 @@ export class ReportService {
 
     return {
       fileName: `fraud-report-${report._id}.pdf`,
-      buffer: buildReportPdf(report),
+      buffer: await buildReportPdf(report),
+    };
+  }
+
+  /**
+   * Export anomalies to a CSV string
+   * @param reportId Report ObjectId string
+   */
+  async buildCsvExport(reportId: any) {
+    const report = await this.getReport(reportId);
+
+    const { buildCsvDownload } = await import("../utils/reportCsv.js");
+    const csvContent = buildCsvDownload(report.anomalies || []);
+
+    return {
+      fileName: `fraud-anomalies-${report._id}.csv`,
+      content: csvContent,
     };
   }
 }

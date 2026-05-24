@@ -7,9 +7,14 @@ const router = Router();
 
 router.post("/analyze", authMiddleware, validate(analysisValidators.analyze), AnalysisController.analyzeDocument);
 router.post("/ocr", authMiddleware, validate(analysisValidators.analyze), AnalysisController.extractOcr);
+router.post("/ocr/batch", authMiddleware, validate(analysisValidators.batchOcr), AnalysisController.batchExtractOcr);
 router.post("/anomalies", authMiddleware, validate(analysisValidators.analyze), AnalysisController.detectAnomaly);
 router.post("/risk-score", authMiddleware, validate(analysisValidators.riskScore), AnalysisController.calculateRiskScore);
 router.get("/status/:documentId", authMiddleware, validate(analysisValidators.documentId, "params"), AnalysisController.getStatus);
 router.get("/results/:documentId", authMiddleware, validate(analysisValidators.documentId, "params"), AnalysisController.getResults);
+
+// LangChain Agent Endpoints
+router.post("/start", authMiddleware, validate(analysisValidators.analyze), AnalysisController.startAnalysis);
+router.get("/job-status/:jobId", authMiddleware, AnalysisController.getAnalysisStatus);
 
 export default router;

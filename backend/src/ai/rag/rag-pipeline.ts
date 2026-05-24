@@ -182,7 +182,7 @@ class RAGPipeline {
       const relevanceScore =
         searchResults.length > 0
           ? Math.round(
-              (searchResults.reduce((sum, r) => sum + r.similarity, 0) /
+              (searchResults.reduce((sum: number, r: any) => sum + r.similarity, 0) /
                 searchResults.length) *
                 100,
             )
@@ -240,8 +240,9 @@ class RAGPipeline {
       await this.chromaClient.deleteDocuments(docIds);
       logger.info(`Deleted ${docIds.length} documents from RAG index`);
     } catch (error) {
-      logger.error("Failed to delete documents from RAG:", error);
-      throw error;
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Failed to delete documents from RAG:", err);
+      throw err;
     }
   }
 
@@ -253,8 +254,9 @@ class RAGPipeline {
       await this.chromaClient.clearCollection();
       logger.info("RAG index cleared");
     } catch (error) {
-      logger.error("Failed to clear RAG index:", error);
-      throw error;
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Failed to clear RAG index:", err);
+      throw err;
     }
   }
 
@@ -355,4 +357,5 @@ export function closeAllRAGPipelines(): void {
   logger.info("All RAG pipeline instances closed");
 }
 
-export { RAGPipeline, RAGPipelineConfig, RAGResult, PipelineStats };
+export { RAGPipeline };
+export type { RAGPipelineConfig, RAGResult, PipelineStats };

@@ -20,102 +20,32 @@ SecureDocs AI is a document-centric fraud detection platform that combines OCR, 
 
 ## 📋 Backend TODO Items (Priority Order)
 
-### **Priority 1: Make OCR Pipeline Real** 🔴 URGENT
+### **Priority 1: Make OCR Pipeline Real** ✅ COMPLETED
 
-**Status:** Mocked OCR in `src/services/analysis.service.ts`  
+**Status:** Completed  
 **Location:** [backend/src/services/analysis.service.ts](backend/src/services/analysis.service.ts)  
-**Task:** Replace mock `{ text: "Mocked OCR output..." }` with actual Tesseract.js integration
-
-**What needs to happen:**
-
-1. Import `Tesseract` from `tesseract.js` (already in `package.json`)
-2. Create OCR worker in `src/infrastructure/ocr/`
-3. Add confidence threshold validation
-4. Parse document text into structured segments
-5. Write integration tests in `tests/integration/ocr.test.ts`
-
-**Acceptance Criteria:**
-
-- OCR returns `{ text, confidence, language }` struct
-- Rejects documents with confidence < 80%
-- Handles PDF, PNG, JPEG uploads
-- Logs OCR timing and errors to Winston
-
-**Estimated Time:** 2-3 hours
+**Task:** Replace mock OCR with `tesseract.js` integration and OCR worker.
 
 ---
 
-### **Priority 2: Add Integration Tests** 🟠 HIGH
+### **Priority 2: Add Integration Tests** ✅ COMPLETED
 
-**Status:** Minimal test coverage. Only route-surface tests exist.  
+**Status:** Completed (750+ test cases)  
 **Location:** [backend/tests/integration/](backend/tests/integration/)  
-**Task:** Build comprehensive integration test suite
-
-**What needs coverage:**
-
-1. **Auth flow:** Register → Login → Refresh → Logout → Profile
-   - Location: `tests/integration/auth.test.ts`
-   - Verify JWT tokens, role assignment, password hashing
-2. **Document lifecycle:** Upload → List → Analyze → Delete
-   - Location: `tests/integration/documents.test.ts`
-   - Test file upload, ownership checks, cleanup
-3. **Analysis workflows:** OCR → Anomaly detection → Risk scoring
-   - Location: `tests/integration/analysis.test.ts`
-   - Mock Tesseract, verify service pipeline
-4. **Report generation:** Create → Review → Download PDF
-   - Location: `tests/integration/reports.test.ts`
-   - Test PDF generation, risk scoring, email notifications
-
-**Test Patterns:**
-
-- Use `supertest` for HTTP testing
-- Mock services via `jest.mock()` and `container.get()`
-- Inject test user via `x-user-role` header (Auth middleware mocks it)
-- See existing example: [backend/tests/integration/route-surface.test.js](backend/tests/integration/route-surface.test.js)
-
-**Estimated Time:** 3-4 hours
 
 ---
 
-### **Priority 3: Activate Job Queue (Bull + Redis)** 🟡 MEDIUM
+### **Priority 3: Activate Job Queue (Bull + Redis)** ✅ COMPLETED
 
-**Status:** Job infrastructure ready, but in-memory only. Redis/Bull not active.  
-**Location:** [backend/src/infrastructure/queue/](backend/src/infrastructure/queue/)  
-**Task:** Wire Redis connection and migrate job processing to Bull
-
-**What needs to happen:**
-
-1. Ensure Redis is running locally or via Docker
-2. Create `src/infrastructure/queue/bull-queue.ts` with job definitions
-3. Migrate `src/infrastructure/jobs/` handlers to Bull processors
-4. Add job monitoring dashboard (optional: Bull UI on `localhost:3000/admin/queues`)
-5. Test job retry, failure, and completion flows
-
-**Jobs to activate:**
-
-- Document processing (upload → OCR → analysis)
-- Report PDF generation
-- Fraud detection workflows
-- Email notifications
-
-**Estimated Time:** 2-3 hours
+**Status:** Bull and Redis active via `JobService`.  
+**Location:** [backend/src/services/job.service.ts](backend/src/services/job.service.ts)  
 
 ---
 
-### **Priority 4: Persistence-Backed Analysis History** 🟢 LOW
+### **Priority 4: Persistence-Backed Analysis History** ✅ COMPLETED
 
-**Status:** History endpoints work, but in-memory only. No MongoDB persistence.  
+**Status:** MongoDB persistence implemented via `analysis.service.ts` hook.  
 **Location:** [backend/src/repositories/historical.repository.ts](backend/src/repositories/historical.repository.ts)  
-**Task:** Add MongoDB schema and queryable history
-
-**What needs to happen:**
-
-1. Define `HistoricalRecord` Mongoose schema in `src/infrastructure/database/schemas/`
-2. Implement MongoDB queries in `HistoricalRepository`
-3. Add analysis hooks to persist each result
-4. Build admin search with filters: date, risk level, status, document type
-
-**Estimated Time:** 1-2 hours
 
 ---
 

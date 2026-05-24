@@ -6,6 +6,7 @@
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import BaseAgent, { AgentExecutionResult } from "./base-agent.js";
 import { logger } from "../../logs/index.js";
+import HistoricalRecord from "../../models/HistoricalRecord.js";
 
 /**
  * HistoricalContextAgentInput - Input for historical context retrieval
@@ -88,9 +89,20 @@ export class HistoricalContextAgent extends BaseAgent {
         query.customerId = input.customerId;
       }
 
-      // TODO: Replace with actual HistoricalRecord model import when available
-      // For now, return empty array (will be populated by RAG pipeline in Phase 4)
-      const records: any[] = [];
+      // Search using Mongoose HistoricalRecord model
+      // Normalizing format to match our expected historical pattern
+      const dbRecords = await HistoricalRecord.find(query).limit(input.maxResults || 5).lean();
+      
+      const records: any[] = dbRecords.map((doc: any) => ({
+        ownerName: input.customerName,
+        ownerEmail: input.customerEmail,
+        flaggedAsHighRisk: false, // Provide defaults
+        previousApplications: [],
+        legalRecords: [],
+        riskFactors: [],
+        ...doc.value, // Mixin the unstructured historical document data
+        updatedAt: doc.createdAt
+      }));
 
       logger.info(`Historical search found ${records.length} matching records`);
 

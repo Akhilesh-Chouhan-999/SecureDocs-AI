@@ -5,10 +5,11 @@ import * as pdfParseModule from "pdf-parse";
 import env from "../config/env.js";
 import { NotFoundError, ValidationError } from "../errors/index.js";
 import { DOCUMENT_STATUSES } from "../constants/index.js";
-import { buildRiskAssessment } from "../domain/usecases/index.js";
-import { normalizeHistoricalRecords } from "../infrastructure/ai/tools/index.js";
+import { normalizeHistoricalRecords } from "../ai/tools/historical-normalizer.js";
 import { runDocumentAnalysisWorkflow } from "../ai/workflows/index.js";
 import { logger } from "../logs/index.js";
+import { AnomalyDetectionService } from "./anomaly-detection/anomaly-detection.service.js";
+import { CompositeScorer } from "./risk-scoring/composite-scorer.js";
 
 const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 
@@ -18,10 +19,14 @@ const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 export class AnalysisService {
   private documentService: any;
   private historicalRepository: any;
+  private anomalyDetectionService: AnomalyDetectionService;
+  private compositeScorer: CompositeScorer;
 
   constructor(documentService: any, historicalRepository: any) {
     this.documentService = documentService;
     this.historicalRepository = historicalRepository;
+    this.anomalyDetectionService = new AnomalyDetectionService();
+    this.compositeScorer = new CompositeScorer();
   }
 
   /**
@@ -36,13 +41,35 @@ export class AnalysisService {
     await document.save();
 
     try {
-      const ocrResult = await this.performOCRAnalysis(document.filePath);
+      const { ocrCache } = await import("../infrastructure/cache/ocr-cache.js");
+      let ocrResult = await ocrCache.get(documentId.toString());
+
+      if (!ocrResult) {
+        ocrResult = await this.performOCRAnalysis(document.filePath);
+        await ocrCache.set(documentId.toString(), ocrResult);
+      }
       const workflow = await this.runWorkflow(document, ocrResult.text);
 
       await this.documentService.updateOcrResult(document, {
         ...ocrResult,
         structuredData: workflow.structuredData,
       });
+
+      try {
+        await this.historicalRepository.create({
+          key: document._id.toString(),
+          value: {
+            documentId: document._id,
+            userId: userId,
+            ocrConfidence: ocrResult.confidence,
+            structuredData: workflow.structuredData,
+            anomalies: workflow.anomalies,
+          },
+          source: "analysis.service",
+        });
+      } catch (historyError) {
+        logger.warn("Failed to persist analysis history", { error: historyError });
+      }
 
       return {
         documentId: document._id,
@@ -74,7 +101,14 @@ export class AnalysisService {
     await document.save();
 
     try {
-      const ocrResult = await this.performOCRAnalysis(document.filePath);
+      const { ocrCache } = await import("../infrastructure/cache/ocr-cache.js");
+      let ocrResult = await ocrCache.get(documentId.toString());
+
+      if (!ocrResult) {
+        ocrResult = await this.performOCRAnalysis(document.filePath);
+        await ocrCache.set(documentId.toString(), ocrResult);
+      }
+
       const workflow = runDocumentAnalysisWorkflow({
         document,
         text: ocrResult.text,
@@ -152,17 +186,27 @@ export class AnalysisService {
     const workflow = await this.runWorkflow(document, document.ocrText);
 
     return workflow.anomalies.length > 0
-      ? workflow.anomalies
-      : [
-          {
-            type: "manual_review",
-            severity: "low",
-            description: "No strong automated anomaly detected in the current ruleset.",
-            affectedField: "document",
-            confidence: 0.55,
-            suggestedAction: "Perform normal underwriting review.",
-          },
-        ];
+      ? {
+          anomalies: workflow.anomalies,
+          deterministicAnomalies: workflow.deterministicAnomalies,
+          riskScore: workflow.riskScore,
+          riskLevel: workflow.riskLevel
+        }
+      : {
+          anomalies: [
+            {
+              type: "manual_review",
+              severity: "low",
+              description: "No strong automated anomaly detected in the current ruleset.",
+              affectedField: "document",
+              confidence: 0.55,
+              suggestedAction: "Perform normal underwriting review.",
+            },
+          ],
+          deterministicAnomalies: [],
+          riskScore: workflow.riskScore,
+          riskLevel: workflow.riskLevel
+        };
   }
 
   /**
@@ -174,95 +218,59 @@ export class AnalysisService {
     const document = await this.documentService.getOwnedDocument(documentId, userId);
     const text = document.ocrText || (await this.performOCRAnalysis(document.filePath)).text;
     const workflow = await this.runWorkflow(document, text);
-    const assessment = buildRiskAssessment(workflow.anomalies);
 
     return {
       documentId: document._id,
       anomalies: workflow.anomalies,
+      deterministicAnomalies: workflow.deterministicAnomalies,
       historicalContext: workflow.historicalContext,
-      ...assessment,
+      riskScore: workflow.riskScore,
+      riskLevel: workflow.riskLevel,
+      recommendations: workflow.anomalies.map(a => a.suggestedAction).filter(Boolean)
     };
   }
 
   /**
-   * Real OCR execution using Tesseract.js (images) or pdf-parse (PDF documents).
-   * Validates result confidence levels (rejecting documents with < 80% confidence).
+   * Real OCR execution using OcrWorker
    * @param filePath Local path to file
    */
   async performOCRAnalysis(filePath: string) {
-    const extension = path.extname(String(filePath || "")).toLowerCase();
-    const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".bmp"]);
-    const startTime = Date.now();
-
-    logger.info("OCR analysis started", { filePath });
-
-    try {
-      if (extension === ".pdf") {
-        if (!fs.existsSync(filePath)) {
-          throw new NotFoundError(`File not found: ${filePath}`);
-        }
-        const dataBuffer = fs.readFileSync(filePath);
-        const parsedData = await pdfParse(dataBuffer);
-        const duration = Date.now() - startTime;
-        logger.info("OCR analysis completed (PDF text extraction)", { filePath, durationMs: duration, confidence: 1.0 });
-
-        return { text: parsedData.text || "", confidence: 1.0, warning: null, words: [] as string[], structuredData: {} };
-
-      } else if (imageExtensions.has(extension)) {
-        if (!fs.existsSync(filePath)) {
-          throw new NotFoundError(`File not found: ${filePath}`);
-        }
-
-        const result = await Tesseract.recognize(filePath, "eng");
-        const text = String(result.data.text || "").trim();
-        const confidence = Number(result.data.confidence || 0) / 100;
-        const words = (result.data.words || [])
-          .map((word: any) => String(word.text || "").trim())
-          .filter(Boolean);
-
-        const duration = Date.now() - startTime;
-        logger.info("OCR analysis completed (Tesseract image)", { filePath, durationMs: duration, confidence });
-
-        if (confidence < 0.80) {
-          throw new ValidationError("OCR confidence is too low (less than 80%)", { confidence, filePath });
-        }
-
-        return { text, confidence, warning: null, words, structuredData: {} };
-      }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error("OCR analysis failed", { filePath, error: message });
-      throw error;
-    }
-
-    // Default Fallback
-    const text = [
-      "Borrower: Jane Analyst",
-      "Income: 275000",
-      "Date: 2026-05-17",
-      "Potential owner mismatch found during validation.",
-      `Source file: ${filePath}`,
-    ].join(" ");
-
-    return {
-      text,
-      confidence: 0.92,
-      warning: "OCR fallback response used because a supported format or engine was not available.",
-      words: [] as string[],
-      structuredData: {},
-    };
+    const ocrWorker = new (await import("../infrastructure/ocr/ocr-worker.js")).OcrWorker();
+    return ocrWorker.processFile(filePath);
   }
 
   /**
-   * Run the backend AI Langchain parsing/fraud workflows
+   * Run the backend AI Langchain parsing/fraud workflows along with deterministic rules
    * @param document Document db object
    * @param text OCR extracted text block
    */
   async runWorkflow(document: any, text: string) {
-    const historicalRecords = normalizeHistoricalRecords(
-      await this.historicalRepository.findAll({}, { sort: { createdAt: -1 }, limit: 5 }),
+    const rawHistorical = await this.historicalRepository.findAll({}, { sort: { createdAt: -1 }, limit: 5 });
+    const historicalRecords = normalizeHistoricalRecords(rawHistorical);
+
+    // Run AI analysis
+    const aiWorkflow = await runDocumentAnalysisWorkflow({ document, text, historicalRecords });
+
+    // Run deterministic rules
+    const deterministicAnomalies = await this.anomalyDetectionService.evaluateDocument(
+      document,
+      aiWorkflow.structuredData,
+      rawHistorical
     );
 
-    return runDocumentAnalysisWorkflow({ document, text, historicalRecords });
+    // Combine anomalies
+    const allAnomalies = [...aiWorkflow.anomalies, ...deterministicAnomalies];
+
+    // Compute composite risk score
+    const compositeRiskScore = this.compositeScorer.calculateRiskScore(allAnomalies);
+    const riskLevel = this.compositeScorer.determineRiskLevel(compositeRiskScore);
+
+    return {
+      ...aiWorkflow,
+      anomalies: allAnomalies,
+      deterministicAnomalies,
+      riskScore: compositeRiskScore,
+      riskLevel: riskLevel
+    };
   }
 }

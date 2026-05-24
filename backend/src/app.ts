@@ -6,7 +6,21 @@ import { authRoutes, documentRoutes, analysisRoutes, historyRoutes, reportRoutes
 import { errorMiddleware } from "./middleware/index.js";
 import { getApiOverview, routeCatalog } from "./docs/index.js";
 
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+
 const app = express();
+
+// Security Headers
+app.use(helmet());
+
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes" }
+});
+app.use("/api/", apiLimiter);
 
 app.use(
   cors({

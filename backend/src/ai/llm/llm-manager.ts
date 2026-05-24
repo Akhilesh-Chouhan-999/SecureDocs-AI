@@ -108,7 +108,7 @@ export class LLMManager {
   /**
    * Get primary LLM with automatic fallback
    */
-  async getPrimaryLLM(): Promise<BaseLanguageModel> {
+  async getPrimaryLLM(): Promise<any> {
     try {
       if (this.config.primaryModel === "openai") {
         return this.initOpenAI();
@@ -124,7 +124,7 @@ export class LLMManager {
   /**
    * Get fallback LLM
    */
-  async getFallbackLLM(): Promise<BaseLanguageModel> {
+  async getFallbackLLM(): Promise<any> {
     try {
       if (this.config.primaryModel === "openai") {
         // Primary is OpenAI, fallback is Gemini

@@ -1,6 +1,9 @@
-import { Tool } from "@langchain/core/tools";
+import { StructuredTool } from "@langchain/core/tools";
 
-export class DocumentAnalysisTool extends Tool {
+import { z } from "zod";
+
+export class DocumentAnalysisTool extends StructuredTool {
+  schema = z.object({ input: z.string() }) as any;
   name = "document-analysis";
   description = "Analyzes a document for fraud.";
 

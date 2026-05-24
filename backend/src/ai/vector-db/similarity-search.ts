@@ -275,8 +275,8 @@ export function getSimilaritySearchService(
   return instances.get(key)!;
 }
 
-export {
-  SimilaritySearchService,
+export { SimilaritySearchService };
+export type {
   SimilaritySearchOptions,
   SearchResultWithRank,
   SearchStats,

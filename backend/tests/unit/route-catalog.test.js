@@ -1,4 +1,4 @@
-const { routeCatalog } = require("../../src/docs");
+import { routeCatalog } from "../../src/docs/index.js";
 
 describe("route catalog", () => {
   it("includes the newly added workflow routes", () => {

@@ -346,8 +346,8 @@ export function getContextAugmentationService(
   return instance;
 }
 
-export {
-  ContextAugmentationService,
+export { ContextAugmentationService };
+export type {
   ContextAugmentationOptions,
   AugmentedContext,
   ContextStats,

@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository.js";
-import Document from "../infrastructure/database/models/Document.js";
+import Document from "../models/Document.js";
 
 /**
  * Repository layer handling Document persistence operations

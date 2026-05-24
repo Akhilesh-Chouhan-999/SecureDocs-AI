@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository.js";
-import FraudReport from "../infrastructure/database/models/FraudReport.js";
+import FraudReport from "../models/FraudReport.js";
 
 /**
  * Repository layer handling Fraud Report persistence operations
@@ -15,10 +15,10 @@ export class FraudReportRepository extends BaseRepository {
    */
   async findDetailedById(reportId: any) {
     return this.model
-      .findById(reportId)
-      .populate("document")
-      .populate("analyst", "-password")
-      .exec();
+                    .findById(reportId)
+                    .populate("document")
+                    .populate("analyst", "-password")
+                    .exec();
   }
 
   /**
@@ -27,10 +27,10 @@ export class FraudReportRepository extends BaseRepository {
    */
   async findByAnalyst(userId: any) {
     return this.model
-      .find({ analyst: userId })
-      .populate("document")
-      .sort({ createdAt: -1 })
-      .exec();
+                    .find({ analyst: userId })
+                    .populate("document")
+                    .sort({ createdAt: -1 })
+                    .exec();
   }
 
   /**

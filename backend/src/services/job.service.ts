@@ -6,6 +6,7 @@ import { JOB_EVENTS } from "../events/index.js";
 import { createJobRecord } from "../jobs/index.js";
 import { registerJobListeners } from "../listeners/index.js";
 import { markJobCanceled, markJobCompleted, markJobFailed, markJobProcessing } from "../infrastructure/queue/workers/index.js";
+import { AnalysisWorker } from "../infrastructure/queue/workers/analysis-worker.js";
 import { emitJobUpdate } from "../sockets/index.js";
 import { JOB_STATUSES } from "../constants/index.js";
 import { parsePagination, buildPagination } from "../utils/pagination.js";
@@ -138,30 +139,8 @@ export class JobService {
     const queue = new Queue(env.jobQueueName, env.redisUrl);
 
     queue.process(async (bullJob: any) => {
-      const jobId = String(bullJob.id);
-      const currentJob = this.jobs.get(jobId);
-
-      if (!currentJob) throw new Error("Unknown queued job");
-
-      const processingJob = markJobProcessing(currentJob);
-      this.jobs.set(processingJob.id, processingJob);
-      this.emitter.emit(JOB_EVENTS.UPDATED, processingJob);
-      emitJobUpdate(processingJob);
-
-      try {
-        const result = await this.analysisService.analyzeDocument(bullJob.data.documentId, bullJob.data.userId);
-        const completedJob = markJobCompleted(processingJob, result);
-        this.jobs.set(completedJob.id, completedJob);
-        this.emitter.emit(JOB_EVENTS.COMPLETED, completedJob);
-        emitJobUpdate(completedJob);
-        return result;
-      } catch (error) {
-        const failedJob = markJobFailed(processingJob, error);
-        this.jobs.set(failedJob.id, failedJob);
-        this.emitter.emit(JOB_EVENTS.FAILED, failedJob);
-        emitJobUpdate(failedJob);
-        throw error;
-      }
+      const worker = new AnalysisWorker(this.analysisService, this.jobs, this.emitter);
+      return worker.processJob(bullJob);
     });
 
     return queue;

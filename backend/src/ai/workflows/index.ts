@@ -2,7 +2,7 @@ import { parseDocumentText } from "../parsers/index.js";
 import { buildAnalysisMemory } from "../memory/index.js";
 import { buildHistoricalContext } from "../rag/index.js";
 import { buildCorpusEntry } from "../ingestion/index.js";
-import { runFraudDetectionAgent } from "../../infrastructure/ai/agents/index.js";
+import { runFraudDetectionAgent } from "../agents/fraud-detection.js";
 
 const runDocumentAnalysisWorkflow = ({
   document,

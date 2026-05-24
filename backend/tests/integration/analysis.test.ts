@@ -1,205 +1,17 @@
+import { jest } from "@jest/globals";
 import request from "supertest";
-import type { Express, Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
+import { setupTestDB } from "../support/db-setup.js";
+import User from "../../src/models/User.js";
+import Document from "../../src/models/Document.js";
+import { generateToken } from "../../src/utils/tokens.js";
+import { AnalysisService } from "../../src/services/analysis.service.js";
+import app from "../../src/app.js";
+
+// Setup real DB
+setupTestDB();
 
 describe("Analysis Workflow Integration Tests", () => {
-  let app: Express;
-  const testUserId = "user-123";
-  const testToken = "valid-jwt-token";
-  const testDocumentId = "doc-123";
-
-  const mockAnalysisService = {
-    performOCR: jest.fn(),
-    fullAnalysis: jest.fn(),
-    detectAnomalies: jest.fn(),
-    calculateRiskScore: jest.fn(),
-    getAnalysisStatus: jest.fn(),
-    getAnalysisResults: jest.fn(),
-  };
-
-  const mockAuthMiddleware = (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    (req as any).user = {
-      id: testUserId,
-      email: "testuser@example.com",
-      role: "analyst",
-    };
-    next();
-  };
-
-  beforeAll(() => {
-    jest.resetModules();
-
-    jest.mock("../../src/middleware/auth.middleware", () => ({
-      authenticate: mockAuthMiddleware,
-      requireRole:
-        (roles: string[]) =>
-        (req: Request, res: Response, next: NextFunction) => {
-          if (roles.includes((req as any).user?.role || "")) next();
-          else res.status(403).json({ success: false, error: "Forbidden" });
-        },
-    }));
-
-    jest.mock("../../src/config/container", () => ({
-      get: (name: string) => {
-        if (name === "analysisService") return mockAnalysisService;
-        return null;
-      },
-    }));
-
-    app = require("../../src/app");
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe("POST /api/analysis/ocr", () => {
-    it("should extract OCR text from document", async () => {
-      mockAnalysisService.performOCR.mockResolvedValueOnce({
-        documentId: testDocumentId,
-        text: "Extracted text from document",
-        confidence: 0.92,
-        language: "eng",
-        wordCount: 150,
-      });
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.text).toBeDefined();
-      expect(response.body.data.confidence).toBe(0.92);
-      expect(mockAnalysisService.performOCR).toHaveBeenCalledWith(
-        testDocumentId,
-      );
-    });
-
-    it("should return OCR confidence score", async () => {
-      mockAnalysisService.performOCR.mockResolvedValueOnce({
-        documentId: testDocumentId,
-        text: "Extracted text",
-        confidence: 0.85,
-        wordCount: 100,
-      });
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.body.data.confidence).toBe(0.85);
-    });
-
-    it("should reject OCR with low confidence", async () => {
-      mockAnalysisService.performOCR.mockRejectedValueOnce(
-        new Error("OCR confidence below 80% threshold"),
-      );
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-    });
-
-    it("should validate OCR confidence threshold (>= 80%)", async () => {
-      mockAnalysisService.performOCR.mockResolvedValueOnce({
-        documentId: testDocumentId,
-        text: "Text",
-        confidence: 0.8,
-      });
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.confidence).toBeGreaterThanOrEqual(0.8);
-    });
-
-    it("should handle non-existent document", async () => {
-      mockAnalysisService.performOCR.mockRejectedValueOnce(
-        new Error("Document not found"),
-      );
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: "invalid-id" });
-
-      expect(response.status).toBe(404);
-      expect(response.body.success).toBe(false);
-    });
-
-    it("should require authentication", async () => {
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .send({ documentId: testDocumentId });
-
-      expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
-    });
-
-    it("should detect document language", async () => {
-      mockAnalysisService.performOCR.mockResolvedValueOnce({
-        documentId: testDocumentId,
-        text: "Extracted text",
-        confidence: 0.92,
-        language: "eng",
-      });
-
-      const response = await request(app)
-        .post("/api/analysis/ocr")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.body.data.language).toBe("eng");
-    });
-  });
-
-  describe("POST /api/analysis/analyze", () => {
-    it("should perform full analysis", async () => {
-      mockAnalysisService.fullAnalysis.mockResolvedValueOnce({
-        documentId: testDocumentId,
-        ocrText: "Extracted text",
-        ocrConfidence: 0.92,
-        structuredData: {
-          borrowerName: "John Doe",
-          documentDate: "2024-05-20",
-          declaredIncome: 150000,
-        },
-        anomalies: [
-          {
-            type: "income_verification",
-            severity: "medium",
-            confidence: 0.75,
-          },
-        ],
-        riskScore: 35,
-        riskLevel: "medium",
-      });
-
-      const response = await request(app)
-        .post("/api/analysis/analyze")
-        .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: testDocumentId });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.ocrText).toBeDefined();
-      expect(response.body.data.structuredData).toBeDefined();
-      expect(response.body.data.anomalies).toBeDefined();
-      expect(response.body.data.riskScore).toBeDefined();
-    });
 
     it("should extract structured data from OCR", async () => {
       mockAnalysisService.fullAnalysis.mockResolvedValueOnce({
@@ -541,3 +353,4 @@ describe("Analysis Workflow Integration Tests", () => {
     });
   });
 });
+

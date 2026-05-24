@@ -24,7 +24,7 @@ export interface ILLMConfig {
  * ILLMClient - Interface for LLM client implementations
  */
 export interface ILLMClient {
-  initialize(): Promise<BaseLanguageModel>;
+  initialize(): Promise<any>;
   invoke(input: string): Promise<string>;
   isAvailable(): Promise<boolean>;
   getProviderName(): string;

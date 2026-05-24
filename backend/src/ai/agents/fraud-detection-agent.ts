@@ -1,5 +1,5 @@
 import { initializeAgentExecutorWithOptions } from "@langchain/agents";
-import type { Tool } from "@langchain/core/tools";
+import type { StructuredTool } from "@langchain/core/tools";
 import { DynamicTool } from "@langchain/core/tools";
 import { getLLMManager } from "../llm/llm-manager.js";
 import type {
@@ -36,7 +36,7 @@ interface FraudAnalysisResult {
 
 export class FraudDetectionAgent {
   private llmManager = getLLMManager();
-  private tools: Tool[] = [];
+  private tools: any[] = [];
 
   constructor() {
     this.initializeTools();
@@ -55,29 +55,42 @@ export class FraudDetectionAgent {
           "Look up similar fraud cases from historical records to identify patterns",
         func: async (input: string) => {
           logger.debug(`Historical lookup: ${input}`);
-          // Simulate historical lookup
-          return JSON.stringify({
-            matchedCases: [
-              {
-                caseId: "fraud-2024-001",
-                similarity: 0.87,
-                pattern: "income_falsification",
-                severity: "high",
-              },
-              {
-                caseId: "fraud-2024-045",
-                similarity: 0.72,
-                pattern: "document_forgery",
-                severity: "high",
-              },
-            ],
-            riskIndicators: [
-              "Multiple similar cases found",
-              "High severity match",
-            ],
-          });
+          try {
+            const { getRAGPipeline } = await import("../rag/rag-pipeline.js");
+            const rag = getRAGPipeline({ collectionName: "historical_records" });
+            
+            // Ensure Chroma is initialized
+            await rag.initialize();
+
+            const ragResult = await rag.retrieve(input);
+            
+            if (!ragResult.retrievedDocuments || ragResult.retrievedDocuments.length === 0) {
+              return JSON.stringify({
+                matchedCases: [],
+                riskIndicators: ["No similar historical cases found."]
+              });
+            }
+
+            return JSON.stringify({
+              matchedCases: ragResult.retrievedDocuments.map(doc => ({
+                caseId: doc.id,
+                similarity: doc.similarity,
+                content: doc.content,
+                metadata: doc.metadata
+              })),
+              riskIndicators: [
+                `${ragResult.retrievedDocuments.length} similar cases found in history`,
+              ],
+            });
+          } catch (error) {
+            logger.error(`Historical lookup failed: ${error}`);
+            return JSON.stringify({
+              matchedCases: [],
+              riskIndicators: ["Error performing historical lookup."]
+            });
+          }
         },
-      }),
+      })
     );
 
     // Tool 2: Financial Analysis

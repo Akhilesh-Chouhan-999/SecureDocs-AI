@@ -1,21 +1,23 @@
+import { jest } from "@jest/globals";
+import { container } from "../../src/config/index.js";
 import request from "supertest";
 import type { Express, Request, Response, NextFunction } from "express";
 
 describe("Report Generation Integration Tests", () => {
   let app: Express;
-  const testUserId = "user-123";
+  const testUserId = "507f1f77bcf86cd799439011";
   const testToken = "valid-jwt-token";
-  const testDocumentId = "doc-123";
-  const testReportId = "report-123";
+  const testDocumentId = "507f1f77bcf86cd799439012";
+  const testReportId = "507f1f77bcf86cd799439013";
 
   const mockReportService = {
-    generateReport: jest.fn(),
-    listReports: jest.fn(),
-    getReport: jest.fn(),
-    getReportsByUser: jest.fn(),
-    downloadReport: jest.fn(),
-    reviewReport: jest.fn(),
-    deleteReport: jest.fn(),
+    generateFraudReport: jest.fn() as any,
+    listReports: jest.fn() as any,
+    getReport: jest.fn() as any,
+    getReportsByUser: jest.fn() as any,
+    buildDownload: jest.fn() as any,
+    reviewReport: jest.fn() as any,
+    deleteReport: jest.fn() as any,
   };
 
   const mockAuthMiddleware = (
@@ -34,24 +36,24 @@ describe("Report Generation Integration Tests", () => {
   beforeAll(() => {
     jest.resetModules();
 
-    jest.mock("../../src/middleware/auth.middleware", () => ({
-      authenticate: mockAuthMiddleware,
-      requireRole:
-        (roles: string[]) =>
-        (req: Request, res: Response, next: NextFunction) => {
-          if (roles.includes((req as any).user?.role || "")) next();
-          else res.status(403).json({ success: false, error: "Forbidden" });
-        },
-    }));
+    jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "507f1f77bcf86cd799439011", email: "testuser@example.com", role: "analyst" }; next(); } }));
 
-    jest.mock("../../src/config/container", () => ({
-      get: (name: string) => {
-        if (name === "reportService") return mockReportService;
-        return null;
-      },
-    }));
+    
 
-    app = require("../../src/app");
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    jest.spyOn(container, "get").mockImplementation((name) => { if (name === "reportService") return mockReportService; return null; });
+    app = require("../../src/app").default || require("../../src/app");
   });
 
   afterEach(() => {
@@ -60,7 +62,7 @@ describe("Report Generation Integration Tests", () => {
 
   describe("POST /api/reports/generate", () => {
     it("should generate fraud analysis report", async () => {
-      mockReportService.generateReport.mockResolvedValueOnce({
+      mockReportService.generateFraudReport.mockResolvedValueOnce({
         id: testReportId,
         document: testDocumentId,
         analyst: testUserId,
@@ -85,17 +87,17 @@ describe("Report Generation Integration Tests", () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe(testReportId);
-      expect(response.body.data.riskScore).toBe(65);
-      expect(response.body.data.riskLevel).toBe("high");
-      expect(mockReportService.generateReport).toHaveBeenCalledWith(
+      expect(response.body.data.report.id).toBe(testReportId);
+      expect(response.body.data.report.riskScore).toBe(65);
+      expect(response.body.data.report.riskLevel).toBe("high");
+      expect(mockReportService.generateFraudReport).toHaveBeenCalledWith(
         testDocumentId,
         testUserId,
       );
     });
 
     it("should calculate risk score in report", async () => {
-      mockReportService.generateReport.mockResolvedValueOnce({
+      mockReportService.generateFraudReport.mockResolvedValueOnce({
         id: testReportId,
         riskScore: 45,
         riskLevel: "medium",
@@ -111,12 +113,12 @@ describe("Report Generation Integration Tests", () => {
         .set("Authorization", `Bearer ${testToken}`)
         .send({ documentId: testDocumentId });
 
-      expect(response.body.data.riskScore).toBe(45);
-      expect(response.body.data.riskLevel).toBe("medium");
+      expect(response.body.data.report.riskScore).toBe(45);
+      expect(response.body.data.report.riskLevel).toBe("medium");
     });
 
     it("should include all anomalies in report", async () => {
-      mockReportService.generateReport.mockResolvedValueOnce({
+      mockReportService.generateFraudReport.mockResolvedValueOnce({
         id: testReportId,
         document: testDocumentId,
         analyst: testUserId,
@@ -145,13 +147,13 @@ describe("Report Generation Integration Tests", () => {
         .set("Authorization", `Bearer ${testToken}`)
         .send({ documentId: testDocumentId });
 
-      expect(response.body.data.anomalies).toHaveLength(2);
+      expect(response.body.data.report.anomalies).toHaveLength(2);
       expect(response.body.data.anomalies[0].type).toBe("ownership_mismatch");
       expect(response.body.data.anomalies[1].type).toBe("income_verification");
     });
 
     it("should include recommendations based on risk level", async () => {
-      mockReportService.generateReport.mockResolvedValueOnce({
+      mockReportService.generateFraudReport.mockResolvedValueOnce({
         id: testReportId,
         document: testDocumentId,
         analyst: testUserId,
@@ -171,7 +173,7 @@ describe("Report Generation Integration Tests", () => {
         .set("Authorization", `Bearer ${testToken}`)
         .send({ documentId: testDocumentId });
 
-      expect(response.body.data.recommendations).toContain(
+      expect(response.body.data.report.recommendations).toContain(
         "Flag for fraud team",
       );
     });
@@ -186,14 +188,14 @@ describe("Report Generation Integration Tests", () => {
     });
 
     it("should handle non-existent document", async () => {
-      mockReportService.generateReport.mockRejectedValueOnce(
+      mockReportService.generateFraudReport.mockRejectedValueOnce(
         new Error("Document not found"),
       );
 
       const response = await request(app)
         .post("/api/reports/generate")
         .set("Authorization", `Bearer ${testToken}`)
-        .send({ documentId: "invalid-id" });
+        .send({ documentId: "507f1f77bcf86cd799439014" });
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
@@ -205,14 +207,14 @@ describe("Report Generation Integration Tests", () => {
       mockReportService.listReports.mockResolvedValueOnce({
         reports: [
           {
-            id: "report-1",
-            document: "doc-1",
+            id: "507f1f77bcf86cd799439021",
+            document: "507f1f77bcf86cd799439031",
             riskLevel: "high",
             createdAt: new Date(),
           },
           {
-            id: "report-2",
-            document: "doc-2",
+            id: "507f1f77bcf86cd799439022",
+            document: "507f1f77bcf86cd799439032",
             riskLevel: "low",
             createdAt: new Date(),
           },
@@ -261,8 +263,8 @@ describe("Report Generation Integration Tests", () => {
     it("should filter reports by risk level", async () => {
       mockReportService.listReports.mockResolvedValueOnce({
         reports: [
-          { id: "report-1", riskLevel: "critical" },
-          { id: "report-2", riskLevel: "critical" },
+          { id: "507f1f77bcf86cd799439021", riskLevel: "critical" },
+          { id: "507f1f77bcf86cd799439022", riskLevel: "critical" },
         ],
         pagination: { page: 1, limit: 10, total: 2, totalPages: 1 },
       });
@@ -297,7 +299,7 @@ describe("Report Generation Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe(testReportId);
+      expect(response.body.data.report.id).toBe(testReportId);
       expect(response.body.data.summary).toBeDefined();
     });
 
@@ -338,8 +340,8 @@ describe("Report Generation Integration Tests", () => {
     it("should list reports for specific user", async () => {
       mockReportService.getReportsByUser.mockResolvedValueOnce({
         reports: [
-          { id: "report-1", analyst: testUserId },
-          { id: "report-2", analyst: testUserId },
+          { id: "507f1f77bcf86cd799439021", analyst: testUserId },
+          { id: "507f1f77bcf86cd799439022", analyst: testUserId },
         ],
         pagination: { page: 1, limit: 10, total: 2, totalPages: 1 },
       });
@@ -355,7 +357,7 @@ describe("Report Generation Integration Tests", () => {
 
   describe("GET /api/reports/:reportId/download", () => {
     it("should download report as PDF", async () => {
-      mockReportService.downloadReport.mockResolvedValueOnce({
+      mockReportService.buildDownload.mockResolvedValueOnce({
         fileName: "fraud-report-123.pdf",
         buffer: Buffer.from("%PDF-1.4 test content"),
         contentType: "application/pdf",
@@ -367,13 +369,13 @@ describe("Report Generation Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.headers["content-type"]).toContain("pdf");
-      expect(mockReportService.downloadReport).toHaveBeenCalledWith(
+      expect(mockReportService.buildDownload).toHaveBeenCalledWith(
         testReportId,
       );
     });
 
     it("should return proper filename in response", async () => {
-      mockReportService.downloadReport.mockResolvedValueOnce({
+      mockReportService.buildDownload.mockResolvedValueOnce({
         fileName: "fraud-analysis-2024-05-20.pdf",
         buffer: Buffer.from("PDF content"),
         contentType: "application/pdf",
@@ -389,7 +391,7 @@ describe("Report Generation Integration Tests", () => {
     });
 
     it("should handle PDF generation errors", async () => {
-      mockReportService.downloadReport.mockRejectedValueOnce(
+      mockReportService.buildDownload.mockRejectedValueOnce(
         new Error("PDF generation failed"),
       );
 
@@ -415,10 +417,7 @@ describe("Report Generation Integration Tests", () => {
       const response = await request(app)
         .post(`/api/reports/${testReportId}/review`)
         .set("Authorization", `Bearer ${testToken}`)
-        .send({
-          decision: "approved",
-          reviewNotes: "Approved after verification",
-        });
+        .send({ decision: "approved", notes: "Approved after verification" });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -446,7 +445,7 @@ describe("Report Generation Integration Tests", () => {
         const response = await request(app)
           .post(`/api/reports/${testReportId}/review`)
           .set("Authorization", `Bearer ${testToken}`)
-          .send({ decision });
+          .send({ decision, notes: "test notes" });
 
         expect(response.body.data.decision).toBe(decision);
       }
@@ -476,10 +475,7 @@ describe("Report Generation Integration Tests", () => {
       const response = await request(app)
         .post(`/api/reports/${testReportId}/review`)
         .set("Authorization", `Bearer ${testToken}`)
-        .send({
-          decision: "manual_review",
-          reviewNotes: "Further investigation needed",
-        });
+        .send({ decision: "manual_review", notes: "Further investigation needed" });
 
       expect(response.body.data.reviewNotes).toBe(
         "Further investigation needed",
@@ -532,7 +528,7 @@ describe("Report Generation Integration Tests", () => {
 
   describe("Report Completeness", () => {
     it("should include all required fields", async () => {
-      mockReportService.generateReport.mockResolvedValueOnce({
+      mockReportService.generateFraudReport.mockResolvedValueOnce({
         id: testReportId,
         document: testDocumentId,
         analyst: testUserId,
@@ -561,3 +557,4 @@ describe("Report Generation Integration Tests", () => {
     });
   });
 });
+

@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository.js";
-import User from "../infrastructure/database/models/User.js";
+import User from "../models/User.js";
 
 /**
  * Repository layer handling User persistence operations

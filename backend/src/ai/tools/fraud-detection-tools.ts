@@ -3,7 +3,7 @@
  * LangChain tools for fraud analysis and risk assessment
  */
 
-import { Tool } from "@langchain/core/tools";
+import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { logger } from "../../logs/index.js";
 import HistoricalRecord from "../../models/HistoricalRecord.js";
@@ -13,7 +13,7 @@ import Document from "../../models/Document.js";
  * Historical Lookup Tool
  * Searches for historical records by email or customer name
  */
-export class HistoricalLookupTool extends Tool {
+export class HistoricalLookupTool extends StructuredTool {
   name = "historical_lookup";
   description =
     "Retrieve historical records for a customer by email, name, or customer ID. Returns previous applications, legal records, and known fraud indicators.";
@@ -22,7 +22,7 @@ export class HistoricalLookupTool extends Tool {
     email: z.string().email().optional(),
     customerName: z.string().optional(),
     customerId: z.string().optional(),
-  });
+  }) as any;
 
   protected async _call(input: any): Promise<string> {
     try {
@@ -67,10 +67,11 @@ export class HistoricalLookupTool extends Tool {
         records: summary,
       });
     } catch (error) {
-      logger.error("Historical lookup error:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Historical lookup error:", err);
       return JSON.stringify({
         status: "error",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: err.message,
       });
     }
   }
@@ -80,7 +81,7 @@ export class HistoricalLookupTool extends Tool {
  * Financial Analysis Tool
  * Analyzes financial patterns and detects anomalies
  */
-export class FinancialAnalysisTool extends Tool {
+export class FinancialAnalysisTool extends StructuredTool {
   name = "financial_analysis";
   description =
     "Analyze financial data for anomalies. Detects outliers, unusual patterns, and suspicious transactions.";
@@ -96,7 +97,7 @@ export class FinancialAnalysisTool extends Tool {
         max: z.number(),
       })
       .optional(),
-  });
+  }) as any;
 
   protected async _call(input: any): Promise<string> {
     try {
@@ -156,10 +157,10 @@ export class FinancialAnalysisTool extends Tool {
       // Check transaction history patterns
       if (transactionHistory && transactionHistory.length > 0) {
         const avg =
-          transactionHistory.reduce((a, b) => a + b, 0) /
+          transactionHistory.reduce((a: number, b: number) => a + b, 0) /
           transactionHistory.length;
         const standardDeviation = Math.sqrt(
-          transactionHistory.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) /
+          transactionHistory.reduce((sq: number, n: number) => sq + Math.pow(n - avg, 2), 0) /
             transactionHistory.length,
         );
 
@@ -185,10 +186,11 @@ export class FinancialAnalysisTool extends Tool {
         documentType,
       });
     } catch (error) {
-      logger.error("Financial analysis error:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Financial analysis error:", err);
       return JSON.stringify({
         status: "error",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: err.message,
       });
     }
   }
@@ -198,7 +200,7 @@ export class FinancialAnalysisTool extends Tool {
  * Document Validation Tool
  * Validates document metadata and checks for expiration/forgery
  */
-export class DocumentValidationTool extends Tool {
+export class DocumentValidationTool extends StructuredTool {
   name = "document_validation";
   description =
     "Validate document metadata including issue dates, expiry dates, and issuer authenticity.";
@@ -208,7 +210,7 @@ export class DocumentValidationTool extends Tool {
     issueDate: z.string(),
     expiryDate: z.string(),
     issuer: z.string(),
-  });
+  }) as any;
 
   protected async _call(input: any): Promise<string> {
     try {
@@ -285,10 +287,11 @@ export class DocumentValidationTool extends Tool {
         riskScore: Math.min(100, riskScore),
       });
     } catch (error) {
-      logger.error("Document validation error:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Document validation error:", err);
       return JSON.stringify({
         status: "error",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: err.message,
       });
     }
   }
@@ -298,7 +301,7 @@ export class DocumentValidationTool extends Tool {
  * Anomaly Detection Tool
  * Identifies potential fraud indicators from OCR data
  */
-export class AnomalyDetectionTool extends Tool {
+export class AnomalyDetectionTool extends StructuredTool {
   name = "anomaly_detection";
   description =
     "Detect fraud anomalies in document OCR data. Identifies inconsistencies, suspicious patterns, and red flags.";
@@ -307,7 +310,7 @@ export class AnomalyDetectionTool extends Tool {
     ocrText: z.string(),
     documentType: z.string(),
     expectedFields: z.array(z.string()).optional(),
-  });
+  }) as any;
 
   protected async _call(input: any): Promise<string> {
     try {
@@ -380,10 +383,11 @@ export class AnomalyDetectionTool extends Tool {
           Math.min(100, anomalies.length * 10 + confidenceSum * 50) || 0,
       });
     } catch (error) {
-      logger.error("Anomaly detection error:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error("Anomaly detection error:", err);
       return JSON.stringify({
         status: "error",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: err.message,
       });
     }
   }

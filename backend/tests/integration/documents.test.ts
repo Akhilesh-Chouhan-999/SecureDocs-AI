@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import request from "supertest";
 import type { Express, Request, Response, NextFunction } from "express";
 import fs from "fs";
@@ -9,10 +10,10 @@ describe("Document Lifecycle Integration Tests", () => {
   const testToken = "valid-jwt-token";
 
   const mockDocumentService = {
-    uploadDocument: jest.fn(),
-    listForUser: jest.fn(),
-    getDocument: jest.fn(),
-    deleteDocument: jest.fn(),
+    uploadDocument: jest.fn() as any,
+    listForUser: jest.fn() as any,
+    getDocument: jest.fn() as any,
+    deleteDocument: jest.fn() as any,
   };
 
   const mockAuthMiddleware = (
@@ -31,24 +32,31 @@ describe("Document Lifecycle Integration Tests", () => {
   beforeAll(() => {
     jest.resetModules();
 
-    jest.mock("../../src/middleware/auth.middleware", () => ({
-      authenticate: mockAuthMiddleware,
-      requireRole:
-        (roles: string[]) =>
-        (req: Request, res: Response, next: NextFunction) => {
-          if (roles.includes((req as any).user?.role || "")) next();
-          else res.status(403).json({ success: false, error: "Forbidden" });
-        },
-    }));
+    jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));
+
+    
+
+    
+
+    
 
     jest.mock("../../src/config/container", () => ({
-      get: (name: string) => {
-        if (name === "documentService") return mockDocumentService;
-        return null;
-      },
+      __esModule: true,
+      default: { get: (name: string) => {
+        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
+      } },
+      container: { get: (name: string) => {
+        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
+      } }
     }));
 
-    app = require("../../src/app");
+    
+
+    
+
+    
+
+    app = require("../../src/app").default || require("../../src/app");
   });
 
   afterEach(() => {
@@ -513,3 +521,4 @@ describe("Document Lifecycle Integration Tests", () => {
     });
   });
 });
+

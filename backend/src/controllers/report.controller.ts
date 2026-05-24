@@ -37,6 +37,15 @@ export class ReportController {
     } catch (error) { return next(error); }
   }
 
+  static async downloadCsvReport(req: any, res: any, next: any) {
+    try {
+      const exportData = await container.get("reportService").buildCsvExport(req.params.reportId);
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename=${exportData.fileName}`);
+      return res.send(exportData.content);
+    } catch (error) { return next(error); }
+  }
+
   static async reviewReport(req: any, res: any, next: any) {
     try {
       const report = await container.get("reportService").reviewReport(req.params.reportId, req.user, req.body);

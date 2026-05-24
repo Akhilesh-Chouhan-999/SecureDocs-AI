@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import request from "supertest";
 import type { Express, Request, Response, NextFunction } from "express";
 
@@ -8,8 +9,8 @@ describe("Historical Data & Context Integration Tests", () => {
   const testEmail = "customer@example.com";
 
   const mockHistoryService = {
-    getHistoricalContext: jest.fn(),
-    searchHistory: jest.fn(),
+    getHistoricalContext: jest.fn() as any,
+    searchHistory: jest.fn() as any,
   };
 
   const mockAuthMiddleware = (
@@ -28,24 +29,31 @@ describe("Historical Data & Context Integration Tests", () => {
   beforeAll(() => {
     jest.resetModules();
 
-    jest.mock("../../src/middleware/auth.middleware", () => ({
-      authenticate: mockAuthMiddleware,
-      requireRole:
-        (roles: string[]) =>
-        (req: Request, res: Response, next: NextFunction) => {
-          if (roles.includes((req as any).user?.role || "")) next();
-          else res.status(403).json({ success: false, error: "Forbidden" });
-        },
-    }));
+    jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));
+
+    
+
+    
+
+    
 
     jest.mock("../../src/config/container", () => ({
-      get: (name: string) => {
-        if (name === "historyService") return mockHistoryService;
-        return null;
-      },
+      __esModule: true,
+      default: { get: (name: string) => {
+        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
+      } },
+      container: { get: (name: string) => {
+        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
+      } }
     }));
 
-    app = require("../../src/app");
+    
+
+    
+
+    
+
+    app = require("../../src/app").default || require("../../src/app");
   });
 
   afterEach(() => {
@@ -544,3 +552,4 @@ describe("Historical Data & Context Integration Tests", () => {
     });
   });
 });
+

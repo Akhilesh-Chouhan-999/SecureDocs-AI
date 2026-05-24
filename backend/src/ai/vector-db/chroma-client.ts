@@ -150,7 +150,7 @@ class ChromaClient {
       this.stats.searches++;
 
       // Convert to SearchResult format
-      const results: SearchResult[] = similarDocs.map(([doc, similarity]) => {
+      const results: SearchResult[] = similarDocs.map(([doc, similarity]: [Document, number]) => {
         // Update average similarity
         const prevAvg = this.stats.avgSimilarity;
         this.stats.avgSimilarity =
@@ -310,4 +310,5 @@ export function closeAllChromaClients(): void {
   logger.info("All ChromaDB client instances closed");
 }
 
-export { ChromaClient, ChromaConfig, SearchResult, StorageStats };
+export { ChromaClient };
+export type { ChromaConfig, SearchResult, StorageStats };

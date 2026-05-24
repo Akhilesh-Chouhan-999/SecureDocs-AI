@@ -1,82 +1,99 @@
-/**
- * Escape text characters that could corrupt PDF stream syntax
- * @param value Text block to escape
- */
-const escapePdfText = (value = "") =>
-  String(value)
-    .replace(/\\/g, "\\\\")
-    .replace(/\(/g, "\\(")
-    .replace(/\)/g, "\\)")
-    .replace(/\r?\n/g, "\\n");
+import PDFDocument from "pdfkit";
 
 /**
- * Basic pure PDF generator creating Helvetica page stream
- * @param lines Text lines to display
- */
-const renderPdfBuffer = (lines: string[] = []) => {
-  const sanitizedLines = lines.filter(Boolean);
-  const body = sanitizedLines
-    .map((line: string, index: number) => `BT /F1 12 Tf 50 ${770 - index * 18} Td (${escapePdfText(line)}) Tj ET`)
-    .join("\n");
-
-  const objects = [
-    "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
-    "2 0 obj << /Type /Pages /Count 1 /Kids [3 0 R] >> endobj",
-    "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj",
-    "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
-    `5 0 obj << /Length ${Buffer.byteLength(body, "utf8")} >> stream\n${body}\nendstream endobj`,
-  ];
-
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-
-  for (const object of objects) {
-    offsets.push(Buffer.byteLength(pdf, "utf8"));
-    pdf += `${object}\n`;
-  }
-
-  const xrefStart = Buffer.byteLength(pdf, "utf8");
-  pdf += `xref\n0 ${objects.length + 1}\n`;
-  pdf += "0000000000 65535 f \n";
-
-  for (let index = 1; index < offsets.length; index += 1) {
-    pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
-  }
-
-  pdf += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
-
-  return Buffer.from(pdf, "utf8");
-};
-
-/**
- * Generate a PDF document report buffer from FraudReportEntity details
+ * Generate a professional PDF document report buffer from FraudReportEntity details
+ * using PDFKit.
  * @param report The fraud report object context
+ * @returns Promise<Buffer>
  */
-export const buildReportPdf = (report: any) => {
-  const lines: string[] = [
-    "SecureDocs AI Fraud Report",
-    `Report ID: ${report._id}`,
-    `Document ID: ${report.document?._id || report.document || "unknown"}`,
-    `Analyst ID: ${report.analyst?._id || report.analyst || "unknown"}`,
-    `Risk Level: ${report.riskLevel}`,
-    `Risk Score: ${report.riskScore}/100`,
-    `Decision: ${report.decision || "pending"}`,
-    `Reviewed By: ${report.reviewedBy?._id || report.reviewedBy || "n/a"}`,
-    `Reviewed At: ${report.reviewedAt || "n/a"}`,
-    "",
-    "Summary:",
-    report.summary || "No summary available",
-    "",
-    "Recommendations:",
-    ...(report.recommendations || []).map((item: string, index: number) => `${index + 1}. ${item}`),
-    "",
-    "Anomalies:",
-    ...((report.anomalies || []).map((anomaly: any, index: number) =>
-      `${index + 1}. [${anomaly.severity}] ${anomaly.type} - ${anomaly.description}`,
-    )),
-  ];
+export const buildReportPdf = (report: any): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50, size: "A4" });
+      const buffers: Buffer[] = [];
 
-  return renderPdfBuffer(lines);
+      doc.on("data", buffers.push.bind(buffers));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
+
+      // Header
+      doc.fontSize(24).font("Helvetica-Bold").text("SecureDocs AI", { align: "center" });
+      doc.fontSize(16).text("Fraud Analysis Report", { align: "center" });
+      doc.moveDown(2);
+
+      // Metadata Section
+      doc.fontSize(12).font("Helvetica-Bold").text("Document Details:");
+      doc.font("Helvetica").fontSize(10);
+      doc.text(`Report ID: ${report._id}`);
+      doc.text(`Document ID: ${report.document?._id || report.document || "unknown"}`);
+      doc.text(`Analyst ID: ${report.analyst?._id || report.analyst || "unknown"}`);
+      doc.moveDown(1);
+
+      // Risk Section
+      doc.fontSize(12).font("Helvetica-Bold").text("Risk Assessment:");
+      doc.font("Helvetica").fontSize(10);
+      doc.text(`Risk Score: ${report.riskScore}/100`);
+      
+      // Color-code the risk level
+      const riskLevel = (report.riskLevel || "unknown").toLowerCase();
+      let riskColor = "black";
+      if (riskLevel === "low") riskColor = "green";
+      else if (riskLevel === "medium") riskColor = "orange";
+      else if (riskLevel === "high") riskColor = "red";
+      else if (riskLevel === "critical") riskColor = "darkred";
+      
+      doc.fillColor(riskColor).text(`Risk Level: ${riskLevel.toUpperCase()}`);
+      doc.fillColor("black"); // Reset
+      
+      doc.text(`Decision: ${(report.decision || "pending").toUpperCase()}`);
+      if (report.reviewedBy) {
+        doc.text(`Reviewed By: ${report.reviewedBy?._id || report.reviewedBy}`);
+        doc.text(`Reviewed At: ${report.reviewedAt}`);
+      }
+      doc.moveDown(2);
+
+      // Executive Summary
+      doc.fontSize(14).font("Helvetica-Bold").text("Executive Summary");
+      doc.font("Helvetica").fontSize(10).text(report.summary || "No summary available.", {
+        align: "justify",
+      });
+      doc.moveDown(2);
+
+      // Recommendations
+      if (report.recommendations && report.recommendations.length > 0) {
+        doc.fontSize(14).font("Helvetica-Bold").text("Recommendations");
+        doc.font("Helvetica").fontSize(10);
+        report.recommendations.forEach((item: string, index: number) => {
+          doc.text(`${index + 1}. ${item}`);
+        });
+        doc.moveDown(2);
+      }
+
+      // Anomalies
+      if (report.anomalies && report.anomalies.length > 0) {
+        doc.fontSize(14).font("Helvetica-Bold").text("Detected Anomalies");
+        doc.moveDown(1);
+
+        report.anomalies.forEach((anomaly: any, index: number) => {
+          doc.font("Helvetica-Bold").fontSize(10).text(`Anomaly #${index + 1}: ${anomaly.type} `);
+          doc.font("Helvetica").fontSize(10);
+          doc.text(`Severity: ${anomaly.severity.toUpperCase()}`);
+          doc.text(`Confidence: ${Math.round((anomaly.confidence || 0) * 100)}%`);
+          doc.text(`Description: ${anomaly.description}`);
+          doc.moveDown(1);
+        });
+      } else {
+        doc.fontSize(14).font("Helvetica-Bold").text("Detected Anomalies");
+        doc.font("Helvetica").fontSize(10).text("No anomalies detected in this document.");
+      }
+
+      // Footer
+      doc.fontSize(8).text(`Generated by SecureDocs AI on ${new Date().toISOString()}`, 50, doc.page.height - 50, { align: "center" });
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 export const reportPdf = {

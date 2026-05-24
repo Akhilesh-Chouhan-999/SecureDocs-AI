@@ -5,6 +5,7 @@ import { connectDB, env } from "./config/index.js";
 import { initializeSockets } from "./sockets/index.js";
 import { logger } from "./logs/index.js";
 
+// @ts-ignore
 const __filename = fileURLToPath(import.meta.url);
 
 const startServer = async () => {
@@ -24,6 +25,7 @@ const startServer = async () => {
   return server;
 };
 
+// @ts-ignore
 if (import.meta.url === `file://${process.argv[1]}`) {
   startServer().catch((error) => {
     logger.error("Failed to start server", { message: error.message });

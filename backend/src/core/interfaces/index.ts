@@ -1,4 +1,4 @@
-import { IRepository } from "./repository.interface";
+import { IRepository } from "./repository.interface.js";
 
 export interface IService {
   // Base service interface
@@ -19,4 +19,4 @@ export interface Workflow<T, R> {
   run(input: T): Promise<R>;
 }
 
-export { IRepository };
+export type { IRepository };

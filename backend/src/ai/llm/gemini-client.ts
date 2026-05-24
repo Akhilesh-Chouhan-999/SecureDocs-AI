@@ -4,7 +4,7 @@
  */
 
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { BaseLanguageModel } from "@langchain/core/language_models/base";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { logger } from "../../logs/index.js";
 import { ILLMClient, ILLMConfig, LLMError, LLMOptions } from "./base-llm.js";
 
@@ -32,7 +32,7 @@ export class GeminiClient implements ILLMClient {
   /**
    * Initialize Gemini client
    */
-  async initialize(): Promise<BaseLanguageModel> {
+  async initialize(): Promise<any> {
     try {
       if (this.client) {
         return this.client;
@@ -70,9 +70,10 @@ export class GeminiClient implements ILLMClient {
 
       const startTime = Date.now();
 
-      const response = await (client as ChatGoogleGenerativeAI).invoke(input, {
-        temperature: options?.temperature || this.config.temperature,
-        maxOutputTokens: options?.maxTokens || this.config.maxTokens,
+      const response = await (client as ChatGoogleGenerativeAI).invoke({
+        input,
+        temperature: options?.temperature ?? this.config.temperature ?? 0.3,
+        maxOutputTokens: options?.maxTokens ?? this.config.maxTokens ?? 2000,
       });
 
       const latency = Date.now() - startTime;

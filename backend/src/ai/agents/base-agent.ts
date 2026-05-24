@@ -5,8 +5,8 @@
 
 import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { Tool } from "@langchain/core/tools";
-import { BaseLanguageModel } from "@langchain/core/language_models/base";
+import type { StructuredTool } from "@langchain/core/tools";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { logger } from "../../logs/index.js";
 
 /**
@@ -31,11 +31,11 @@ export interface AgentExecutionResult {
  */
 export abstract class BaseAgent {
   protected agentExecutor: AgentExecutor | null = null;
-  protected tools: Tool[];
-  protected llm: BaseLanguageModel;
+  protected tools: any[];
+  protected llm: any;
   protected agentName: string;
 
-  constructor(agentName: string, llm: BaseLanguageModel, tools: Tool[] = []) {
+  constructor(agentName: string, llm: any, tools: any[] = []) {
     this.agentName = agentName;
     this.llm = llm;
     this.tools = tools;
@@ -142,7 +142,7 @@ export abstract class BaseAgent {
   /**
    * Add tools to agent
    */
-  addTools(tools: Tool[]): void {
+  addTools(tools: any[]): void {
     this.tools.push(...tools);
     logger.debug(`Added ${tools.length} tools to agent '${this.agentName}'`);
   }
