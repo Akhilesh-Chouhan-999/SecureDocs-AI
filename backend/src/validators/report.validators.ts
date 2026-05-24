@@ -5,7 +5,9 @@ export const generate = Joi.object({
   anomalies: Joi.array().items(
     Joi.object({
       type: Joi.string().required(),
-      severity: Joi.string().valid("low", "medium", "high", "critical").required(),
+      severity: Joi.string()
+        .valid("low", "medium", "high", "critical")
+        .required(),
       description: Joi.string().required(),
       affectedField: Joi.string().default("document"),
       confidence: Joi.number().min(0).max(1).default(0.5),
@@ -24,7 +26,12 @@ export const userId = Joi.object({
 
 export const list = Joi.object({
   riskLevel: Joi.string().valid("low", "medium", "high", "critical"),
-  decision: Joi.string().valid("pending", "approved", "rejected", "manual_review"),
+  decision: Joi.string().valid(
+    "pending",
+    "approved",
+    "rejected",
+    "manual_review",
+  ),
   search: Joi.string().allow("", null),
   minRiskScore: Joi.number().min(0).max(100),
   maxRiskScore: Joi.number().min(0).max(100),
@@ -33,7 +40,9 @@ export const list = Joi.object({
 });
 
 export const review = Joi.object({
-  decision: Joi.string().valid("pending", "approved", "rejected", "manual_review").required(),
+  decision: Joi.string()
+    .valid("pending", "approved", "rejected", "manual_review")
+    .required(),
   notes: Joi.string().allow("", null).max(2000),
 });
 

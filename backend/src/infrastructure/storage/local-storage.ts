@@ -6,7 +6,8 @@ import { SUPPORTED_DOCUMENT_MIME_TYPES } from "../../types/index.js";
 /**
  * Resolve absolute directory path where uploads are saved
  */
-export const resolveUploadDirectory = () => path.resolve(process.cwd(), env.uploadDir);
+export const resolveUploadDirectory = () =>
+  path.resolve(process.cwd(), env.uploadDir);
 
 /**
  * Ensure target upload directory exists, creating recursively if not present

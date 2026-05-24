@@ -5,6 +5,7 @@ import FraudReport from "../models/FraudReport.js";
  * Repository layer handling Fraud Report persistence operations
  */
 export class FraudReportRepository extends BaseRepository {
+
   constructor() {
     super(FraudReport);
   }
@@ -15,10 +16,10 @@ export class FraudReportRepository extends BaseRepository {
    */
   async findDetailedById(reportId: any) {
     return this.model
-                    .findById(reportId)
-                    .populate("document")
-                    .populate("analyst", "-password")
-                    .exec();
+      .findById(reportId)
+      .populate("document")
+      .populate("analyst", "-password")
+      .exec();
   }
 
   /**
@@ -27,10 +28,10 @@ export class FraudReportRepository extends BaseRepository {
    */
   async findByAnalyst(userId: any) {
     return this.model
-                    .find({ analyst: userId })
-                    .populate("document")
-                    .sort({ createdAt: -1 })
-                    .exec();
+      .find({ analyst: userId })
+      .populate("document")
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   /**
@@ -95,4 +96,5 @@ export class FraudReportRepository extends BaseRepository {
   async countByAnalyst(userId: any, filters: Record<string, any> = {}) {
     return this.model.countDocuments(this.buildFilter(userId, filters)).exec();
   }
+
 }

@@ -30,6 +30,7 @@ export interface AgentExecutionResult {
  * BaseAgent - Abstract base class for agents
  */
 export abstract class BaseAgent {
+
   protected agentExecutor: AgentExecutor | null = null;
   protected tools: any[];
   protected llm: any;
@@ -165,6 +166,7 @@ export abstract class BaseAgent {
    * Abstract method to be implemented by subclasses
    */
   abstract execute(input: any): Promise<AgentExecutionResult>;
+
 }
 
 export default BaseAgent;

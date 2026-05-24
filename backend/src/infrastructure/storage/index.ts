@@ -1,1 +1,6 @@
-export { ensureUploadDirectory, resolveUploadDirectory, getStorageConfiguration, storage } from "./local-storage.js";
+export {
+  ensureUploadDirectory,
+  resolveUploadDirectory,
+  getStorageConfiguration,
+  storage,
+} from "./local-storage.js";

@@ -1,4 +1,5 @@
 export class FraudDetectionAgent {
+
   private llm: any;
   private tools: any[];
 
@@ -27,4 +28,5 @@ export class FraudDetectionAgent {
   static fromLLMAndTools(llm: any, tools: any[]): FraudDetectionAgent {
     return new FraudDetectionAgent(llm, tools);
   }
+
 }

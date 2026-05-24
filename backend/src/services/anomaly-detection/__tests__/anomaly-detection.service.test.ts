@@ -15,10 +15,14 @@ describe("AnomalyDetectionService", () => {
     };
     const historicalRecords: any[] = [];
 
-    const anomalies = await service.evaluateDocument(document, extractedData, historicalRecords);
+    const anomalies = await service.evaluateDocument(
+      document,
+      extractedData,
+      historicalRecords,
+    );
 
     expect(anomalies.length).toBeGreaterThan(0);
-    const types = anomalies.map(a => a.type);
+    const types = anomalies.map((a) => a.type);
     expect(types).toContain("high_income_outlier");
     expect(types).toContain("ownership_mismatch");
   });

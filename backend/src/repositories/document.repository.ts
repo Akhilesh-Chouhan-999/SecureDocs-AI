@@ -5,6 +5,7 @@ import Document from "../models/Document.js";
  * Repository layer handling Document persistence operations
  */
 export class DocumentRepository extends BaseRepository {
+
   constructor() {
     super(Document);
   }
@@ -32,7 +33,11 @@ export class DocumentRepository extends BaseRepository {
    * @param filters Key value filters mapping (status, search term)
    * @param pagination Page, limit, skip parameters
    */
-  async searchByUser(userId: any, filters: Record<string, any> = {}, pagination = { page: 1, limit: 10, skip: 0 }) {
+  async searchByUser(
+    userId: any,
+    filters: Record<string, any> = {},
+    pagination = { page: 1, limit: 10, skip: 0 },
+  ) {
     const query: Record<string, any> = { user: userId };
 
     if (filters.status) query.status = filters.status;
@@ -71,4 +76,5 @@ export class DocumentRepository extends BaseRepository {
 
     return this.model.countDocuments(query).exec();
   }
+
 }

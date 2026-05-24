@@ -35,6 +35,7 @@ export interface ILLMClient {
  * LLMError - Custom error for LLM operations
  */
 export class LLMError extends Error {
+
   constructor(
     public provider: string,
     public originalError: Error,
@@ -43,6 +44,7 @@ export class LLMError extends Error {
     super(message || originalError.message);
     this.name = "LLMError";
   }
+
 }
 
 /**

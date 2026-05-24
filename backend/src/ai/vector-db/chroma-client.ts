@@ -38,6 +38,7 @@ interface StorageStats {
  * ChromaDB Vector Store Client
  */
 class ChromaClient {
+
   private vectorStore: Chroma | null = null;
   private embeddings: OpenAIEmbeddings;
   private config: ChromaConfig;
@@ -150,20 +151,22 @@ class ChromaClient {
       this.stats.searches++;
 
       // Convert to SearchResult format
-      const results: SearchResult[] = similarDocs.map(([doc, similarity]: [Document, number]) => {
-        // Update average similarity
-        const prevAvg = this.stats.avgSimilarity;
-        this.stats.avgSimilarity =
-          (prevAvg * (this.stats.searches - 1) + similarity) /
-          this.stats.searches;
+      const results: SearchResult[] = similarDocs.map(
+        ([doc, similarity]: [Document, number]) => {
+          // Update average similarity
+          const prevAvg = this.stats.avgSimilarity;
+          this.stats.avgSimilarity =
+            (prevAvg * (this.stats.searches - 1) + similarity) /
+            this.stats.searches;
 
-        return {
-          id: doc.metadata?.id || `doc-${Date.now()}`,
-          content: doc.pageContent,
-          similarity: Math.round(similarity * 100) / 100,
-          metadata: doc.metadata,
-        };
-      });
+          return {
+            id: doc.metadata?.id || `doc-${Date.now()}`,
+            content: doc.pageContent,
+            similarity: Math.round(similarity * 100) / 100,
+            metadata: doc.metadata,
+          };
+        },
+      );
 
       logger.debug(
         `Similarity search completed in ${latency}ms, found ${results.length} results`,
@@ -271,12 +274,14 @@ class ChromaClient {
       isInitialized: this.isInitialized(),
     };
   }
+
 }
 
 /**
  * Custom ChromaDB error
  */
 export class ChromaError extends Error {
+
   constructor(
     message: string,
     public originalError: unknown,
@@ -284,6 +289,7 @@ export class ChromaError extends Error {
     super(message);
     this.name = "ChromaError";
   }
+
 }
 
 // Singleton instances for different collections

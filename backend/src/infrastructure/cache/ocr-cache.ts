@@ -1,20 +1,25 @@
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 import env from "../../config/env.js";
 import { logger } from "../../logs/index.js";
 
 class OcrCache {
+
   private client: Redis | null = null;
   private readonly defaultTTL = 86400; // 24 hours
 
   constructor() {
     try {
-      this.client = new Redis({
-        host: env.REDIS_HOST || "127.0.0.1",
-        port: parseInt(env.REDIS_PORT || "6379", 10),
-        lazyConnect: true,
-      });
-      
-      this.client.on("error", (err) => {
+      if (env.redisUrl) {
+        this.client = new Redis(env.redisUrl, { lazyConnect: true });
+      } else {
+        this.client = new Redis({
+          host: "127.0.0.1",
+          port: 6379,
+          lazyConnect: true,
+        });
+      }
+
+      this.client.on("error", (err: Error) => {
         logger.warn("Redis OCR Cache error:", err);
       });
     } catch (err) {
@@ -58,16 +63,26 @@ class OcrCache {
    * @param result The OCR output object
    * @param ttl Time-to-live in seconds (default 24h)
    */
-  async set(documentId: string, result: any, ttl: number = this.defaultTTL): Promise<void> {
+  async set(
+    documentId: string,
+    result: any,
+    ttl: number = this.defaultTTL,
+  ): Promise<void> {
     if (!this.client) return;
 
     try {
-      await this.client.set(this.getCacheKey(documentId), JSON.stringify(result), "EX", ttl);
+      await this.client.set(
+        this.getCacheKey(documentId),
+        JSON.stringify(result),
+        "EX",
+        ttl,
+      );
       logger.info(`OCR Cache set for document ${documentId}`);
     } catch (error) {
       logger.warn(`Failed to set OCR cache for ${documentId}`, error);
     }
   }
+
 }
 
 export const ocrCache = new OcrCache();

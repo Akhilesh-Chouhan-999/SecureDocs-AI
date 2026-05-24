@@ -10,7 +10,16 @@ const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 const lngDetector = new LanguageDetect();
 
 export class OcrWorker {
-  private imageExtensions = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".bmp"]);
+
+  private imageExtensions = new Set([
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".webp",
+    ".bmp",
+  ]);
 
   async processFile(filePath: string) {
     const extension = path.extname(String(filePath || "")).toLowerCase();
@@ -27,7 +36,11 @@ export class OcrWorker {
       // Multi-page PDF handling optimization (Limit to 10 pages max to prevent memory exhaustion)
       const parsedData = await pdfParse(dataBuffer, { max: 10 });
       const duration = Date.now() - startTime;
-      logger.info("OCR Worker completed (PDF text extraction)", { filePath, durationMs: duration, confidence: 1.0 });
+      logger.info("OCR Worker completed (PDF text extraction)", {
+        filePath,
+        durationMs: duration,
+        confidence: 1.0,
+      });
 
       return {
         text: parsedData.text || "",
@@ -38,7 +51,7 @@ export class OcrWorker {
       };
     } else if (this.imageExtensions.has(extension)) {
       const worker = await Tesseract.createWorker("eng");
-      
+
       try {
         const result = await worker.recognize(filePath);
         const text = String(result.data.text || "").trim();
@@ -48,10 +61,17 @@ export class OcrWorker {
           .filter(Boolean);
 
         const duration = Date.now() - startTime;
-        logger.info("OCR Worker completed (Tesseract image)", { filePath, durationMs: duration, confidence });
+        logger.info("OCR Worker completed (Tesseract image)", {
+          filePath,
+          durationMs: duration,
+          confidence,
+        });
 
-        if (confidence < 0.80) {
-          throw new ValidationError("OCR confidence is too low (less than 80%)", { confidence, filePath });
+        if (confidence < 0.8) {
+          throw new ValidationError(
+            "OCR confidence is too low (less than 80%)",
+            { confidence, filePath },
+          );
         }
 
         return {
@@ -79,10 +99,11 @@ export class OcrWorker {
 
   private parseStructuredData(text: string) {
     const structuredData: any = {};
-    
+
     // 1. Language Detection
     const detectedLangs = lngDetector.detect(text, 1);
-    structuredData.language = detectedLangs.length > 0 ? detectedLangs[0][0] : "unknown";
+    structuredData.language =
+      detectedLangs.length > 0 ? detectedLangs[0][0] : "unknown";
 
     // 2. Extract Borrower
     const borrowerMatch = text.match(/Borrower:\s*(.+)/i);
@@ -103,15 +124,15 @@ export class OcrWorker {
     }
 
     // 5. Advanced Segmentation (Headers, Footers, Tables)
-    const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
-    
+    const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
+
     if (lines.length > 0) {
       structuredData.header = lines.slice(0, 3).join("\n");
       structuredData.footer = lines.slice(-3).join("\n");
     }
 
     // Attempt to locate a basic tabular section (lines with multiple spacing)
-    const tableLines = lines.filter(line => line.match(/(?:\s{2,}|\t)/g));
+    const tableLines = lines.filter((line) => line.match(/(?:\s{2,}|\t)/g));
     if (tableLines.length > 2) {
       structuredData.tableDetected = true;
       structuredData.tabularData = tableLines.slice(0, 5); // Store snippet of table
@@ -121,4 +142,5 @@ export class OcrWorker {
 
     return structuredData;
   }
+
 }

@@ -17,6 +17,7 @@ const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
  * Service orchestrating Document OCR parsing pipelines and fraud heuristics workflows
  */
 export class AnalysisService {
+
   private documentService: any;
   private historicalRepository: any;
   private anomalyDetectionService: AnomalyDetectionService;
@@ -36,7 +37,10 @@ export class AnalysisService {
    * @param userId Creator Analyst User ObjectId string
    */
   async analyzeDocument(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
     document.status = DOCUMENT_STATUSES.PROCESSING;
     await document.save();
 
@@ -57,18 +61,17 @@ export class AnalysisService {
 
       try {
         await this.historicalRepository.create({
-          key: document._id.toString(),
-          value: {
-            documentId: document._id,
-            userId: userId,
-            ocrConfidence: ocrResult.confidence,
-            structuredData: workflow.structuredData,
-            anomalies: workflow.anomalies,
-          },
+          documentId: document._id,
+          userId: userId,
+          ocrConfidence: ocrResult.confidence,
+          structuredData: workflow.structuredData,
+          anomalies: workflow.anomalies,
           source: "analysis.service",
         });
       } catch (historyError) {
-        logger.warn("Failed to persist analysis history", { error: historyError });
+        logger.warn("Failed to persist analysis history", {
+          error: historyError,
+        });
       }
 
       return {
@@ -84,7 +87,8 @@ export class AnalysisService {
       };
     } catch (error: unknown) {
       document.status = DOCUMENT_STATUSES.FAILED;
-      document.statusMessage = error instanceof Error ? error.message : String(error);
+      document.statusMessage =
+        error instanceof Error ? error.message : String(error);
       await document.save();
       throw error;
     }
@@ -96,7 +100,10 @@ export class AnalysisService {
    * @param userId Creator Analyst User ObjectId string
    */
   async extractOcr(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
     document.status = DOCUMENT_STATUSES.PROCESSING;
     await document.save();
 
@@ -129,7 +136,8 @@ export class AnalysisService {
       };
     } catch (error: unknown) {
       document.status = DOCUMENT_STATUSES.FAILED;
-      document.statusMessage = error instanceof Error ? error.message : String(error);
+      document.statusMessage =
+        error instanceof Error ? error.message : String(error);
       await document.save();
       throw error;
     }
@@ -141,7 +149,10 @@ export class AnalysisService {
    * @param userId Owner User ObjectId string
    */
   async getStatus(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
     return {
       documentId: document._id,
       status: document.status,
@@ -156,7 +167,10 @@ export class AnalysisService {
    * @param userId Owner User ObjectId string
    */
   async getResults(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
 
     if (!document.ocrText) {
       throw new NotFoundError("Analysis result");
@@ -177,7 +191,10 @@ export class AnalysisService {
    * @param userId Owner User ObjectId string
    */
   async detectAnomaly(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
 
     if (!document.ocrText) {
       throw new ValidationError("Document has not been analyzed yet");
@@ -190,14 +207,15 @@ export class AnalysisService {
           anomalies: workflow.anomalies,
           deterministicAnomalies: workflow.deterministicAnomalies,
           riskScore: workflow.riskScore,
-          riskLevel: workflow.riskLevel
+          riskLevel: workflow.riskLevel,
         }
       : {
           anomalies: [
             {
               type: "manual_review",
               severity: "low",
-              description: "No strong automated anomaly detected in the current ruleset.",
+              description:
+                "No strong automated anomaly detected in the current ruleset.",
               affectedField: "document",
               confidence: 0.55,
               suggestedAction: "Perform normal underwriting review.",
@@ -205,7 +223,7 @@ export class AnalysisService {
           ],
           deterministicAnomalies: [],
           riskScore: workflow.riskScore,
-          riskLevel: workflow.riskLevel
+          riskLevel: workflow.riskLevel,
         };
   }
 
@@ -215,8 +233,13 @@ export class AnalysisService {
    * @param userId Owner User ObjectId string
    */
   async calculateRiskScore(documentId: any, userId: any) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
-    const text = document.ocrText || (await this.performOCRAnalysis(document.filePath)).text;
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
+    const text =
+      document.ocrText ||
+      (await this.performOCRAnalysis(document.filePath)).text;
     const workflow = await this.runWorkflow(document, text);
 
     return {
@@ -226,7 +249,9 @@ export class AnalysisService {
       historicalContext: workflow.historicalContext,
       riskScore: workflow.riskScore,
       riskLevel: workflow.riskLevel,
-      recommendations: workflow.anomalies.map(a => a.suggestedAction).filter(Boolean)
+      recommendations: workflow.anomalies
+        .map((a) => a.suggestedAction)
+        .filter(Boolean),
     };
   }
 
@@ -235,7 +260,9 @@ export class AnalysisService {
    * @param filePath Local path to file
    */
   async performOCRAnalysis(filePath: string) {
-    const ocrWorker = new (await import("../infrastructure/ocr/ocr-worker.js")).OcrWorker();
+    const ocrWorker = new (
+      await import("../infrastructure/ocr/ocr-worker.js")
+    ).OcrWorker();
     return ocrWorker.processFile(filePath);
   }
 
@@ -245,32 +272,43 @@ export class AnalysisService {
    * @param text OCR extracted text block
    */
   async runWorkflow(document: any, text: string) {
-    const rawHistorical = await this.historicalRepository.findAll({}, { sort: { createdAt: -1 }, limit: 5 });
+    const rawHistorical = await this.historicalRepository.findAll(
+      {},
+      { sort: { createdAt: -1 }, limit: 5 },
+    );
     const historicalRecords = normalizeHistoricalRecords(rawHistorical);
 
     // Run AI analysis
-    const aiWorkflow = await runDocumentAnalysisWorkflow({ document, text, historicalRecords });
+    const aiWorkflow = await runDocumentAnalysisWorkflow({
+      document,
+      text,
+      historicalRecords,
+    });
 
     // Run deterministic rules
-    const deterministicAnomalies = await this.anomalyDetectionService.evaluateDocument(
-      document,
-      aiWorkflow.structuredData,
-      rawHistorical
-    );
+    const deterministicAnomalies =
+      await this.anomalyDetectionService.evaluateDocument(
+        document,
+        aiWorkflow.structuredData,
+        rawHistorical,
+      );
 
     // Combine anomalies
     const allAnomalies = [...aiWorkflow.anomalies, ...deterministicAnomalies];
 
     // Compute composite risk score
-    const compositeRiskScore = this.compositeScorer.calculateRiskScore(allAnomalies);
-    const riskLevel = this.compositeScorer.determineRiskLevel(compositeRiskScore);
+    const compositeRiskScore =
+      this.compositeScorer.calculateRiskScore(allAnomalies);
+    const riskLevel =
+      this.compositeScorer.determineRiskLevel(compositeRiskScore);
 
     return {
       ...aiWorkflow,
       anomalies: allAnomalies,
       deterministicAnomalies,
       riskScore: compositeRiskScore,
-      riskLevel: riskLevel
+      riskLevel: riskLevel,
     };
   }
+
 }

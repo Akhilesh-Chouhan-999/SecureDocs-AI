@@ -8,9 +8,11 @@ declare module "@langchain/agents" {
 
 declare module "@langchain/google-genai" {
   export class ChatGoogleGenerativeAI {
+
     constructor(options?: any);
     invoke(input: any): Promise<any>;
-  }
+  
+}
 }
 
 declare module "@langchain/core/language_models/llm" {

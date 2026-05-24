@@ -1,15 +1,29 @@
-import { jest, describe, beforeEach, afterEach, it, expect } from "@jest/globals";
+import {
+  jest,
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+} from "@jest/globals";
 
 const mockSendMail = jest.fn().mockResolvedValue({ messageId: "123" } as never);
-const mockCreateTestAccount = jest.fn().mockResolvedValue({ user: "test@ethereal.email", pass: "password" } as never);
-const mockCreateTransport = jest.fn().mockReturnValue({ sendMail: mockSendMail } as never);
+const mockCreateTestAccount = jest
+  .fn()
+  .mockResolvedValue({
+    user: "test@ethereal.email",
+    pass: "password",
+  } as never);
+const mockCreateTransport = jest
+  .fn()
+  .mockReturnValue({ sendMail: mockSendMail } as never);
 
 jest.unstable_mockModule("nodemailer", () => ({
   default: {
     createTestAccount: mockCreateTestAccount,
     createTransport: mockCreateTransport,
-    getTestMessageUrl: jest.fn().mockReturnValue("http://ethereal.url")
-  }
+    getTestMessageUrl: jest.fn().mockReturnValue("http://ethereal.url"),
+  },
 }));
 
 describe("NotificationService", () => {
@@ -28,26 +42,30 @@ describe("NotificationService", () => {
 
   it("should initialize ethereal email for development", async () => {
     await new Promise(process.nextTick);
-    
+
     expect(mockCreateTestAccount).toHaveBeenCalled();
     expect(mockCreateTransport).toHaveBeenCalledWith(
       expect.objectContaining({
         host: "smtp.ethereal.email",
-      })
+      }),
     );
   });
 
   it("should send analysis complete email", async () => {
     await new Promise(process.nextTick);
 
-    await service.sendAnalysisCompleteEmail("user@example.com", "doc-123", "low");
+    await service.sendAnalysisCompleteEmail(
+      "user@example.com",
+      "doc-123",
+      "low",
+    );
 
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "user@example.com",
         subject: expect.stringContaining("Analysis Complete"),
         html: expect.stringContaining("low"),
-      })
+      }),
     );
   });
 
@@ -61,7 +79,7 @@ describe("NotificationService", () => {
         to: "admin@example.com",
         subject: expect.stringContaining("CRITICAL RISK DETECTED"),
         html: expect.stringContaining("95/100"),
-      })
+      }),
     );
   });
 });

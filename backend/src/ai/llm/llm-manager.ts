@@ -38,6 +38,7 @@ const DEFAULT_CONFIG: LLMConfig = {
  * LLMManager: Handles LLM initialization and fallback logic
  */
 export class LLMManager {
+
   private openaiClient: ChatOpenAI | null = null;
   private geminiClient: ChatGoogleGenerativeAI | null = null;
   private config: LLMConfig;
@@ -271,6 +272,7 @@ export class LLMManager {
     this.config = { ...this.config, ...config };
     logger.info("LLMManager config updated", this.config);
   }
+
 }
 
 /**

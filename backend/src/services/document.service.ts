@@ -7,6 +7,7 @@ import { parsePagination, buildPagination } from "../utils/pagination.js";
  * Service managing document life cycle uploads, listing, lookup, and OCR updates
  */
 export class DocumentService {
+
   private documentRepository: any;
 
   constructor(documentRepository: any) {
@@ -45,7 +46,11 @@ export class DocumentService {
       search: query.search,
     };
     const [documents, total] = await Promise.all([
-      this.documentRepository.searchByUser(userId, filters, { page, limit, skip }),
+      this.documentRepository.searchByUser(userId, filters, {
+        page,
+        limit,
+        skip,
+      }),
       this.documentRepository.countByUser(userId, filters),
     ]);
 
@@ -62,7 +67,10 @@ export class DocumentService {
    * @param userId Owner User ObjectId string
    */
   async getOwnedDocument(documentId: any, userId: any) {
-    const document = await this.documentRepository.findOwnedById(documentId, userId);
+    const document = await this.documentRepository.findOwnedById(
+      documentId,
+      userId,
+    );
 
     if (!document) {
       throw new NotFoundError("Document");
@@ -95,4 +103,5 @@ export class DocumentService {
     document.statusMessage = result.warning || "OCR analysis completed";
     return document.save();
   }
+
 }

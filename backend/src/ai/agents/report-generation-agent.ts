@@ -32,6 +32,7 @@ export interface ReportGenerationAgentInput {
  * ReportGenerationAgent - Professional report generator
  */
 export class ReportGenerationAgent extends BaseAgent {
+
   constructor(llm: BaseLanguageModel) {
     super("ReportGenerationAgent", llm, []);
   }
@@ -159,6 +160,7 @@ Include:
     const match = text.match(regex);
     return match ? match[1].trim() : "";
   }
+
 }
 
 const REPORT_GENERATION_SYSTEM_PROMPT = `You are an expert underwriting specialist with extensive experience in fraud risk assessment and loan documentation review.

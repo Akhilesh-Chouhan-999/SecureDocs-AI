@@ -2,7 +2,15 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import { env } from "./config/index.js";
-import { authRoutes, documentRoutes, analysisRoutes, historyRoutes, reportRoutes, jobRoutes, systemRoutes } from "./routes/index.js";
+import {
+  authRoutes,
+  documentRoutes,
+  analysisRoutes,
+  historyRoutes,
+  reportRoutes,
+  jobRoutes,
+  systemRoutes,
+} from "./routes/index.js";
 import { errorMiddleware } from "./middleware/index.js";
 import { getApiOverview, routeCatalog } from "./docs/index.js";
 
@@ -18,7 +26,11 @@ app.use(helmet());
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-  message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes" }
+  message: {
+    success: false,
+    message:
+      "Too many requests from this IP, please try again after 15 minutes",
+  },
 });
 app.use("/api/", apiLimiter);
 

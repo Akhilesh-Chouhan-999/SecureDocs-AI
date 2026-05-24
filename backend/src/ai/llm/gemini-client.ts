@@ -12,6 +12,7 @@ import { ILLMClient, ILLMConfig, LLMError, LLMOptions } from "./base-llm.js";
  * GeminiClient - ChatGoogleGenerativeAI wrapper
  */
 export class GeminiClient implements ILLMClient {
+
   private client: ChatGoogleGenerativeAI | null = null;
   private config: ILLMConfig;
   private providerName = "Google Gemini";
@@ -117,6 +118,7 @@ export class GeminiClient implements ILLMClient {
   getModelName(): string {
     return this.config.modelName || "gemini-pro";
   }
+
 }
 
 export default GeminiClient;

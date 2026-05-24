@@ -13,19 +13,17 @@ const authMiddleware = async (req: any, res: any, next: any) => {
   const token = authHeader.split(" ")[1];
 
   try {
-
     const decoded: any = jwt.verify(token, env.jwtSecret);
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-
       return next(new AuthError("Unauthorized: Invalid token"));
     }
 
     req.user = user;
     next();
-    
-  } catch (error) {
+  } catch (error: any) {
+    console.error("JWT Verify Error:", error.message);
     return next(new AuthError("Unauthorized: Invalid token"));
   }
 };

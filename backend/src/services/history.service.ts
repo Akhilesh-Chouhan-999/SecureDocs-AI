@@ -5,6 +5,7 @@ import { parsePagination, buildPagination } from "../utils/pagination.js";
  * Service managing historical record queries for fraud cross-checks and auditing
  */
 export class HistoryService {
+
   private historicalRepository: any;
 
   constructor(historicalRepository: any) {
@@ -39,7 +40,9 @@ export class HistoryService {
    */
   async searchHistory(query: Record<string, any> = {}, user: any) {
     if (!["admin", "manager"].includes(user.role)) {
-      throw new ForbiddenError("Only admin or manager users can search history records");
+      throw new ForbiddenError(
+        "Only admin or manager users can search history records",
+      );
     }
 
     const { page, limit, skip } = parsePagination(query);
@@ -67,4 +70,5 @@ export class HistoryService {
       filters,
     };
   }
+
 }

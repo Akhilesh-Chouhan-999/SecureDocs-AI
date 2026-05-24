@@ -5,7 +5,12 @@ import { NotFoundError, ValidationError } from "../errors/index.js";
 import { JOB_EVENTS } from "../events/index.js";
 import { createJobRecord } from "../jobs/index.js";
 import { registerJobListeners } from "../listeners/index.js";
-import { markJobCanceled, markJobCompleted, markJobFailed, markJobProcessing } from "../infrastructure/queue/workers/index.js";
+import {
+  markJobCanceled,
+  markJobCompleted,
+  markJobFailed,
+  markJobProcessing,
+} from "../infrastructure/queue/workers/index.js";
 import { AnalysisWorker } from "../infrastructure/queue/workers/analysis-worker.js";
 import { emitJobUpdate } from "../sockets/index.js";
 import { JOB_STATUSES } from "../constants/index.js";
@@ -16,6 +21,7 @@ import { parsePagination, buildPagination } from "../utils/pagination.js";
  * Handles in-memory job status tracking and Bull + Redis queue worker scheduling.
  */
 export class JobService {
+
   private jobs: Map<string, any>;
   private emitter: EventEmitter;
   private analysisService: any;
@@ -32,7 +38,13 @@ export class JobService {
    * Create a new analysis job and queue it for processing
    * @param params Document and User context properties
    */
-  async createAnalysisJob({ documentId, userId }: { documentId: any; userId: any }) {
+  async createAnalysisJob({
+    documentId,
+    userId,
+  }: {
+    documentId: any;
+    userId: any;
+  }) {
     const queuedJob = createJobRecord({ documentId, userId });
     this.jobs.set(queuedJob.id, queuedJob);
     this.emitter.emit(JOB_EVENTS.CREATED, queuedJob);
@@ -67,10 +79,18 @@ export class JobService {
       .filter((job: any) => !query.status || job.status === query.status)
       .filter((job: any) => {
         if (!query.search) return true;
-        return [job.id, job.documentId, job.type, job.status]
-          .some((value: any) => String(value || "").toLowerCase().includes(String(query.search).toLowerCase()));
+        return [job.id, job.documentId, job.type, job.status].some(
+          (value: any) =>
+            String(value || "")
+              .toLowerCase()
+              .includes(String(query.search).toLowerCase()),
+        );
       })
-      .sort((left: any, right: any) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime());
+      .sort(
+        (left: any, right: any) =>
+          new Date(right.updatedAt).getTime() -
+          new Date(left.updatedAt).getTime(),
+      );
 
     return {
       jobs: items.slice(skip, skip + limit),
@@ -90,7 +110,9 @@ export class JobService {
     if (!job) throw new NotFoundError("Job");
     if (String(job.userId) !== String(userId)) throw new NotFoundError("Job");
     if (![JOB_STATUSES.QUEUED, JOB_STATUSES.PROCESSING].includes(job.status)) {
-      throw new ValidationError("Only queued or processing jobs can be canceled");
+      throw new ValidationError(
+        "Only queued or processing jobs can be canceled",
+      );
     }
 
     const canceledJob = markJobCanceled(job);
@@ -139,7 +161,11 @@ export class JobService {
     const queue = new Queue(env.jobQueueName, env.redisUrl);
 
     queue.process(async (bullJob: any) => {
-      const worker = new AnalysisWorker(this.analysisService, this.jobs, this.emitter);
+      const worker = new AnalysisWorker(
+        this.analysisService,
+        this.jobs,
+        this.emitter,
+      );
       return worker.processJob(bullJob);
     });
 
@@ -170,7 +196,10 @@ export class JobService {
       emitJobUpdate(processingJob);
 
       try {
-        const result = await this.analysisService.analyzeDocument(processingJob.documentId, processingJob.userId);
+        const result = await this.analysisService.analyzeDocument(
+          processingJob.documentId,
+          processingJob.userId,
+        );
         const completedJob = markJobCompleted(processingJob, result);
         this.jobs.set(completedJob.id, completedJob);
         this.emitter.emit(JOB_EVENTS.COMPLETED, completedJob);
@@ -183,4 +212,5 @@ export class JobService {
       }
     }, 25);
   }
+
 }

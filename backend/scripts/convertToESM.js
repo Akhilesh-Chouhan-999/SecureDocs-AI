@@ -27,7 +27,7 @@ function convertFile(filePath) {
         .join(", ");
       const fullPath = addJsExtension(modulePath);
       return `import { ${cleanVars} } from "${fullPath}"`;
-    }
+    },
   );
 
   // Handle: const X = require("./path")
@@ -36,7 +36,7 @@ function convertFile(filePath) {
     (match, varName, modulePath) => {
       const fullPath = addJsExtension(modulePath);
       return `import ${varName} from "${fullPath}"`;
-    }
+    },
   );
 
   // Handle: const { X } = require("package")
@@ -48,7 +48,7 @@ function convertFile(filePath) {
         .map((v) => v.trim())
         .join(", ");
       return `import { ${cleanVars} } from "${modulePath}"`;
-    }
+    },
   );
 
   // Handle module.exports = { ... }
@@ -69,7 +69,7 @@ function convertFile(filePath) {
         })
         .join("\n");
       return exportLines;
-    }
+    },
   );
 
   // Handle: module.exports.X = Y
@@ -77,18 +77,18 @@ function convertFile(filePath) {
     /module\.exports\.(\w+)\s*=\s*([^;]+);/g,
     (match, name, value) => {
       return `export const ${name} = ${value};`;
-    }
+    },
   );
 
   // Handle: module.exports = class X { ... } or function X() { ... }
   content = content.replace(
     /module\.exports\s*=\s*(class\s+\w+\s*{[\s\S]*?^}/m,
-    "export $1"
+    "export $1",
   );
 
   content = content.replace(
     /module\.exports\s*=\s*(function\s+\w+[\s\S]*?^}/m,
-    "export $1"
+    "export $1",
   );
 
   // Handle remaining module.exports = { ... } with proper formatting
@@ -162,7 +162,7 @@ function main() {
     } catch (error) {
       failed++;
       console.error(
-        `✗ Failed: ${path.relative(srcDir, filePath)} - ${error.message}`
+        `✗ Failed: ${path.relative(srcDir, filePath)} - ${error.message}`,
       );
     }
   }

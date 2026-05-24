@@ -21,6 +21,7 @@ export interface DocumentParserAgentInput {
  * DocumentParserAgent - Structured data extraction
  */
 export class DocumentParserAgent extends BaseAgent {
+
   constructor(llm: BaseLanguageModel) {
     super("DocumentParserAgent", llm, []);
   }
@@ -145,6 +146,7 @@ Return JSON structure like:
     const found = expectedFields.length - missingFields.length;
     return Math.round((found / expectedFields.length) * 100);
   }
+
 }
 
 const DOCUMENT_PARSER_SYSTEM_PROMPT = `You are an expert document data extraction specialist.

@@ -1,16 +1,17 @@
 import { FraudAnomaly } from "../../types/domain.js";
 
 export class OwnershipMatcher {
+
   /**
    * Matches document ownership against historical data to detect impersonation.
    */
   async checkOwnership(
-    documentOwner: string, 
-    extractedName: string | undefined, 
-    historicalRecords: any[]
+    documentOwner: string,
+    extractedName: string | undefined,
+    historicalRecords: any[],
   ): Promise<FraudAnomaly[]> {
     const anomalies: FraudAnomaly[] = [];
-    
+
     if (!extractedName) {
       anomalies.push({
         type: "missing_ownership",
@@ -24,25 +25,32 @@ export class OwnershipMatcher {
     }
 
     // Direct mismatch
-    if (documentOwner.toLowerCase().trim() !== extractedName.toLowerCase().trim()) {
+    if (
+      documentOwner.toLowerCase().trim() !== extractedName.toLowerCase().trim()
+    ) {
       anomalies.push({
         type: "ownership_mismatch",
         severity: "high",
         description: `Extracted name '${extractedName}' does not match expected owner '${documentOwner}'`,
         affectedField: "borrowerName",
         confidence: 0.85,
-        suggestedAction: "Request proof of legal name change or verify document authenticity",
+        suggestedAction:
+          "Request proof of legal name change or verify document authenticity",
       });
     }
 
     // Historical cross-referencing
     const matchingHistorical = historicalRecords.filter(
-      r => r.metadata?.borrowerName && r.metadata.borrowerName.toLowerCase() === extractedName.toLowerCase()
+      (r) =>
+        r.metadata?.borrowerName &&
+        r.metadata.borrowerName.toLowerCase() === extractedName.toLowerCase(),
     );
 
     if (matchingHistorical.length > 0) {
       // Check if historical cases associated with this name had fraud
-      const historicalFraud = matchingHistorical.find(r => r.metadata?.fraudulent === true);
+      const historicalFraud = matchingHistorical.find(
+        (r) => r.metadata?.fraudulent === true,
+      );
       if (historicalFraud) {
         anomalies.push({
           type: "historical_fraud_association",
@@ -57,4 +65,5 @@ export class OwnershipMatcher {
 
     return anomalies;
   }
+
 }

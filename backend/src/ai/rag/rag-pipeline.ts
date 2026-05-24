@@ -54,6 +54,7 @@ interface PipelineStats {
  * RAG Pipeline Orchestrator
  */
 class RAGPipeline {
+
   private config: RAGPipelineConfig;
   private chromaClient: any;
   private searchService: any;
@@ -182,7 +183,10 @@ class RAGPipeline {
       const relevanceScore =
         searchResults.length > 0
           ? Math.round(
-              (searchResults.reduce((sum: number, r: any) => sum + r.similarity, 0) /
+              (searchResults.reduce(
+                (sum: number, r: any) => sum + r.similarity,
+                0,
+              ) /
                 searchResults.length) *
                 100,
             )
@@ -194,7 +198,7 @@ class RAGPipeline {
 
       return {
         augmentedPrompt: augmented.systemContext,
-        retrievedDocuments: searchResults.map((doc : any) => ({
+        retrievedDocuments: searchResults.map((doc: any) => ({
           id: doc.id,
           content: doc.content,
           similarity: doc.similarity,
@@ -331,6 +335,7 @@ class RAGPipeline {
       };
     }
   }
+
 }
 
 // Singleton instances

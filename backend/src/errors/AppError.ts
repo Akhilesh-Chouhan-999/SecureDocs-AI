@@ -2,6 +2,7 @@
  * Base operational application error class
  */
 export class AppError extends Error {
+
   public statusCode: number;
   public status: number;
   public code: string;
@@ -14,7 +15,12 @@ export class AppError extends Error {
    * @param code App-specific error code string
    * @param details Additional error details context
    */
-  constructor(message: string, statusCode = 500, code = "APP_ERROR", details: any = null) {
+  constructor(
+    message: string,
+    statusCode = 500,
+    code = "APP_ERROR",
+    details: any = null,
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
@@ -25,4 +31,5 @@ export class AppError extends Error {
 
     Error.captureStackTrace(this, this.constructor);
   }
+
 }

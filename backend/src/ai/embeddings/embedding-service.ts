@@ -31,6 +31,7 @@ interface EmbeddingStats {
  * - Fallback to local embeddings
  */
 export class EmbeddingService {
+
   private embeddings: OpenAIEmbeddings;
   private cache: Map<string, number[]> = new Map();
   private cacheFile: string;
@@ -42,6 +43,7 @@ export class EmbeddingService {
     averageTime: 0,
     totalTokensUsed: 0,
   };
+
   private timings: number[] = [];
 
   constructor(apiKey: string, cacheDir: string = "./embeddings-cache") {
@@ -325,6 +327,7 @@ export class EmbeddingService {
     this.stats.cacheHitRate =
       total > 0 ? (this.stats.cacheHits / total) * 100 : 0;
   }
+
 }
 
 /**

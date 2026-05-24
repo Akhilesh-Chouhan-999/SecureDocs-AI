@@ -3,11 +3,13 @@ import { jest } from "@jest/globals";
 // Mock ioredis using unstable_mockModule for ESM
 jest.unstable_mockModule("ioredis", () => {
   return {
-    default: jest.fn().mockImplementation(() => {
+    Redis: jest.fn().mockImplementation(() => {
       const store = new Map();
       return {
         get: jest.fn(async (key: string) => store.get(key) || null),
-        set: jest.fn(async (key: string, value: string) => store.set(key, value)),
+        set: jest.fn(async (key: string, value: string) =>
+          store.set(key, value),
+        ),
         on: jest.fn(),
       };
     }),

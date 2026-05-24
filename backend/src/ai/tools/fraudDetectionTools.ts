@@ -7,9 +7,14 @@ import { getRAGPipeline } from "../rag/rag-pipeline.js";
 
 export const historicalLookupTool = new DynamicStructuredTool({
   name: "historical_lookup",
-  description: "Lookup historical records for a customer by email, name, or document characteristics to find past fraud anomalies.",
+  description:
+    "Lookup historical records for a customer by email, name, or document characteristics to find past fraud anomalies.",
   schema: z.object({
-    query: z.string().describe("A comprehensive query string describing the historical data you are searching for, including email, name, or anomalies."),
+    query: z
+      .string()
+      .describe(
+        "A comprehensive query string describing the historical data you are searching for, including email, name, or anomalies.",
+      ),
   }) as any,
   func: async ({ query }) => {
     try {
@@ -20,31 +25,38 @@ export const historicalLookupTool = new DynamicStructuredTool({
       // Retrieve similar historical cases using vector search
       const ragResult = await rag.retrieve(query);
 
-      if (!ragResult.retrievedDocuments || ragResult.retrievedDocuments.length === 0) {
-        return JSON.stringify({ status: "not_found", message: "No relevant historical context found." });
+      if (
+        !ragResult.retrievedDocuments ||
+        ragResult.retrievedDocuments.length === 0
+      ) {
+        return JSON.stringify({
+          status: "not_found",
+          message: "No relevant historical context found.",
+        });
       }
 
       // Map ChromaDB retrieved docs to expected format
       return JSON.stringify({
         status: "found",
-        records: ragResult.retrievedDocuments.map(doc => ({
+        records: ragResult.retrievedDocuments.map((doc) => ({
           id: doc.id,
           similarity: doc.similarity,
           content: doc.content,
-          metadata: doc.metadata
+          metadata: doc.metadata,
         })),
-        relevanceScore: ragResult.stats.relevanceScore
+        relevanceScore: ragResult.stats.relevanceScore,
       });
     } catch (error: any) {
       return JSON.stringify({ error: error.message });
     }
-  }
+  },
 });
 
 // Tool 2: Financial Analysis
 export const financialAnalysisTool = new DynamicStructuredTool({
   name: "financial_analysis",
-  description: "Analyze financial patterns and detect anomalies based on amount and transaction history.",
+  description:
+    "Analyze financial patterns and detect anomalies based on amount and transaction history.",
   schema: z.object({
     amount: z.number(),
     expectedRange: z.object({ min: z.number(), max: z.number() }),
@@ -64,7 +76,8 @@ export const financialAnalysisTool = new DynamicStructuredTool({
 
     if (transactionHistory && transactionHistory.length > 0) {
       const avg =
-        transactionHistory.reduce((a: any, b: any) => a + b, 0) / transactionHistory.length;
+        transactionHistory.reduce((a: any, b: any) => a + b, 0) /
+        transactionHistory.length;
       const deviation = Math.abs(amount - avg) / avg;
 
       if (deviation > 0.5) {
@@ -80,7 +93,7 @@ export const financialAnalysisTool = new DynamicStructuredTool({
       anomalies,
       riskScore: anomalies.length * 10,
     });
-  }
+  },
 });
 
 // Tool 3: Document Validation
@@ -111,5 +124,5 @@ export const documentValidationTool = new DynamicStructuredTool({
       issues,
       riskScore: issues.length * 15,
     });
-  }
+  },
 });

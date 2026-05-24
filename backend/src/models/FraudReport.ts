@@ -86,7 +86,7 @@ const fraudReportSchema = new mongoose.Schema({
   fraudTypes: {
     type: [String],
     default: [],
-  }
+  },
 });
 
 fraudReportSchema.index({ document: 1 });

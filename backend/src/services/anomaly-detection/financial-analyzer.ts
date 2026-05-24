@@ -1,12 +1,13 @@
 import { FraudAnomaly } from "../../types/domain.js";
 
 export class FinancialAnalyzer {
+
   /**
    * Analyzes financial data to detect unrealistic values or sudden spikes.
    */
   async checkFinancials(
-    declaredIncome: number | undefined, 
-    historicalIncome: number | undefined
+    declaredIncome: number | undefined,
+    historicalIncome: number | undefined,
   ): Promise<FraudAnomaly[]> {
     const anomalies: FraudAnomaly[] = [];
 
@@ -30,13 +31,15 @@ export class FinancialAnalyzer {
         description: `Declared income of $${declaredIncome} is unusually high`,
         affectedField: "declaredIncome",
         confidence: 0.7,
-        suggestedAction: "Require IRS tax transcripts (Form 4506-C) for verification",
+        suggestedAction:
+          "Require IRS tax transcripts (Form 4506-C) for verification",
       });
     }
 
     // Historical spike detection
     if (historicalIncome && historicalIncome > 0) {
-      const increasePercentage = ((declaredIncome - historicalIncome) / historicalIncome) * 100;
+      const increasePercentage =
+        ((declaredIncome - historicalIncome) / historicalIncome) * 100;
       if (increasePercentage > 50) {
         anomalies.push({
           type: "unrealistic_income_spike",
@@ -44,11 +47,13 @@ export class FinancialAnalyzer {
           description: `Income jumped by ${Math.round(increasePercentage)}% compared to historical records ($${historicalIncome} -> $${declaredIncome})`,
           affectedField: "declaredIncome",
           confidence: 0.85,
-          suggestedAction: "Verify employment history and reason for sudden income increase",
+          suggestedAction:
+            "Verify employment history and reason for sudden income increase",
         });
       }
     }
 
     return anomalies;
   }
+
 }

@@ -1,17 +1,19 @@
-const fs = require('fs');
-const glob = require('glob');
-const path = require('path');
+const fs = require("fs");
+const glob = require("glob");
+const path = require("path");
 
-const files = fs.readdirSync('tests/integration').filter(f => f.includes('.test.'));
+const files = fs
+  .readdirSync("tests/integration")
+  .filter((f) => f.includes(".test."));
 
-files.forEach(file => {
-  const filePath = path.join('tests/integration', file);
-  let content = fs.readFileSync(filePath, 'utf8');
+files.forEach((file) => {
+  const filePath = path.join("tests/integration", file);
+  let content = fs.readFileSync(filePath, "utf8");
 
   // Replace auth middleware mock
   content = content.replace(
     /jest\.mock\("\.\.\/\.\.\/src\/middleware\/auth\.middleware"[\s\S]*?(?=\s*jest\.mock|\s*app\s*=\s*require)/,
-    `jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));\n\n    `
+    `jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));\n\n    `,
   );
 
   // Replace container mock
@@ -25,13 +27,13 @@ files.forEach(file => {
       container: { get: (name: string) => {
         try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
       } }
-    }));\n\n    `
+    }));\n\n    `,
   );
 
   // Fix app import
   content = content.replace(
     /app\s*=\s*require\("\.\.\/\.\.\/src\/app"\);/g,
-    `app = require("../../src/app").default || require("../../src/app");`
+    `app = require("../../src/app").default || require("../../src/app");`,
   );
 
   fs.writeFileSync(filePath, content);

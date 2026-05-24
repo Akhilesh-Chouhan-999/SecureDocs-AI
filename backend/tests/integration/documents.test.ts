@@ -32,29 +32,39 @@ describe("Document Lifecycle Integration Tests", () => {
   beforeAll(() => {
     jest.resetModules();
 
-    jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));
-
-    
-
-    
-
-    
+    jest.mock("../../src/middleware/auth.middleware", () => ({
+      __esModule: true,
+      default: (req: any, res: any, next: any) => {
+        req.user = {
+          id: "user-123",
+          email: "testuser@example.com",
+          role: "analyst",
+        };
+        next();
+      },
+    }));
 
     jest.mock("../../src/config/container", () => ({
       __esModule: true,
-      default: { get: (name: string) => {
-        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
-      } },
-      container: { get: (name: string) => {
-        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
-      } }
+      default: {
+        get: (name: string) => {
+          try {
+            return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1));
+          } catch (e) {
+            return null;
+          }
+        },
+      },
+      container: {
+        get: (name: string) => {
+          try {
+            return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1));
+          } catch (e) {
+            return null;
+          }
+        },
+      },
     }));
-
-    
-
-    
-
-    
 
     app = require("../../src/app").default || require("../../src/app");
   });
@@ -521,4 +531,3 @@ describe("Document Lifecycle Integration Tests", () => {
     });
   });
 });
-

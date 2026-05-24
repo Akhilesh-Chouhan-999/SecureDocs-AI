@@ -5,6 +5,7 @@ import { logger } from "../logs/index.js";
  * Service managing email notifications (using Ethereal for development)
  */
 export class NotificationService {
+
   private transporter: Transporter | null = null;
   private initialized = false;
 
@@ -53,9 +54,15 @@ export class NotificationService {
   /**
    * Send an email detailing the completion of a document analysis
    */
-  async sendAnalysisCompleteEmail(email: string, documentId: string, riskLevel: string) {
+  async sendAnalysisCompleteEmail(
+    email: string,
+    documentId: string,
+    riskLevel: string,
+  ) {
     if (!this.initialized || !this.transporter) {
-      logger.warn("NotificationService not fully initialized, skipping email delivery.");
+      logger.warn(
+        "NotificationService not fully initialized, skipping email delivery.",
+      );
       return;
     }
 
@@ -86,9 +93,15 @@ export class NotificationService {
   /**
    * Send an urgent alert for documents flagged with Critical risk
    */
-  async sendCriticalFraudAlert(email: string, documentId: string, riskScore: number) {
+  async sendCriticalFraudAlert(
+    email: string,
+    documentId: string,
+    riskScore: number,
+  ) {
     if (!this.initialized || !this.transporter) {
-      logger.warn("NotificationService not fully initialized, skipping email delivery.");
+      logger.warn(
+        "NotificationService not fully initialized, skipping email delivery.",
+      );
       return;
     }
 
@@ -118,4 +131,5 @@ export class NotificationService {
       throw error;
     }
   }
+
 }

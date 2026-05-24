@@ -21,5 +21,4 @@ const buildCorpusEntry = (
   createdAt: document.createdAt,
 });
 
-export { buildCorpusEntry,
- };
+export { buildCorpusEntry };

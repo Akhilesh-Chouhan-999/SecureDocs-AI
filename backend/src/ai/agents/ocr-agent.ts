@@ -22,6 +22,7 @@ export interface OCRAgentInput {
  * OCRAgent - OCR extraction and validation
  */
 export class OCRAgent extends BaseAgent {
+
   constructor(llm: BaseLanguageModel) {
     super("OCRAgent", llm, []);
   }
@@ -135,6 +136,7 @@ Focus on accuracy for critical fields (names, amounts, dates).
       llmAnalysis: output,
     };
   }
+
 }
 
 const OCR_SYSTEM_PROMPT = `You are an OCR validation specialist. Your role is to:

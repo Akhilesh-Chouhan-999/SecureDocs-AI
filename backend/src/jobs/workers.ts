@@ -19,23 +19,39 @@ analysisQueue.process(async (job: any) => {
 
     // Step 1: Run fraud detection
     job.progress(25);
-    emitJobUpdate({ jobId: job.id, status: "processing", progress: 25, stage: "Fraud Detection" });
-    const fraudAnalysis = await FraudDetectionAgent.analyzeDocument(documentData);
+    emitJobUpdate({
+      jobId: job.id,
+      status: "processing",
+      progress: 25,
+      stage: "Fraud Detection",
+    });
+    const fraudAnalysis =
+      await FraudDetectionAgent.analyzeDocument(documentData);
 
     // Step 2: Generate report
     job.progress(50);
-    emitJobUpdate({ jobId: job.id, status: "processing", progress: 50, stage: "Report Generation" });
+    emitJobUpdate({
+      jobId: job.id,
+      status: "processing",
+      progress: 50,
+      stage: "Report Generation",
+    });
     const reportData = await ReportGenerationAgent.generateReport(
       fraudAnalysis,
-      documentData
+      documentData,
     );
 
     // Step 3: Save to database
     job.progress(75);
-    emitJobUpdate({ jobId: job.id, status: "processing", progress: 75, stage: "Saving Results" });
+    emitJobUpdate({
+      jobId: job.id,
+      status: "processing",
+      progress: 75,
+      stage: "Saving Results",
+    });
     const report = await FraudReport.create({
       document: documentId, // Note: Schema uses 'document' not 'documentId'
-      analyst: userId,      // Note: Schema uses 'analyst' not 'userId'
+      analyst: userId, // Note: Schema uses 'analyst' not 'userId'
       riskScore: fraudAnalysis.riskScore,
       riskLevel: fraudAnalysis.riskLevel,
       anomalies: fraudAnalysis.anomalies,
@@ -45,14 +61,14 @@ analysisQueue.process(async (job: any) => {
 
     job.progress(100);
     emitJobUpdate({ jobId: job.id, status: "completed", progress: 100 });
-    
+
     // Dispatch Email Notification asynchronously
     notificationQueue.add({
       type: "analysis_complete",
       documentId,
       userId,
       riskLevel: fraudAnalysis.riskLevel,
-      riskScore: fraudAnalysis.riskScore
+      riskScore: fraudAnalysis.riskScore,
     });
 
     return report;
@@ -75,19 +91,29 @@ analysisQueue.on("failed", (job: any, err: any) => {
 notificationQueue.process(async (job: any) => {
   try {
     const { type, documentId, userId, riskLevel, riskScore } = job.data;
-    
+
     // In a real scenario, fetch the user to get their email:
     const user = await User.findById(userId);
     if (!user || !user.email) {
-      logger.warn(`Could not send notification: User ${userId} not found or has no email.`);
+      logger.warn(
+        `Could not send notification: User ${userId} not found or has no email.`,
+      );
       return;
     }
 
     if (type === "analysis_complete") {
-      await notificationService.sendAnalysisCompleteEmail(user.email, documentId, riskLevel);
-      
+      await notificationService.sendAnalysisCompleteEmail(
+        user.email,
+        documentId,
+        riskLevel,
+      );
+
       if (riskLevel === "critical") {
-        await notificationService.sendCriticalFraudAlert(user.email, documentId, riskScore);
+        await notificationService.sendCriticalFraudAlert(
+          user.email,
+          documentId,
+          riskScore,
+        );
       }
     }
 

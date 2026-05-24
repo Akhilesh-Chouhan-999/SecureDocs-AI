@@ -1,1 +1,1 @@
-export default './server.ts';
+export default "./server.ts";

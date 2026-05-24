@@ -29,7 +29,11 @@ export const createJobRecord = ({
  * @param status New job lifecycle status to set
  * @param patch Suffix property overrides to merge
  */
-export const updateJobRecord = (job: any, status: string, patch: Record<string, any> = {}) => ({
+export const updateJobRecord = (
+  job: any,
+  status: string,
+  patch: Record<string, any> = {},
+) => ({
   ...job,
   ...patch,
   status,

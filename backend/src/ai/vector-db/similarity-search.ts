@@ -40,6 +40,7 @@ interface SearchStats {
  * Similarity Search Service
  */
 class SimilaritySearchService {
+
   private collectionName: string;
   private stats = {
     queryCount: 0,
@@ -255,6 +256,7 @@ class SimilaritySearchService {
     };
     logger.info("Similarity search statistics reset");
   }
+
 }
 
 // Singleton instances
@@ -276,8 +278,4 @@ export function getSimilaritySearchService(
 }
 
 export { SimilaritySearchService };
-export type {
-  SimilaritySearchOptions,
-  SearchResultWithRank,
-  SearchStats,
-};
+export type { SimilaritySearchOptions, SearchResultWithRank, SearchStats };

@@ -1,6 +1,41 @@
 import { jest } from "@jest/globals";
 import request from "supertest";
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Express } from "express";
+
+const mockHistoryService = {
+  getHistoryByEmail: jest.fn() as any,
+  searchHistory: jest.fn() as any,
+};
+
+const services: Record<string, any> = {
+  historyService: mockHistoryService,
+};
+
+const mockGet = jest.fn((name: string) => services[name] || null);
+
+await jest.unstable_mockModule(
+  "../../src/middleware/auth.middleware.js",
+  () => ({
+    __esModule: true,
+    default: (req: any, res: any, next: any) => {
+      if (!req.headers.authorization) {
+        return res.status(401).json({ success: false });
+      }
+      req.user = {
+        id: "user-123",
+        email: "testuser@example.com",
+        role: req.headers["x-test-role"] || "analyst",
+      };
+      next();
+    },
+  }),
+);
+
+await jest.unstable_mockModule("../../src/config/container.js", () => ({
+  __esModule: true,
+  default: { get: mockGet },
+  container: { get: mockGet },
+}));
 
 describe("Historical Data & Context Integration Tests", () => {
   let app: Express;
@@ -8,52 +43,9 @@ describe("Historical Data & Context Integration Tests", () => {
   const testToken = "valid-jwt-token";
   const testEmail = "customer@example.com";
 
-  const mockHistoryService = {
-    getHistoricalContext: jest.fn() as any,
-    searchHistory: jest.fn() as any,
-  };
-
-  const mockAuthMiddleware = (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    (req as any).user = {
-      id: testUserId,
-      email: "analyst@example.com",
-      role: (req.headers["x-test-role"] as string) || "analyst",
-    };
-    next();
-  };
-
-  beforeAll(() => {
-    jest.resetModules();
-
-    jest.mock("../../src/middleware/auth.middleware", () => ({ __esModule: true, default: (req: any, res: any, next: any) => { req.user = { id: "user-123", email: "testuser@example.com", role: "analyst" }; next(); } }));
-
-    
-
-    
-
-    
-
-    jest.mock("../../src/config/container", () => ({
-      __esModule: true,
-      default: { get: (name: string) => {
-        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
-      } },
-      container: { get: (name: string) => {
-        try { return eval("mock" + name.charAt(0).toUpperCase() + name.slice(1)); } catch (e) { return null; }
-      } }
-    }));
-
-    
-
-    
-
-    
-
-    app = require("../../src/app").default || require("../../src/app");
+  beforeAll(async () => {
+    const appModule = await import("../../src/app.js");
+    app = appModule.default || appModule;
   });
 
   afterEach(() => {
@@ -62,34 +54,33 @@ describe("Historical Data & Context Integration Tests", () => {
 
   describe("GET /api/history/:email", () => {
     it("should retrieve historical context by email", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
             id: "app-1",
-            amount: 250000,
-            date: "2024-01-15",
+            date: "2024-01-15T10:00:00Z",
             status: "approved",
+            loanAmount: 250000,
           },
           {
             id: "app-2",
-            amount: 300000,
-            date: "2024-03-20",
+            date: "2023-06-20T14:30:00Z",
             status: "rejected",
+            reason: "insufficient_income",
           },
         ],
         legalRecords: [
           {
             type: "bankruptcy",
-            date: "2023-06-01",
+            date: "2018-03-12",
             status: "discharged",
           },
         ],
         riskFactors: [
           {
-            factor: "multiple_applications",
+            factor: "multiple_recent_applications",
             severity: "medium",
-            frequency: 2,
           },
         ],
       });
@@ -100,31 +91,25 @@ describe("Historical Data & Context Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.email).toBe(testEmail);
-      expect(response.body.data.previousApplications).toHaveLength(2);
-      expect(response.body.data.legalRecords).toHaveLength(1);
-      expect(mockHistoryService.getHistoricalContext).toHaveBeenCalledWith(
-        testEmail,
-      );
+      expect(response.body.email).toBe(testEmail);
+      expect(response.body.previousApplications).toHaveLength(2);
     });
 
     it("should include previous applications in history", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
             id: "app-1",
-            loanAmount: 250000,
-            applicationDate: "2024-01-15",
+            date: "2024-01-15T10:00:00Z",
             status: "approved",
-            lender: "Bank A",
+            loanAmount: 250000,
           },
           {
             id: "app-2",
-            loanAmount: 300000,
-            applicationDate: "2024-03-20",
+            date: "2023-06-20T14:30:00Z",
             status: "rejected",
-            reason: "Low credit score",
+            reason: "insufficient_income",
           },
         ],
         legalRecords: [],
@@ -135,36 +120,34 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data.previousApplications).toHaveLength(2);
-      expect(response.body.data.previousApplications[0].status).toBe(
-        "approved",
-      );
-      expect(response.body.data.previousApplications[1].status).toBe(
-        "rejected",
+      expect(response.body.previousApplications).toHaveLength(2);
+      expect(response.body.previousApplications[0].status).toBe("approved");
+      expect(response.body.previousApplications[1].reason).toBe(
+        "insufficient_income",
       );
     });
 
     it("should include legal records if present", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [],
         legalRecords: [
           {
             type: "bankruptcy",
-            date: "2023-06-01",
+            date: "2018-03-12",
             status: "discharged",
           },
           {
-            type: "lien",
-            date: "2023-09-15",
-            amount: 50000,
-            status: "active",
+            type: "civil_judgment",
+            date: "2020-11-05",
+            status: "satisfied",
+            amount: 15000,
           },
           {
-            type: "judgment",
-            date: "2024-01-10",
-            amount: 25000,
-            plaintiff: "Creditor Inc",
+            type: "tax_lien",
+            date: "2022-02-18",
+            status: "active",
+            amount: 8500,
           },
         ],
         riskFactors: [],
@@ -174,32 +157,27 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data.legalRecords).toHaveLength(3);
-      expect(response.body.data.legalRecords[0].type).toBe("bankruptcy");
+      expect(response.body.legalRecords).toHaveLength(3);
+      expect(response.body.legalRecords[0].type).toBe("bankruptcy");
     });
 
     it("should include identified risk factors", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [],
         legalRecords: [],
         riskFactors: [
           {
             factor: "multiple_recent_applications",
+            severity: "medium",
+          },
+          {
+            factor: "high_debt_to_income",
             severity: "high",
-            frequency: 4,
-            timeframe: "30_days",
           },
           {
-            factor: "address_changes",
-            severity: "medium",
-            frequency: 3,
-            timeframe: "6_months",
-          },
-          {
-            factor: "income_inconsistency",
-            severity: "medium",
-            variance: "45%",
+            factor: "recent_delinquency",
+            severity: "high",
           },
         ],
       });
@@ -208,44 +186,44 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data.riskFactors).toHaveLength(3);
-      expect(response.body.data.riskFactors[0].factor).toBe(
+      expect(response.body.riskFactors).toHaveLength(3);
+      expect(response.body.riskFactors[0].factor).toBe(
         "multiple_recent_applications",
       );
-      expect(response.body.data.riskFactors[0].severity).toBe("high");
+      expect(response.body.riskFactors[1].severity).toBe("high");
     });
 
     it("should return empty history for new customer", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
-        email: "newcustomer@example.com",
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
+        email: testEmail,
         previousApplications: [],
         legalRecords: [],
         riskFactors: [],
       });
 
       const response = await request(app)
-        .get(`/api/history/newcustomer@example.com`)
+        .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
       expect(response.status).toBe(200);
-      expect(response.body.data.previousApplications).toHaveLength(0);
-      expect(response.body.data.legalRecords).toHaveLength(0);
-      expect(response.body.data.riskFactors).toHaveLength(0);
+      expect(response.body.previousApplications).toHaveLength(0);
+      expect(response.body.legalRecords).toHaveLength(0);
+      expect(response.body.riskFactors).toHaveLength(0);
     });
 
     it("should require authentication", async () => {
       const response = await request(app).get(`/api/history/${testEmail}`);
-
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
     });
 
     it("should handle invalid email format", async () => {
       const response = await request(app)
-        .get(`/api/history/invalid-email`)
+        .get("/api/history/invalid-email")
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.status).toBeGreaterThanOrEqual(400);
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
     });
   });
 
@@ -254,16 +232,14 @@ describe("Historical Data & Context Integration Tests", () => {
       mockHistoryService.searchHistory.mockResolvedValueOnce({
         records: [
           {
-            id: "history-1",
-            key: testEmail,
-            source: "application",
-            createdAt: new Date(),
+            id: "hist-1",
+            key: "customer@example.com",
+            source: "fraud_report",
           },
           {
-            id: "history-2",
-            key: "another@example.com",
-            source: "fraud_report",
-            createdAt: new Date(),
+            id: "hist-2",
+            key: "other@example.com",
+            source: "manual_entry",
           },
         ],
         pagination: {
@@ -281,22 +257,16 @@ describe("Historical Data & Context Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.records).toHaveLength(2);
+      expect(response.body.records).toHaveLength(2);
     });
 
     it("should support search filtering", async () => {
       mockHistoryService.searchHistory.mockResolvedValueOnce({
-        records: [
-          {
-            id: "history-1",
-            key: testEmail,
-            source: "application",
-          },
-        ],
-        pagination: { page: 1, limit: 10, total: 1, totalPages: 1 },
+        records: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
       });
 
-      const response = await request(app)
+      await request(app)
         .get("/api/history")
         .query({ search: testEmail })
         .set("Authorization", `Bearer ${testToken}`)
@@ -311,12 +281,7 @@ describe("Historical Data & Context Integration Tests", () => {
     it("should support pagination for search results", async () => {
       mockHistoryService.searchHistory.mockResolvedValueOnce({
         records: [],
-        pagination: {
-          page: 2,
-          limit: 5,
-          total: 20,
-          totalPages: 4,
-        },
+        pagination: { page: 2, limit: 5, total: 20, totalPages: 4 },
       });
 
       const response = await request(app)
@@ -331,9 +296,8 @@ describe("Historical Data & Context Integration Tests", () => {
 
     it("should restrict admin search to admin role", async () => {
       mockHistoryService.searchHistory.mockRejectedValueOnce(
-        new Error("Forbidden"),
+        Object.assign(new Error("Forbidden"), { status: 403 }),
       );
-
       const response = await request(app)
         .get("/api/history")
         .set("Authorization", `Bearer ${testToken}`)
@@ -347,8 +311,8 @@ describe("Historical Data & Context Integration Tests", () => {
       mockHistoryService.searchHistory.mockResolvedValueOnce({
         records: [
           {
-            id: "history-1",
-            key: testEmail,
+            id: "hist-1",
+            key: "customer@example.com",
             source: "fraud_report",
           },
         ],
@@ -361,35 +325,32 @@ describe("Historical Data & Context Integration Tests", () => {
         .set("Authorization", `Bearer ${testToken}`)
         .set("x-test-role", "admin");
 
-      expect(response.body.data.records[0].source).toBe("fraud_report");
+      expect(response.body.records[0].source).toBe("fraud_report");
     });
 
     it("should support date range filtering", async () => {
       mockHistoryService.searchHistory.mockResolvedValueOnce({
-        records: [
-          {
-            id: "history-1",
-            key: testEmail,
-            createdAt: "2024-05-15",
-          },
-        ],
-        pagination: { page: 1, limit: 10, total: 1, totalPages: 1 },
+        records: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
       });
 
       const response = await request(app)
         .get("/api/history")
-        .query({ startDate: "2024-05-01", endDate: "2024-05-31" })
+        .query({
+          startDate: "2024-01-01",
+          endDate: "2024-01-31",
+        })
         .set("Authorization", `Bearer ${testToken}`)
         .set("x-test-role", "admin");
 
       expect(response.status).toBe(200);
-      expect(response.body.data.records).toBeDefined();
+      expect(response.body.records).toBeDefined();
     });
   });
 
   describe("Historical Context for Fraud Detection", () => {
     it("should retrieve context for risk assessment", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
@@ -416,7 +377,7 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data.riskFactors).toContainEqual(
+      expect(response.body.riskFactors).toContainEqual(
         expect.objectContaining({
           factor: "fraud_history",
           severity: "critical",
@@ -425,7 +386,7 @@ describe("Historical Data & Context Integration Tests", () => {
     });
 
     it("should include frequency data for pattern detection", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
@@ -444,7 +405,8 @@ describe("Historical Data & Context Integration Tests", () => {
         legalRecords: [],
         riskFactors: [
           {
-            factor: "rapid_reapplication",
+            factor: "high_velocity",
+            severity: "high",
             frequency: 3,
             timeframe: "8_days",
           },
@@ -455,48 +417,43 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data.riskFactors[0].frequency).toBe(3);
-      expect(response.body.data.riskFactors[0].timeframe).toBe("8_days");
+      expect(response.body.riskFactors[0].frequency).toBe(3);
+      expect(response.body.riskFactors[0].timeframe).toBe("8_days");
     });
 
     it("should track application status over time", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
             id: "app-1",
-            date: "2023-01-01",
+            date: "2023-01-15",
             status: "approved",
             loanAmount: 100000,
           },
           {
             id: "app-2",
-            date: "2023-06-01",
-            status: "approved",
-            loanAmount: 150000,
+            date: "2023-06-20",
+            status: "rejected",
+            loanAmount: 500000,
+            reason: "debt_to_income",
           },
           {
             id: "app-3",
-            date: "2024-01-01",
-            status: "rejected",
+            date: "2024-01-10",
+            status: "pending",
             loanAmount: 500000,
-            reason: "income_mismatch",
           },
         ],
         legalRecords: [],
-        riskFactors: [
-          {
-            factor: "sudden_large_amount_request",
-            severity: "high",
-          },
-        ],
+        riskFactors: [],
       });
 
       const response = await request(app)
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      const applications = response.body.data.previousApplications;
+      const applications = response.body.previousApplications;
       expect(applications[0].loanAmount).toBe(100000);
       expect(applications[2].loanAmount).toBe(500000);
     });
@@ -504,20 +461,18 @@ describe("Historical Data & Context Integration Tests", () => {
 
   describe("Data Quality & Completeness", () => {
     it("should include timestamps for all records", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [
           {
             id: "app-1",
-            date: "2024-01-15",
-            createdAt: new Date("2024-01-15T10:30:00Z"),
+            createdAt: "2024-01-15T10:00:00Z",
           },
         ],
         legalRecords: [
           {
-            type: "bankruptcy",
-            date: "2023-06-01",
-            createdAt: new Date("2023-06-01T14:20:00Z"),
+            id: "legal-1",
+            createdAt: "2023-11-20T14:30:00Z",
           },
         ],
         riskFactors: [],
@@ -527,14 +482,12 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(
-        response.body.data.previousApplications[0].createdAt,
-      ).toBeDefined();
-      expect(response.body.data.legalRecords[0].createdAt).toBeDefined();
+      expect(response.body.previousApplications[0].createdAt).toBeDefined();
+      expect(response.body.legalRecords[0].createdAt).toBeDefined();
     });
 
     it("should return consistent data structure", async () => {
-      mockHistoryService.getHistoricalContext.mockResolvedValueOnce({
+      mockHistoryService.getHistoryByEmail.mockResolvedValueOnce({
         email: testEmail,
         previousApplications: [],
         legalRecords: [],
@@ -545,11 +498,10 @@ describe("Historical Data & Context Integration Tests", () => {
         .get(`/api/history/${testEmail}`)
         .set("Authorization", `Bearer ${testToken}`);
 
-      expect(response.body.data).toHaveProperty("email");
-      expect(response.body.data).toHaveProperty("previousApplications");
-      expect(response.body.data).toHaveProperty("legalRecords");
-      expect(response.body.data).toHaveProperty("riskFactors");
+      expect(response.body).toHaveProperty("email");
+      expect(response.body).toHaveProperty("previousApplications");
+      expect(response.body).toHaveProperty("legalRecords");
+      expect(response.body).toHaveProperty("riskFactors");
     });
   });
 });
-

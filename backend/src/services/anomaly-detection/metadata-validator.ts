@@ -1,12 +1,13 @@
 import { FraudAnomaly } from "../../types/domain.js";
 
 export class MetadataValidator {
+
   /**
    * Validates document metadata like creation dates, expiry, and formatting.
    */
   async validateMetadata(
     documentDate: string | undefined,
-    uploadDate: Date
+    uploadDate: Date,
   ): Promise<FraudAnomaly[]> {
     const anomalies: FraudAnomaly[] = [];
 
@@ -32,7 +33,7 @@ export class MetadataValidator {
       anomalies.push({
         type: "future_date_forgery",
         severity: "critical",
-        description: `Document is dated in the future (${docDate.toISOString().split('T')[0]}) relative to upload date`,
+        description: `Document is dated in the future (${docDate.toISOString().split("T")[0]}) relative to upload date`,
         affectedField: "documentDate",
         confidence: 0.95,
         suggestedAction: "Reject document immediately as likely forged",
@@ -41,8 +42,8 @@ export class MetadataValidator {
 
     // Stale document detection (e.g., older than 90 days)
     const diffTime = Math.abs(uploadDate.getTime() - docDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     if (diffDays > 90 && docDate < uploadDate) {
       anomalies.push({
         type: "stale_document",
@@ -56,4 +57,5 @@ export class MetadataValidator {
 
     return anomalies;
   }
+
 }

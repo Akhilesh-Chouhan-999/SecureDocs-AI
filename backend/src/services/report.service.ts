@@ -9,6 +9,7 @@ import { buildReportPdf } from "../utils/reportPdf.js";
  * Service managing fraud detection reports (lifecycle generation, search, review/audit decision, PDF render download)
  */
 export class ReportService {
+
   private documentService: any;
   private reportRepository: any;
 
@@ -23,8 +24,15 @@ export class ReportService {
    * @param userId Creator Analyst User ObjectId string
    * @param anomalies Flagged anomalies list context
    */
-  async generateFraudReport(documentId: any, userId: any, anomalies: any[] = []) {
-    const document = await this.documentService.getOwnedDocument(documentId, userId);
+  async generateFraudReport(
+    documentId: any,
+    userId: any,
+    anomalies: any[] = [],
+  ) {
+    const document = await this.documentService.getOwnedDocument(
+      documentId,
+      userId,
+    );
     const assessment = buildRiskAssessment(anomalies);
 
     return this.reportRepository.create({
@@ -63,12 +71,22 @@ export class ReportService {
       riskLevel: query.riskLevel,
       decision: query.decision,
       search: query.search,
-      minRiskScore: query.minRiskScore !== undefined ? Number(query.minRiskScore) : undefined,
-      maxRiskScore: query.maxRiskScore !== undefined ? Number(query.maxRiskScore) : undefined,
+      minRiskScore:
+        query.minRiskScore !== undefined
+          ? Number(query.minRiskScore)
+          : undefined,
+      maxRiskScore:
+        query.maxRiskScore !== undefined
+          ? Number(query.maxRiskScore)
+          : undefined,
     };
 
     const [reports, total] = await Promise.all([
-      this.reportRepository.searchByAnalyst(userId, filters, { page, limit, skip }),
+      this.reportRepository.searchByAnalyst(userId, filters, {
+        page,
+        limit,
+        skip,
+      }),
       this.reportRepository.countByAnalyst(userId, filters),
     ]);
 
@@ -85,7 +103,10 @@ export class ReportService {
    * @param userId Creator Analyst User ObjectId string
    */
   async deleteReport(reportId: any, userId: any) {
-    const report = await this.reportRepository.findOne({ _id: reportId, analyst: userId });
+    const report = await this.reportRepository.findOne({
+      _id: reportId,
+      analyst: userId,
+    });
 
     if (!report) {
       throw new NotFoundError("Report");
@@ -102,9 +123,15 @@ export class ReportService {
    * @param reviewer Reviewer User document context
    * @param payload Decision and comments fields
    */
-  async reviewReport(reportId: any, reviewer: any, payload: Record<string, any> = {}) {
+  async reviewReport(
+    reportId: any,
+    reviewer: any,
+    payload: Record<string, any> = {},
+  ) {
     if (!["admin", "manager"].includes(reviewer.role)) {
-      throw new ForbiddenError("Only admin or manager users can review reports");
+      throw new ForbiddenError(
+        "Only admin or manager users can review reports",
+      );
     }
 
     if (!REVIEW_DECISIONS.includes(payload.decision)) {
@@ -148,4 +175,5 @@ export class ReportService {
       content: csvContent,
     };
   }
+
 }

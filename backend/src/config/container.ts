@@ -18,6 +18,7 @@ import {
  * Dependency Injection Container for resolving singleton instances
  */
 class Container {
+
   private singletons: Map<string, any>;
 
   constructor() {
@@ -81,6 +82,7 @@ class Container {
         throw new Error(`Dependency '${name}' is not registered`);
     }
   }
+
 }
 
 const container = new Container();

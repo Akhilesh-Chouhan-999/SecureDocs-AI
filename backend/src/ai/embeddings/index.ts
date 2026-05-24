@@ -11,5 +11,4 @@ const createKeywordFingerprint = (text: string): Record<string, number> => {
   }, {});
 };
 
-export { createKeywordFingerprint,
- };
+export { createKeywordFingerprint };

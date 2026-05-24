@@ -9,6 +9,7 @@ import { sanitizeUser } from "../domain/entities/index.js";
  * Service orchestrating authentication flows (login, register, token refresh)
  */
 export class AuthService {
+
   private userRepository: any;
 
   constructor(userRepository: any) {
@@ -89,4 +90,5 @@ export class AuthService {
   getProfile(user: any) {
     return sanitizeUser(user);
   }
+
 }

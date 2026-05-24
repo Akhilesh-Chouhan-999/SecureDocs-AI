@@ -6,9 +6,13 @@ import {
   financialAnalysisTool,
   documentValidationTool,
 } from "../tools/fraudDetectionTools.js";
-import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from "@langchain/core/prompts";
 
 class FraudDetectionAgent {
+
   static async initialize() {
     const llm = new ChatOpenAI({
       apiKey: process.env.OPENAI_API_KEY || "test-api-key",
@@ -23,7 +27,9 @@ class FraudDetectionAgent {
     ];
 
     const prompt = ChatPromptTemplate.fromMessages([
-      ["system", `You are a expert fraud detection analyst. Your job is to:
+      [
+        "system",
+        `You are a expert fraud detection analyst. Your job is to:
 1. Look up historical records for the customer
 2. Analyze financial patterns
 3. Validate document authenticity
@@ -32,7 +38,8 @@ class FraudDetectionAgent {
 
 Always be thorough and conservative - flag any suspicious activity.
 Current Document: {document}
-Historical Data: {historicalData}`],
+Historical Data: {historicalData}`,
+      ],
       ["user", "{input}"],
       new MessagesPlaceholder("agent_scratchpad"),
     ]);
@@ -40,7 +47,7 @@ Historical Data: {historicalData}`],
     const agent = await createOpenAIFunctionsAgent({
       llm,
       tools: tools as any,
-      prompt
+      prompt,
     });
 
     const executor = new AgentExecutor({
@@ -128,6 +135,7 @@ Please perform comprehensive fraud detection.
     if (score >= 31) return "Medium";
     return "Low";
   }
+
 }
 
 export default FraudDetectionAgent;

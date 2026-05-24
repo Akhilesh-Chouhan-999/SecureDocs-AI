@@ -44,6 +44,7 @@ interface ContextStats {
  * Context Augmentation Service
  */
 class ContextAugmentationService {
+
   private searchService: any;
   private stats = {
     augmentations: 0,
@@ -51,6 +52,7 @@ class ContextAugmentationService {
     avgDocumentsAdded: 0,
     avgSimilarityUsed: 0,
   };
+
   private contextLengths: number[] = [];
   private docCountList: number[] = [];
   private similarityList: number[] = [];
@@ -329,6 +331,7 @@ class ContextAugmentationService {
     this.similarityList = [];
     logger.info("Context augmentation statistics reset");
   }
+
 }
 
 // Singleton instance
@@ -347,8 +350,4 @@ export function getContextAugmentationService(
 }
 
 export { ContextAugmentationService };
-export type {
-  ContextAugmentationOptions,
-  AugmentedContext,
-  ContextStats,
-};
+export type { ContextAugmentationOptions, AugmentedContext, ContextStats };

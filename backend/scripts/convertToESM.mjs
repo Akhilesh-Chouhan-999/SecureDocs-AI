@@ -30,10 +30,13 @@ function convertFile(filePath) {
   content = content.replace(
     /const\s+{\s*([^}]+)\s*}\s*=\s*require\s*\(\s*["']([^"']+)["']\s*\)/g,
     (match, vars, modulePath) => {
-      const cleanVars = vars.split(",").map((v) => v.trim()).join(", ");
+      const cleanVars = vars
+        .split(",")
+        .map((v) => v.trim())
+        .join(", ");
       const fullPath = addJsExtension(modulePath);
       return `import { ${cleanVars} } from "${fullPath}"`;
-    }
+    },
   );
 
   // Convert: const X = require("./path")
@@ -42,20 +45,26 @@ function convertFile(filePath) {
     (match, varName, modulePath) => {
       const fullPath = addJsExtension(modulePath);
       return `import ${varName} from "${fullPath}"`;
-    }
+    },
   );
 
   // Handle module.exports = { ... }
-  content = content.replace(/module\.exports\s*=\s*{\s*([^}]*)\s*}/g, "export { $1 }");
+  content = content.replace(
+    /module\.exports\s*=\s*{\s*([^}]*)\s*}/g,
+    "export { $1 }",
+  );
 
   // Handle: module.exports.X = Y
   content = content.replace(
     /module\.exports\.(\w+)\s*=\s*([^;]+);/g,
-    "export const $1 = $2;"
+    "export const $1 = $2;",
   );
 
   // Handle: module.exports = X
-  content = content.replace(/module\.exports\s*=\s*([^;]+);/g, "export default $1;");
+  content = content.replace(
+    /module\.exports\s*=\s*([^;]+);/g,
+    "export default $1;",
+  );
 
   return content !== originalContent ? content : null;
 }

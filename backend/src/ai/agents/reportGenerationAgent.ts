@@ -3,6 +3,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 class ReportGenerationAgent {
+
   static async generateReport(fraudAnalysis: any, documentData: any) {
     try {
       const llm = new ChatOpenAI({
@@ -39,7 +40,7 @@ Format as clean, professional text suitable for bank underwriters.
 
       const prompt = PromptTemplate.fromTemplate(template);
       const parser = new StringOutputParser();
-      
+
       const chain = prompt.pipe(llm as any).pipe(parser as any);
 
       const reportText = await chain.invoke({
@@ -62,6 +63,7 @@ Format as clean, professional text suitable for bank underwriters.
       throw error;
     }
   }
+
 }
 
 export default ReportGenerationAgent;

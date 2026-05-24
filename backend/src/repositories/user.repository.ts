@@ -5,6 +5,7 @@ import User from "../models/User.js";
  * Repository layer handling User persistence operations
  */
 export class UserRepository extends BaseRepository {
+
   constructor() {
     super(User);
   }
@@ -14,6 +15,9 @@ export class UserRepository extends BaseRepository {
    * @param email The user email address
    */
   async findByEmail(email: string) {
-    return this.model.findOne({ email: String(email).toLowerCase().trim() }).exec();
+    return this.model
+      .findOne({ email: String(email).toLowerCase().trim() })
+      .exec();
   }
+
 }

@@ -1,17 +1,23 @@
-const request = require("supertest");
+import request from "supertest";
+import { jest } from "@jest/globals";
 
 const mockGet = jest.fn();
 
-jest.mock("../../src/middleware/auth.middleware", () => (req, res, next) => {
-  req.user = {
-    _id: "user-1",
-    email: "user@example.com",
-    role: req.headers["x-test-role"] || "analyst",
-  };
-  next();
-});
+await jest.unstable_mockModule(
+  "../../src/middleware/auth.middleware.js",
+  () => ({
+    default: (req: any, res: any, next: any) => {
+      req.user = {
+        _id: "user-1",
+        email: "user@example.com",
+        role: req.headers["x-test-role"] || "analyst",
+      };
+      next();
+    },
+  }),
+);
 
-jest.mock("../../src/config", () => ({
+await jest.unstable_mockModule("../../src/config/index.js", () => ({
   env: {
     frontendUrl: "http://localhost:3000",
   },
@@ -20,45 +26,51 @@ jest.mock("../../src/config", () => ({
   },
 }));
 
-const app = require("../../src/app");
+let app: any;
 
 describe("route surface", () => {
-  const services = {
+  const services: any = {
     documentService: {
-      listForUser: jest.fn().mockResolvedValue({
+      listForUser: jest.fn<any>().mockResolvedValue({
         documents: [],
         pagination: { page: 2, limit: 5, total: 0, totalPages: 1 },
         filters: { status: "completed", search: "mortgage" },
       }),
     },
     historyService: {
-      searchHistory: jest.fn().mockResolvedValue({
+      searchHistory: jest.fn<any>().mockResolvedValue({
         records: [{ id: "history-1", key: "user@example.com", source: "seed" }],
         pagination: { page: 1, limit: 10, total: 1, totalPages: 1 },
         filters: { search: "user" },
       }),
     },
     reportService: {
-      reviewReport: jest.fn().mockResolvedValue({
+      reviewReport: jest.fn<any>().mockResolvedValue({
         _id: "a".repeat(24),
         decision: "approved",
       }),
-      buildDownload: jest.fn().mockResolvedValue({
+      buildDownload: jest.fn<any>().mockResolvedValue({
         fileName: "fraud-report.pdf",
         buffer: Buffer.from("%PDF-1.4 test"),
       }),
     },
     jobService: {
-      retryJob: jest.fn().mockResolvedValue({
+      retryJob: jest.fn<any>().mockResolvedValue({
         id: "job-1",
         status: "queued",
       }),
     },
   };
 
+  beforeAll(async () => {
+    app =
+      ((await import("../../src/app.js")).default as any) ||
+      (await import("../../src/app.js"));
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGet.mockImplementation((name) => services[name]);
+    mockGet.mockImplementation((name: any) => services[name]);
   });
 
   it("supports document list filters and pagination", async () => {
@@ -94,8 +106,9 @@ describe("route surface", () => {
   });
 
   it("downloads reports as pdf", async () => {
-    const response = await request(app)
-      .get(`/api/reports/${"a".repeat(24)}/download`);
+    const response = await request(app).get(
+      `/api/reports/${"a".repeat(24)}/download`,
+    );
 
     expect(response.status).toBe(200);
     expect(response.headers["content-type"]).toContain("application/pdf");
@@ -118,11 +131,13 @@ describe("route surface", () => {
   });
 
   it("supports retrying jobs", async () => {
-    const response = await request(app)
-      .post("/api/jobs/job-1/retry");
+    const response = await request(app).post("/api/jobs/job-1/retry");
 
     expect(response.status).toBe(200);
     expect(response.body.job.status).toBe("queued");
-    expect(services.jobService.retryJob).toHaveBeenCalledWith("job-1", "user-1");
+    expect(services.jobService.retryJob).toHaveBeenCalledWith(
+      "job-1",
+      "user-1",
+    );
   });
 });

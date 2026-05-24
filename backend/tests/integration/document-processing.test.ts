@@ -13,7 +13,7 @@ let app: any;
 beforeAll(async () => {
   await setupDB();
   const module = await import("../../src/app.js");
-  app = module.default || module.app;
+  app = module.default || module;
 }, 60000);
 
 afterEach(async () => {
@@ -42,6 +42,7 @@ describe("Document Processing Integration Pipeline", () => {
       email: testUser.email,
       password: testUser.password,
     });
+    console.log("Login Res:", loginRes.body);
     authToken = loginRes.body.token;
   });
 
@@ -67,9 +68,9 @@ describe("Document Processing Integration Pipeline", () => {
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
     expect(response.body.document).toBeDefined();
-    
+
     const docId = response.body.document.id || response.body.document._id;
-    
+
     // Verify it exists in DB
     const dbDoc = await Document.findById(docId);
     expect(dbDoc).not.toBeNull();

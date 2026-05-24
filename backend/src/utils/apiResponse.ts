@@ -6,7 +6,11 @@ import { Response } from "express";
  * @param data Response payload properties to merge
  * @param statusCode HTTP status code (default: 200)
  */
-export const success = (res: Response, data: Record<string, any> = {}, statusCode = 200) => {
+export const success = (
+  res: Response,
+  data: Record<string, any> = {},
+  statusCode = 200,
+) => {
   return res.status(statusCode).json({
     success: true,
     ...data,

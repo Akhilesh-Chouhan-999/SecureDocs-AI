@@ -5,6 +5,7 @@ import { OwnershipMatcher } from "./ownership-matcher.js";
 import { PatternRecognizer } from "./pattern-recognizer.js";
 
 export class AnomalyDetectionService {
+
   private financialAnalyzer: FinancialAnalyzer;
   private metadataValidator: MetadataValidator;
   private ownershipMatcher: OwnershipMatcher;
@@ -21,23 +22,23 @@ export class AnomalyDetectionService {
    * Run all deterministic anomaly detection rules against a document's extracted data.
    */
   async evaluateDocument(
-    document: any, 
-    extractedData: any, 
-    historicalRecords: any[]
+    document: any,
+    extractedData: any,
+    historicalRecords: any[],
   ): Promise<FraudAnomaly[]> {
     const anomalies: FraudAnomaly[] = [];
 
     // Financial Checks
     const financialAnomalies = await this.financialAnalyzer.checkFinancials(
       extractedData?.declaredIncome,
-      extractedData?.historicalIncome
+      extractedData?.historicalIncome,
     );
     anomalies.push(...financialAnomalies);
 
     // Metadata Checks
     const metadataAnomalies = await this.metadataValidator.validateMetadata(
       extractedData?.documentDate,
-      new Date(document.createdAt || Date.now())
+      new Date(document.createdAt || Date.now()),
     );
     anomalies.push(...metadataAnomalies);
 
@@ -48,7 +49,7 @@ export class AnomalyDetectionService {
     const ownershipAnomalies = await this.ownershipMatcher.checkOwnership(
       expectedOwner,
       extractedData?.borrowerName || extractedData?.name,
-      historicalRecords
+      historicalRecords,
     );
     anomalies.push(...ownershipAnomalies);
 
@@ -56,10 +57,11 @@ export class AnomalyDetectionService {
     // We pass historical records that look similar or belong to the same cluster
     const patternAnomalies = await this.patternRecognizer.detectFraudClusters(
       extractedData,
-      historicalRecords
+      historicalRecords,
     );
     anomalies.push(...patternAnomalies);
 
     return anomalies;
   }
+
 }

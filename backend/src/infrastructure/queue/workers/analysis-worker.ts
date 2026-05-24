@@ -7,6 +7,7 @@ import { markJobProcessing, markJobCompleted, markJobFailed } from "./index.js";
  * Kept separate from the job service to allow future scaling into independent worker nodes.
  */
 export class AnalysisWorker {
+
   private analysisService: any;
   private jobsMap: Map<string, any>;
   private emitter: any;
@@ -30,32 +31,34 @@ export class AnalysisWorker {
 
     try {
       logger.info(`Starting background analysis for job ${jobId}`);
-      
+
       const processingJob = markJobProcessing(currentJob);
       this.jobsMap.set(processingJob.id, processingJob);
       this.emitter.emit("job_updated", processingJob);
 
       // Perform the heavy analysis operation
       const result = await this.analysisService.analyzeDocument(
-        bullJob.data.documentId, 
-        bullJob.data.userId
+        bullJob.data.documentId,
+        bullJob.data.userId,
       );
-      
+
       const completedJob = markJobCompleted(processingJob, result);
       this.jobsMap.set(completedJob.id, completedJob);
       this.emitter.emit("job_completed", completedJob);
-      
-      logger.info(`Successfully completed background analysis for job ${jobId}`);
-      return result;
 
+      logger.info(
+        `Successfully completed background analysis for job ${jobId}`,
+      );
+      return result;
     } catch (error) {
       logger.error(`Failed background analysis for job ${jobId}`, { error });
-      
+
       const failedJob = markJobFailed(currentJob, error);
       this.jobsMap.set(failedJob.id, failedJob);
       this.emitter.emit("job_failed", failedJob);
-      
+
       throw error;
     }
   }
+
 }

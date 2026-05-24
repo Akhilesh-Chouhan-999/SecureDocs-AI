@@ -8,8 +8,8 @@ jest.mock("bull", () => {
     getJob: jest.fn().mockResolvedValue({
       getState: jest.fn().mockResolvedValue("completed"),
       progress: jest.fn().mockReturnValue(100),
-      data: {}
+      data: {},
     }),
-    close: jest.fn()
+    close: jest.fn(),
   }));
 });

@@ -18,6 +18,7 @@ import {
  * OpenAIClient - ChatOpenAI wrapper
  */
 export class OpenAIClient implements ILLMClient {
+
   private client: ChatOpenAI | null = null;
   private config: ILLMConfig;
   private providerName = "OpenAI";
@@ -123,6 +124,7 @@ export class OpenAIClient implements ILLMClient {
   getModelName(): string {
     return this.config.modelName || "gpt-4";
   }
+
 }
 
 export default OpenAIClient;

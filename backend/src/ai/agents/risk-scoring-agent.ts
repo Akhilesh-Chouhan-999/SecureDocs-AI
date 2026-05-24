@@ -34,6 +34,7 @@ export interface RiskScoringAgentInput {
  * RiskScoringAgent - Risk score calculation agent
  */
 export class RiskScoringAgent extends BaseAgent {
+
   constructor(llm: BaseLanguageModel) {
     super("RiskScoringAgent", llm, []);
   }
@@ -222,6 +223,7 @@ Please calculate the composite risk score using the methodology provided and pro
 
     return items;
   }
+
 }
 
 export default RiskScoringAgent;

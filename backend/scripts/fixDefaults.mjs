@@ -14,7 +14,7 @@ function fixFile(filePath) {
   // Fix: export const default = X  ->  export default X
   content = content.replace(
     /export\s+const\s+default\s+=\s+(.+);/g,
-    "export default $1;"
+    "export default $1;",
   );
 
   // Fix: export const default  ->  export default (without assignment on same line)

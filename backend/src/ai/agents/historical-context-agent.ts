@@ -25,6 +25,7 @@ export interface HistoricalContextAgentInput {
  * HistoricalContextAgent - RAG and historical data retrieval
  */
 export class HistoricalContextAgent extends BaseAgent {
+
   constructor(llm: BaseLanguageModel) {
     super("HistoricalContextAgent", llm, []);
   }
@@ -91,8 +92,10 @@ export class HistoricalContextAgent extends BaseAgent {
 
       // Search using Mongoose HistoricalRecord model
       // Normalizing format to match our expected historical pattern
-      const dbRecords = await HistoricalRecord.find(query).limit(input.maxResults || 5).lean();
-      
+      const dbRecords = await HistoricalRecord.find(query)
+        .limit(input.maxResults || 5)
+        .lean();
+
       const records: any[] = dbRecords.map((doc: any) => ({
         ownerName: input.customerName,
         ownerEmail: input.customerEmail,
@@ -101,7 +104,7 @@ export class HistoricalContextAgent extends BaseAgent {
         legalRecords: [],
         riskFactors: [],
         ...doc.value, // Mixin the unstructured historical document data
-        updatedAt: doc.createdAt
+        updatedAt: doc.createdAt,
       }));
 
       logger.info(`Historical search found ${records.length} matching records`);
@@ -275,6 +278,7 @@ Please:
 
     return recommendations;
   }
+
 }
 
 const HISTORICAL_CONTEXT_SYSTEM_PROMPT = `You are a historical fraud pattern analyst. Your role is to:

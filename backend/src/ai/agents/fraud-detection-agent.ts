@@ -35,6 +35,7 @@ interface FraudAnalysisResult {
 }
 
 export class FraudDetectionAgent {
+
   private llmManager = getLLMManager();
   private tools: any[] = [];
 
@@ -57,26 +58,31 @@ export class FraudDetectionAgent {
           logger.debug(`Historical lookup: ${input}`);
           try {
             const { getRAGPipeline } = await import("../rag/rag-pipeline.js");
-            const rag = getRAGPipeline({ collectionName: "historical_records" });
-            
+            const rag = getRAGPipeline({
+              collectionName: "historical_records",
+            });
+
             // Ensure Chroma is initialized
             await rag.initialize();
 
             const ragResult = await rag.retrieve(input);
-            
-            if (!ragResult.retrievedDocuments || ragResult.retrievedDocuments.length === 0) {
+
+            if (
+              !ragResult.retrievedDocuments ||
+              ragResult.retrievedDocuments.length === 0
+            ) {
               return JSON.stringify({
                 matchedCases: [],
-                riskIndicators: ["No similar historical cases found."]
+                riskIndicators: ["No similar historical cases found."],
               });
             }
 
             return JSON.stringify({
-              matchedCases: ragResult.retrievedDocuments.map(doc => ({
+              matchedCases: ragResult.retrievedDocuments.map((doc) => ({
                 caseId: doc.id,
                 similarity: doc.similarity,
                 content: doc.content,
-                metadata: doc.metadata
+                metadata: doc.metadata,
               })),
               riskIndicators: [
                 `${ragResult.retrievedDocuments.length} similar cases found in history`,
@@ -86,11 +92,11 @@ export class FraudDetectionAgent {
             logger.error(`Historical lookup failed: ${error}`);
             return JSON.stringify({
               matchedCases: [],
-              riskIndicators: ["Error performing historical lookup."]
+              riskIndicators: ["Error performing historical lookup."],
             });
           }
         },
-      })
+      }),
     );
 
     // Tool 2: Financial Analysis
@@ -187,7 +193,12 @@ export class FraudDetectionAgent {
           }
 
           const baseScore = anomalies.reduce((sum: number, a: FraudAnomaly) => {
-            const weights: Record<string, number> = { low: 5, medium: 20, high: 35, critical: 50 };
+            const weights: Record<string, number> = {
+              low: 5,
+              medium: 20,
+              high: 35,
+              critical: 50,
+            };
             const severityWeight = weights[a.severity] || 0;
             return sum + severityWeight * (a.confidence || 0.5);
           }, 0);
@@ -413,6 +424,7 @@ Use your tools to thoroughly analyze this document. Report all findings.`;
       llmStats: this.llmManager.getStats(),
     };
   }
+
 }
 
 /**

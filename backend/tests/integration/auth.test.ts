@@ -8,7 +8,7 @@ let app: any;
 beforeAll(async () => {
   await setupDB();
   const module = await import("../../src/app.js");
-  app = module.default || module.app;
+  app = module.default;
 }, 60000);
 
 afterEach(async () => {
@@ -43,7 +43,7 @@ describe("Authentication Flow Integration Tests", () => {
       expect(response.body.success).toBe(true);
       expect(response.body.user.email).toBe(testUser.email);
       expect(response.body.user.role).toBe("analyst");
-      
+
       const dbUser = await User.findOne({ email: testUser.email });
       expect(dbUser).not.toBeNull();
       expect(dbUser?.organization).toBe(testUser.organization);
@@ -51,7 +51,7 @@ describe("Authentication Flow Integration Tests", () => {
 
     it("should reject registration with duplicate email", async () => {
       await request(app).post("/api/auth/register").send(testUser);
-      
+
       const response = await request(app)
         .post("/api/auth/register")
         .send(testUser);

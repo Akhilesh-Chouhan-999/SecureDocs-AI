@@ -14,6 +14,7 @@ import Document from "../../models/Document.js";
  * Searches for historical records by email or customer name
  */
 export class HistoricalLookupTool extends StructuredTool {
+
   name = "historical_lookup";
   description =
     "Retrieve historical records for a customer by email, name, or customer ID. Returns previous applications, legal records, and known fraud indicators.";
@@ -75,6 +76,7 @@ export class HistoricalLookupTool extends StructuredTool {
       });
     }
   }
+
 }
 
 /**
@@ -82,6 +84,7 @@ export class HistoricalLookupTool extends StructuredTool {
  * Analyzes financial patterns and detects anomalies
  */
 export class FinancialAnalysisTool extends StructuredTool {
+
   name = "financial_analysis";
   description =
     "Analyze financial data for anomalies. Detects outliers, unusual patterns, and suspicious transactions.";
@@ -160,8 +163,10 @@ export class FinancialAnalysisTool extends StructuredTool {
           transactionHistory.reduce((a: number, b: number) => a + b, 0) /
           transactionHistory.length;
         const standardDeviation = Math.sqrt(
-          transactionHistory.reduce((sq: number, n: number) => sq + Math.pow(n - avg, 2), 0) /
-            transactionHistory.length,
+          transactionHistory.reduce(
+            (sq: number, n: number) => sq + Math.pow(n - avg, 2),
+            0,
+          ) / transactionHistory.length,
         );
 
         // Check if current amount is outlier (>2 standard deviations)
@@ -194,6 +199,7 @@ export class FinancialAnalysisTool extends StructuredTool {
       });
     }
   }
+
 }
 
 /**
@@ -201,6 +207,7 @@ export class FinancialAnalysisTool extends StructuredTool {
  * Validates document metadata and checks for expiration/forgery
  */
 export class DocumentValidationTool extends StructuredTool {
+
   name = "document_validation";
   description =
     "Validate document metadata including issue dates, expiry dates, and issuer authenticity.";
@@ -295,6 +302,7 @@ export class DocumentValidationTool extends StructuredTool {
       });
     }
   }
+
 }
 
 /**
@@ -302,6 +310,7 @@ export class DocumentValidationTool extends StructuredTool {
  * Identifies potential fraud indicators from OCR data
  */
 export class AnomalyDetectionTool extends StructuredTool {
+
   name = "anomaly_detection";
   description =
     "Detect fraud anomalies in document OCR data. Identifies inconsistencies, suspicious patterns, and red flags.";
@@ -391,6 +400,7 @@ export class AnomalyDetectionTool extends StructuredTool {
       });
     }
   }
+
 }
 
 /**

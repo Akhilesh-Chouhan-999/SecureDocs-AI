@@ -14,7 +14,15 @@ export const parsePagination = (query: Record<string, any> = {}) => {
  * Format total results into paginated response metadata
  * @param pagination Context pagination settings and total match count
  */
-export const buildPagination = ({ page, limit, total }: { page: number; limit: number; total: number }) => ({
+export const buildPagination = ({
+  page,
+  limit,
+  total,
+}: {
+  page: number;
+  limit: number;
+  total: number;
+}) => ({
   page,
   limit,
   total,

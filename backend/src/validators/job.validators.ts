@@ -9,7 +9,13 @@ export const jobId = Joi.object({
 });
 
 export const listJobs = Joi.object({
-  status: Joi.string().valid("queued", "processing", "completed", "failed", "canceled"),
+  status: Joi.string().valid(
+    "queued",
+    "processing",
+    "completed",
+    "failed",
+    "canceled",
+  ),
 });
 
 export const jobValidators = {

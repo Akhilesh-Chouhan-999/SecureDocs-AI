@@ -5,6 +5,7 @@ import HistoricalRecord from "../models/HistoricalRecord.js";
  * Repository layer handling Historical records cross-check persistence operations
  */
 export class HistoricalRepository extends BaseRepository {
+
   constructor() {
     super(HistoricalRecord);
   }
@@ -42,7 +43,8 @@ export class HistoricalRepository extends BaseRepository {
     const query: Record<string, any> = {};
 
     if (filters.key) query.key = { $regex: filters.key, $options: "i" };
-    if (filters.source) query.source = { $regex: filters.source, $options: "i" };
+    if (filters.source)
+      query.source = { $regex: filters.source, $options: "i" };
 
     if (filters.email) {
       const normalizedEmail = String(filters.email).toLowerCase().trim();
@@ -66,7 +68,10 @@ export class HistoricalRepository extends BaseRepository {
    * @param filters Filtering params
    * @param pagination Page, limit, skip params
    */
-  async search(filters: Record<string, any> = {}, pagination = { page: 1, limit: 10, skip: 0 }) {
+  async search(
+    filters: Record<string, any> = {},
+    pagination = { page: 1, limit: 10, skip: 0 },
+  ) {
     return this.model
       .find(this.buildSearchFilter(filters))
       .sort({ createdAt: -1 })
@@ -82,4 +87,5 @@ export class HistoricalRepository extends BaseRepository {
   async countSearch(filters: Record<string, any> = {}) {
     return this.model.countDocuments(this.buildSearchFilter(filters)).exec();
   }
+
 }

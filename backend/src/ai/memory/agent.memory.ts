@@ -1,6 +1,7 @@
 import { BaseMemory } from "@langchain/core/memory";
 
 export class AgentMemory extends BaseMemory {
+
   // Placeholder for agent memory
   lc_serializable: boolean = false;
 
@@ -19,4 +20,5 @@ export class AgentMemory extends BaseMemory {
   async clear(): Promise<void> {
     // Clear memory logic
   }
+
 }
