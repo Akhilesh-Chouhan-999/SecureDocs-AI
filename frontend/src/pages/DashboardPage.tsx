@@ -1,147 +1,100 @@
-import { useEffect, useState } from "react";
-import api from "../services/api";
-import FraudCard from "../components/shared/FraudCard";
-import {
-  FiActivity,
-  FiShield,
-  FiFileText,
-  FiAlertTriangle,
-} from "react-icons/fi";
+import { useEffect, useState } from 'react';
+import { GlassCard } from '../components/ui/GlassCard';
+import { RiskIndicator } from '../components/ui/RiskIndicator';
+import { AINeuralInsight } from '../components/ui/AINeuralInsight';
+import { useAppStore } from '../store/appStore';
+import { UIDocument } from '../types';
+import { MetricsGrid } from '../components/dashboard/MetricsGrid';
+import { AlertFeed } from '../components/dashboard/AlertFeed';
+import { RecentDocumentsTable } from '../components/dashboard/RecentDocumentsTable';
 
-import { Report } from "../types";
+const mockRecentDocuments: UIDocument[] = [
+  { id: '1', name: 'Invoice_4521.pdf', type: 'Invoice', riskScore: 89, status: 'High Risk', timestamp: new Date(Date.now() - 7200000), size: '1.2 MB' },
+  { id: '2', name: 'Contract_Q1_2024.pdf', type: 'Contract', riskScore: 45, status: 'Medium', timestamp: new Date(Date.now() - 18000000), size: '4.5 MB' },
+  { id: '3', name: 'Property_Title_789.pdf', type: 'Title', riskScore: 72, status: 'High Risk', timestamp: new Date(Date.now() - 86400000), size: '8.1 MB' },
+  { id: '4', name: 'Bank_Statement_March.pdf', type: 'Statement', riskScore: 23, status: 'Low Risk', timestamp: new Date(Date.now() - 172800000), size: '2.3 MB' },
+];
 
-export default function Dashboard() {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function DashboardPage() {
+  const alerts = useAppStore(state => state.alerts);
+  const [confidence, setConfidence] = useState(99.8);
 
   useEffect(() => {
-    fetchReports();
+    const interval = setInterval(() => {
+      setConfidence(parseFloat((99.7 + Math.random() * 0.2).toFixed(1)));
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchReports = async () => {
-    try {
-      // Stubbing data if endpoint is not fully returning yet
-      const data = await api.get("/reports").catch(() => []);
-      if (Array.isArray(data) && data.length > 0) {
-        setReports(data);
-      } else {
-        // Fallback for demonstration
-        setReports([
-          {
-            _id: "1",
-            documentId: "DOC-89324",
-            riskLevel: "Critical",
-            riskScore: 92,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            _id: "2",
-            documentId: "DOC-89325",
-            riskLevel: "High",
-            riskScore: 75,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            _id: "3",
-            documentId: "DOC-89326",
-            riskLevel: "Low",
-            riskScore: 12,
-            createdAt: new Date().toISOString(),
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error("Failed to fetch reports:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  const criticalReports = reports.filter((r) => r.riskLevel === "Critical");
-  const highRiskReports = reports.filter((r) => r.riskLevel === "High");
-
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          Overview
-        </h1>
-        <p className="text-neutral-400 mt-1">
-          Real-time fraud analysis and risk monitoring
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass p-6 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <FiAlertTriangle className="w-24 h-24 text-red-500 transform rotate-12" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center space-x-2 text-red-400 mb-2">
-              <FiAlertTriangle />
-              <span className="font-medium">Critical Fraud</span>
-            </div>
-            <p className="text-4xl font-bold text-foreground">
-              {criticalReports.length}
+    <div className="space-y-lg pb-safe">
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+        <div className="md:col-span-4 glass-card p-lg rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-tertiary-container/50 transition-colors">
+          <div className="absolute inset-0 shimmer opacity-50 pointer-events-none"></div>
+          <h3 className="text-label-mono font-label-mono text-on-surface-variant mb-lg uppercase tracking-widest">Global Risk Index</h3>
+          <RiskIndicator score={78} label="CRITICAL" className="mb-md" />
+          <p className="text-body-sm font-body-sm text-on-surface-variant">Elevated risk detected in Q3 batch processing.</p>
+        </div>
+        
+        <AINeuralInsight className="md:col-span-8 justify-between h-full">
+          <div>
+            <p className="text-body-lg font-body-lg text-on-surface leading-relaxed max-w-2xl">
+              "Unusual metadata alignment detected in <span className="text-primary font-bold">Document #8821-X</span>. The cryptographic signature matches a known forensic fingerprint associated with recent invoice-padding fraud patterns in the EMEA region."
             </p>
           </div>
-        </div>
-
-        <div className="glass p-6 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <FiActivity className="w-24 h-24 text-orange-500 transform rotate-12" />
+          <div className="mt-lg flex flex-wrap gap-md">
+            <button className="bg-primary px-lg py-sm rounded-full text-on-primary font-label-mono text-label-mono hover:scale-95 transition-transform cursor-pointer shadow-lg shadow-primary/20">
+              INITIALIZE LOCKDOWN
+            </button>
+            <button className="border border-outline-variant px-lg py-sm rounded-full text-on-surface font-label-mono text-label-mono hover:bg-surface-container-highest transition-colors cursor-pointer">
+              DEEP FORENSICS
+            </button>
           </div>
-          <div className="relative z-10">
-            <div className="flex items-center space-x-2 text-orange-400 mb-2">
-              <FiActivity />
-              <span className="font-medium">High Risk</span>
+        </AINeuralInsight>
+      </section>
+
+      <MetricsGrid confidence={confidence} />
+
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+        <GlassCard className="md:col-span-8 p-lg overflow-hidden flex flex-col">
+          <div className="flex justify-between items-center mb-lg">
+            <h3 className="text-headline-md font-headline-md">Fraud Risk Trends</h3>
+            <div className="flex gap-sm">
+              <span className="w-3 h-3 bg-primary rounded-full"></span>
+              <span className="w-3 h-3 bg-secondary rounded-full"></span>
             </div>
-            <p className="text-4xl font-bold text-foreground">
-              {highRiskReports.length}
-            </p>
           </div>
-        </div>
-
-        <div className="glass p-6 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <FiFileText className="w-24 h-24 text-blue-500 transform rotate-12" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center space-x-2 text-blue-400 mb-2">
-              <FiShield />
-              <span className="font-medium">Total Analyzed</span>
+          <div className="h-64 w-full relative flex-1">
+            <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 200">
+              <defs>
+                <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.3"></stop>
+                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60 L1000,200 L0,200 Z" fill="url(#chartGradient)"></path>
+              <path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60" fill="none" stroke="var(--color-primary)" strokeWidth="2"></path>
+              <circle cx="200" cy="150" fill="var(--color-primary)" r="4"></circle>
+              <circle cx="800" cy="40" fill="var(--color-primary)" r="4"></circle>
+            </svg>
+            <div className="absolute inset-0 flex justify-between items-end text-label-mono text-[10px] text-on-surface-variant/50 px-sm pb-1">
+              <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
             </div>
-            <p className="text-4xl font-bold text-foreground">
-              {reports.length}
-            </p>
           </div>
-        </div>
-      </div>
+        </GlassCard>
 
-      <div className="space-y-6 pt-4">
-        <div className="flex justify-between items-end">
-          <h2 className="text-2xl font-bold text-foreground">
-            Recent Analysis
-          </h2>
-          <button className="text-sm text-blue-500 hover:text-blue-400 font-medium transition-colors">
-            View All
-          </button>
-        </div>
+        <GlassCard className="md:col-span-4 flex flex-col h-full overflow-hidden">
+          <div className="p-lg border-b border-outline-variant flex items-center justify-between">
+            <h3 className="text-headline-md font-headline-md">Alert Feed</h3>
+            <span className="text-label-mono font-label-mono text-tertiary-container px-sm py-1 bg-tertiary-container/10 rounded">LIVE</span>
+          </div>
+          <AlertFeed alerts={alerts} />
+        </GlassCard>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {reports.slice(0, 4).map((report) => (
-            <FraudCard key={report._id} report={report} />
-          ))}
-        </div>
-      </div>
+      <section>
+        <RecentDocumentsTable documents={mockRecentDocuments} />
+      </section>
     </div>
   );
 }

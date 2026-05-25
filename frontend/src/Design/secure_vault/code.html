@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Secure Vault | SecureDoc AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #0A0C10;
+            color: #e2e2e8;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(17, 20, 29, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .risk-high { color: #ffb4ab; border-left: 2px solid #ffb4ab; }
+        .risk-low { color: #b3c5ff; border-left: 2px solid #b3c5ff; }
+        .risk-med { color: #d0bcff; border-left: 2px solid #d0bcff; }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .ai-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(179, 197, 255, 0.15) 0%, transparent 70%);
+            filter: blur(30px);
+            z-index: -1;
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#23005c",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e2e2e8",
+                        "secondary": "#d0bcff",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "tertiary": "#ffb3ad",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#111318",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "surface-container": "#1e2024",
+                        "primary-fixed": "#dae1ff",
+                        "on-secondary-container": "#c4abff",
+                        "tertiary-container": "#d63135",
+                        "surface-container-lowest": "#0c0e12",
+                        "on-secondary": "#3c0091",
+                        "inverse-on-surface": "#2f3035",
+                        "background": "#111318",
+                        "error-container": "#93000a",
+                        "on-primary-container": "#f8f7ff",
+                        "on-tertiary-fixed": "#410004",
+                        "on-primary-fixed-variant": "#003fa4",
+                        "on-primary-fixed": "#001849",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "on-background": "#e2e2e8",
+                        "on-surface-variant": "#c2c6d8",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#111318",
+                        "outline": "#8c90a1",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "surface-container-highest": "#333539",
+                        "secondary-container": "#571bc1",
+                        "on-tertiary": "#68000a",
+                        "surface-tint": "#b3c5ff",
+                        "surface-container-high": "#282a2e",
+                        "surface-bright": "#37393e",
+                        "on-primary": "#002b75",
+                        "surface-variant": "#333539",
+                        "secondary-fixed": "#e9ddff",
+                        "inverse-primary": "#0054d6",
+                        "surface-container-low": "#1a1c20",
+                        "on-tertiary-container": "#fff6f5",
+                        "primary": "#b3c5ff",
+                        "outline-variant": "#424656",
+                        "on-surface": "#e2e2e8",
+                        "primary-container": "#0066ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "margin-desktop": "48px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-dim/80 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+<span class="text-body-lg font-headline-lg tracking-tight text-on-surface">SecureDoc AI</span>
+</div>
+<div class="flex items-center gap-lg">
+<nav class="hidden md:flex gap-lg">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 text-label-mono font-label-mono" href="#">NETWORK</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 text-label-mono font-label-mono" href="#">AUDIT</a>
+<a class="text-primary font-bold text-label-mono font-label-mono" href="#">VAULT</a>
+</nav>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center border border-white/20">
+<span class="material-symbols-outlined text-on-primary-container text-sm">person</span>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-lg">
+<div>
+<div class="flex items-center gap-base text-primary mb-xs">
+<span class="material-symbols-outlined text-sm">enhanced_encryption</span>
+<span class="font-label-mono text-label-mono tracking-widest">AES-256 ENCRYPTED</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg md:text-display-lg text-on-surface">Secure Vault</h1>
+<p class="text-on-surface-variant font-body-md text-body-md mt-xs max-w-lg">Advanced biometric storage for sensitive financial entities and corporate documentation.</p>
+</div>
+<div class="flex flex-col gap-sm w-full md:w-auto">
+<div class="flex items-center justify-between text-label-mono font-label-mono text-on-surface-variant px-xs">
+<span>CAPACITY</span>
+<span class="text-primary">64% USED</span>
+</div>
+<div class="w-full md:w-64 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 64%"></div>
+</div>
+</div>
+</div>
+<!-- Search & Filter Controls -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md mb-lg">
+<div class="md:col-span-8 relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-md pl-12 pr-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md" placeholder="Search encrypted identifiers..." type="text"/>
+</div>
+<div class="md:col-span-4 flex gap-md">
+<div class="relative flex-1">
+<select class="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-xl py-md px-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary transition-all font-body-md text-body-md">
+<option>Risk Level: All</option>
+<option>Critical</option>
+<option>Elevated</option>
+<option>Nominal</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+</div>
+<button class="bg-surface-container-high border border-outline-variant p-md rounded-xl hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-on-surface">tune</span>
+</button>
+</div>
+</div>
+<!-- Vault Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Sidebar Stats (Desktop Only) -->
+<aside class="hidden md:block md:col-span-3 space-y-lg">
+<div class="glass-panel rounded-xl p-lg relative overflow-hidden">
+<div class="ai-glow -top-10 -left-10"></div>
+<h3 class="font-label-mono text-label-mono text-outline mb-md uppercase tracking-tighter">AI Health Monitor</h3>
+<div class="space-y-md">
+<div class="flex justify-between items-center">
+<span class="text-body-sm font-body-sm text-on-surface-variant">System Integrity</span>
+<span class="text-primary font-label-mono text-label-mono">100%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-sm font-body-sm text-on-surface-variant">Threat Neutralized</span>
+<span class="text-secondary font-label-mono text-label-mono">24h / 0</span>
+</div>
+<div class="pt-sm border-t border-white/5">
+<p class="text-[10px] font-label-mono text-outline leading-tight">ACTIVE PROTOCOL: OB_CIPHER_V4.1</p>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-lg">
+<h3 class="font-label-mono text-label-mono text-outline mb-md uppercase tracking-tighter">Quick Actions</h3>
+<div class="space-y-sm">
+<button class="w-full flex items-center gap-md p-md bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined text-md">add_circle</span>
+<span class="font-label-mono text-label-mono">NEW UPLOAD</span>
+</button>
+<button class="w-full flex items-center gap-md p-md hover:bg-white/5 text-on-surface-variant border border-transparent rounded-lg transition-all">
+<span class="material-symbols-outlined text-md">history</span>
+<span class="font-label-mono text-label-mono">ACCESS LOGS</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Document List -->
+<div class="md:col-span-9 space-y-md">
+<!-- Document Row 1 -->
+<div class="glass-panel rounded-xl p-md flex flex-col md:flex-row items-start md:items-center gap-lg hover:border-primary/40 transition-all cursor-pointer group risk-low">
+<div class="w-12 h-12 rounded bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-md text-body-md text-on-surface truncate">Q3_Revenue_Forecast_Encrypted.pdf</h4>
+<div class="flex flex-wrap gap-md mt-xs">
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">timer</span> 2m ago
+                            </span>
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">database</span> 1.2 MB
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-xl w-full md:w-auto justify-between md:justify-end">
+<div class="text-right">
+<div class="text-label-mono font-label-mono text-primary flex items-center justify-end gap-xs">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                                CLEAN
+                            </div>
+<div class="text-[10px] font-label-mono text-outline uppercase">NO THREATS FOUND</div>
+</div>
+<div class="flex gap-sm">
+<button class="p-sm text-outline hover:text-on-surface"><span class="material-symbols-outlined">download</span></button>
+<button class="p-sm text-outline hover:text-error"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Document Row 2 -->
+<div class="glass-panel rounded-xl p-md flex flex-col md:flex-row items-start md:items-center gap-lg hover:border-error/40 transition-all cursor-pointer group risk-high">
+<div class="w-12 h-12 rounded bg-error-container/20 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-md text-body-md text-on-surface truncate">Unknown_Signature_Block_AX.bin</h4>
+<div class="flex flex-wrap gap-md mt-xs">
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">timer</span> 14h ago
+                            </span>
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">database</span> 450 KB
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-xl w-full md:w-auto justify-between md:justify-end">
+<div class="text-right">
+<div class="text-label-mono font-label-mono text-error flex items-center justify-end gap-xs">
+<span class="material-symbols-outlined text-xs">gpp_maybe</span>
+                                QUARANTINED
+                            </div>
+<div class="text-[10px] font-label-mono text-outline uppercase">SUSPICIOUS HASH</div>
+</div>
+<div class="flex gap-sm">
+<button class="p-sm text-outline hover:text-on-surface"><span class="material-symbols-outlined">visibility</span></button>
+<button class="p-sm text-outline hover:text-error"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Document Row 3 -->
+<div class="glass-panel rounded-xl p-md flex flex-col md:flex-row items-start md:items-center gap-lg hover:border-secondary/40 transition-all cursor-pointer group risk-med">
+<div class="w-12 h-12 rounded bg-surface-container-highest flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">article</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-md text-body-md text-on-surface truncate">Internal_Auth_Matrix_2024.docx</h4>
+<div class="flex flex-wrap gap-md mt-xs">
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">timer</span> 2d ago
+                            </span>
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">database</span> 3.1 MB
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-xl w-full md:w-auto justify-between md:justify-end">
+<div class="text-right">
+<div class="text-label-mono font-label-mono text-secondary flex items-center justify-end gap-xs">
+<span class="material-symbols-outlined text-xs">lock</span>
+                                ENCRYPTED
+                            </div>
+<div class="text-[10px] font-label-mono text-outline uppercase">SECURE ARCHIVE</div>
+</div>
+<div class="flex gap-sm">
+<button class="p-sm text-outline hover:text-on-surface"><span class="material-symbols-outlined">download</span></button>
+<button class="p-sm text-outline hover:text-error"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Document Row 4 -->
+<div class="glass-panel rounded-xl p-md flex flex-col md:flex-row items-start md:items-center gap-lg hover:border-primary/40 transition-all cursor-pointer group risk-low">
+<div class="w-12 h-12 rounded bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">table_chart</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-md text-body-md text-on-surface truncate">Employee_Payroll_Master_V2.xlsx</h4>
+<div class="flex flex-wrap gap-md mt-xs">
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">timer</span> 3d ago
+                            </span>
+<span class="text-label-mono font-label-mono text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">database</span> 8.4 MB
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-xl w-full md:w-auto justify-between md:justify-end">
+<div class="text-right">
+<div class="text-label-mono font-label-mono text-primary flex items-center justify-end gap-xs">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                                CLEAN
+                            </div>
+<div class="text-[10px] font-label-mono text-outline uppercase">SCANNED OK</div>
+</div>
+<div class="flex gap-sm">
+<button class="p-sm text-outline hover:text-on-surface"><span class="material-symbols-outlined">download</span></button>
+<button class="p-sm text-outline hover:text-error"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Loading State / Pagination Placeholder -->
+<div class="flex justify-center py-xl">
+<button class="px-xl py-md border border-outline-variant rounded-full text-on-surface-variant text-label-mono font-label-mono hover:bg-white/5 transition-all">
+                        FETCH MORE RECORDS
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm pb-safe h-20 bg-surface-container/90 backdrop-blur-xl border-t border-white/5 shadow-xl rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-md py-xs rounded-lg" href="#">
+<span class="material-symbols-outlined">cloud_upload</span>
+<span class="text-label-mono font-label-mono">Upload</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-md py-xs rounded-lg" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-label-mono font-label-mono">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary fill-current scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="text-label-mono font-label-mono">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-md py-xs rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-mono font-label-mono">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 px-md py-xs rounded-lg" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-label-mono font-label-mono">Profile</span>
+</a>
+</nav>
+<!-- Visual Atmosphere Effects -->
+<div class="fixed top-0 right-0 -z-10 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+<div class="fixed bottom-0 left-0 -z-10 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px] opacity-10 pointer-events-none"></div>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

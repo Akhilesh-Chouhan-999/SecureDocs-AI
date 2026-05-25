@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (email, password, organization) => {
+  register: async (email: string, password: string, organization: string) => {
     set({ isLoading: true, error: null });
     try {
       const data = await api.post("/auth/register", {
@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  login: async (email, password) => {
+  login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
       const data = await api.post("/auth/login", {

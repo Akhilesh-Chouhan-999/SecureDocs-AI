@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Upload | SecureDoc AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#23005c",
+                    "tertiary-fixed": "#ffdad7",
+                    "on-error": "#690005",
+                    "inverse-surface": "#e2e2e8",
+                    "secondary": "#d0bcff",
+                    "on-tertiary-fixed-variant": "#930013",
+                    "tertiary": "#ffb3ad",
+                    "error": "#ffb4ab",
+                    "surface-dim": "#111318",
+                    "primary-fixed-dim": "#b3c5ff",
+                    "surface-container": "#1e2024",
+                    "primary-fixed": "#dae1ff",
+                    "on-secondary-container": "#c4abff",
+                    "tertiary-container": "#d63135",
+                    "surface-container-lowest": "#0c0e12",
+                    "on-secondary": "#3c0091",
+                    "inverse-on-surface": "#2f3035",
+                    "background": "#111318",
+                    "error-container": "#93000a",
+                    "on-primary-container": "#f8f7ff",
+                    "on-tertiary-fixed": "#410004",
+                    "on-primary-fixed-variant": "#003fa4",
+                    "on-primary-fixed": "#001849",
+                    "tertiary-fixed-dim": "#ffb3ad",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "on-background": "#e2e2e8",
+                    "on-surface-variant": "#c2c6d8",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#111318",
+                    "outline": "#8c90a1",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "surface-container-highest": "#333539",
+                    "secondary-container": "#571bc1",
+                    "on-tertiary": "#68000a",
+                    "surface-tint": "#b3c5ff",
+                    "surface-container-high": "#282a2e",
+                    "surface-bright": "#37393e",
+                    "on-primary": "#002b75",
+                    "surface-variant": "#333539",
+                    "secondary-fixed": "#e9ddff",
+                    "inverse-primary": "#0054d6",
+                    "surface-container-low": "#1a1c20",
+                    "on-tertiary-container": "#fff6f5",
+                    "primary": "#b3c5ff",
+                    "outline-variant": "#424656",
+                    "on-surface": "#e2e2e8",
+                    "primary-container": "#0066ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "xl": "40px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-mono": ["JetBrains Mono"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0A0C10; }
+        .glass-panel {
+            background: rgba(17, 20, 29, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .ai-pulse {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(179, 197, 255, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(179, 197, 255, 0.5); }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .drag-active {
+            border-color: #b3c5ff !important;
+            background: rgba(179, 197, 255, 0.05) !important;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-dim/80 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="shield_lock">shield_lock</span>
+<h1 class="text-body-lg font-headline-lg tracking-tight text-on-surface">SecureDoc AI</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-lg mr-lg">
+<a class="text-label-mono font-label-mono text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">DASHBOARD</a>
+<a class="text-label-mono font-label-mono text-primary font-bold" href="#">UPLOAD</a>
+<a class="text-label-mono font-label-mono text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">VAULT</a>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-white/10">
+<img alt="User" class="w-full h-full object-cover" data-alt="A professional headshot of a futuristic cybersecurity analyst in a high-tech environment. The lighting is dramatic, with cool blue and deep purple hues reflecting off a glass interface in the background. The style is sleek and minimalist, matching the obsidian cipher aesthetic of the app, emphasizing trust and high-level digital security." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbQc8TSkCE606K4iid_3BmVEDzm19jS-tKR5EKD_8TbJXKrduEs06QtHJk1TfnETxUmkBP9AOHPGKHa9Lgk0Lk4QLo0cY9woHJqkbAsSfiMc3DZSTklCEkkzHdP4AiI1qWto7BLwcGG7CR7jQzZadQmbT27TAfU7vJmcNL86sEOIJzA3bKklcsJFdaP0m60Bff_WEXRUqUWduLImizRtxF-IPJDjiGUOxb73q6afRaLBVfMsPG12y0_pHj6Wh9fe-XkSFDZC7LNCE"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop min-h-screen max-w-7xl mx-auto">
+<!-- Hero Title Section -->
+<div class="mb-xl text-center md:text-left">
+<h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg mb-xs">Ingest Secure Assets</h2>
+<p class="text-on-surface-variant text-body-md max-w-2xl">Deploy enterprise-grade encryption to your sensitive documentation. All files are scanned for threats and PII before vaulting.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left: Drag & Drop Zone (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<div class="relative group flex flex-col items-center justify-center p-xl rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-low transition-all duration-300 hover:border-primary/50 hover:bg-surface-container cursor-pointer overflow-hidden min-h-[400px]" id="drop-zone">
+<!-- Background Glow Decoration -->
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(179,197,255,0.08),transparent)] pointer-events-none"></div>
+<div class="z-10 flex flex-col items-center text-center">
+<div class="ai-pulse w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mb-lg border border-primary/30">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h3 class="text-headline-md font-headline-md mb-sm">Drop your archives here</h3>
+<p class="text-on-surface-variant text-body-sm mb-lg">Support for PDF, DOCX, and XLSX up to 500MB</p>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold hover:scale-105 active:scale-95 transition-all">Select Files</button>
+</div>
+<!-- Micro-Interaction: Hover Particles -->
+<div class="absolute bottom-4 left-4 flex gap-base">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></div>
+<span class="text-label-mono font-label-mono text-[10px] text-primary">ENCRYPTION ENGINE STANDBY</span>
+</div>
+</div>
+<!-- Active Uploads List -->
+<div class="flex flex-col gap-sm">
+<h4 class="text-label-mono font-label-mono text-on-surface-variant uppercase tracking-widest">Active Processing</h4>
+<!-- Progress Card 1 -->
+<div class="glass-panel p-md rounded-xl flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<!-- Circular Progress SVG -->
+<svg class="w-full h-full -rotate-90">
+<circle class="text-white/5" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="3"></circle>
+<circle class="text-primary transition-all duration-500" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125" stroke-dashoffset="30" stroke-width="3"></circle>
+</svg>
+<span class="absolute text-[10px] font-label-mono text-primary">75%</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">Q4_Financial_Audit_Internal.pdf</p>
+<div class="flex items-center gap-sm">
+<span class="text-label-mono font-label-mono text-on-surface-variant text-[11px]">4.2 MB / 5.6 MB</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-label-mono font-label-mono text-primary text-[11px] animate-pulse">OPTIMIZING...</span>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-error-container/20 hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Progress Card 2 (Verified State) -->
+<div class="glass-panel p-md rounded-xl flex items-center justify-between border-primary/20 bg-primary/5">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">Employee_Stock_Plan_V2.pdf</p>
+<div class="flex items-center gap-sm text-primary">
+<span class="text-label-mono font-label-mono text-[11px]">PDF VERIFIED</span>
+<span class="w-1 h-1 rounded-full bg-primary"></span>
+<span class="text-label-mono font-label-mono text-[11px]">THREAT SCAN CLEAN</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="bg-surface-container-highest text-primary text-label-mono px-md py-xs rounded-full font-bold">READY</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Preview & AI Insights (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="glass-panel p-lg rounded-xl">
+<h4 class="text-headline-md font-headline-md mb-md">Asset Preview</h4>
+<!-- PDF Thumbnail Preview -->
+<div class="aspect-[3/4] w-full rounded-lg bg-surface-container-highest border border-white/5 relative overflow-hidden group mb-md">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="A high-contrast, artistic document preview showing a blurred page with technical diagrams and charts. The aesthetic is monochromatic with deep blues and crisp whites, set against a dark obsidian background. The mood is analytical and secure, suggesting highly sensitive data being processed by an advanced AI system in a dark mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0R3fs_wbt4b8LFDkHwNToWWTQcaM8hsHSnR6Y6ur4KwLC4IYFsXROb1PS7ob4PQXo03JqaOVOmEIIf4krmQ_AD_bXTHWPSGJWVewvoiFvekrZultJ55ZLOa0VEYazoDf_4wysBvMAtAkBqj69ZrChRv5lJH3yB9gyddfD_7p9o7H_j7QVLlKgXhdNIUzCULnUxTAgqzlVb46RSMbnb3PtymvDBvM6dOeEtt2588DZz0wOKIAQ0wDL31g2fMpKciq20rWw01uWBHw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+<!-- Overlay Labels -->
+<div class="absolute bottom-md left-md right-md">
+<div class="flex flex-col gap-xs">
+<span class="text-label-mono font-label-mono bg-on-secondary-container/90 text-on-secondary-fixed px-sm py-1 rounded w-fit">PII DETECTED (2)</span>
+<span class="text-label-mono font-label-mono bg-primary-container/90 text-on-primary-container px-sm py-1 rounded w-fit">HIGH SENSITIVITY</span>
+</div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/40 backdrop-blur-sm">
+<button class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- AI Confidence Metrics -->
+<div class="space-y-md">
+<div>
+<div class="flex justify-between mb-xs">
+<span class="text-label-mono font-label-mono text-on-surface-variant">OCR ACCURACY</span>
+<span class="text-label-mono font-label-mono text-primary">99.8%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[99.8%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-xs">
+<span class="text-label-mono font-label-mono text-on-surface-variant">COMPRESSION RATIO</span>
+<span class="text-label-mono font-label-mono text-primary">64.0%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full w-[64%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Risk Indicators -->
+<div class="bg-error-container/10 border border-error/20 p-lg rounded-xl">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+<h5 class="text-label-mono font-label-mono text-error font-bold uppercase tracking-wider">Risk Alert</h5>
+</div>
+<p class="text-body-sm text-on-error-container">Detected Social Security Numbers and personal banking details in section 4.2. Recommended: Apply automatic redaction before final storage.</p>
+<button class="mt-md w-full border border-error/30 text-error py-sm rounded-xl text-label-mono font-label-mono hover:bg-error/10 transition-colors">INITIATE REDACTION</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm pb-safe h-20 bg-surface-container/90 backdrop-blur-xl border-t border-white/5 shadow-xl rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-label-mono font-label-mono text-[10px]">DASHBOARD</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary fill-current scale-110">
+<span class="material-symbols-outlined" data-icon="cloud_upload" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+<span class="text-label-mono font-label-mono text-[10px] font-bold">UPLOAD</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-label-mono font-label-mono text-[10px]">REPORTS</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="text-label-mono font-label-mono text-[10px]">VAULT</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-label-mono font-label-mono text-[10px]">PROFILE</span>
+</button>
+</nav>
+<!-- Interactive Layer: Floating Toast Simulation -->
+<div class="fixed bottom-24 right-margin-desktop z-[60] glass-panel px-lg py-sm rounded-full flex items-center gap-md translate-y-32 opacity-0 transition-all duration-500" id="toast">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="text-label-mono font-label-mono text-sm">System Secure: All uploads encrypted via SHA-256</span>
+</div>
+<script>
+        // Simple drag and drop visual state
+        const dropZone = document.getElementById('drop-zone');
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-active');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-active');
+            }, false);
+        });
+
+        // Trigger toast on load
+        setTimeout(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 5000);
+        }, 1000);
+
+        // Circular Progress Animation Mock
+        let progress = 75;
+        const progressCircle = document.querySelector('circle[stroke-dasharray="125"]');
+        setInterval(() => {
+            if (progress < 100) {
+                progress += 0.2;
+                const offset = 125 - (progress / 100) * 125;
+                progressCircle.style.strokeDashoffset = offset;
+            }
+        }, 100);
+    </script>
+</body></html>

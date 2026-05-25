@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --canvas: #0A0C10;
+            --panel: #11141D;
+            --border-white: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background-color: var(--canvas);
+            color: #e2e2e8;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: var(--panel);
+            border: 1px solid var(--border-white);
+            backdrop-filter: blur(20px);
+        }
+        .ai-pulse-border {
+            position: relative;
+            border: 1px solid transparent;
+            background-image: linear-gradient(var(--panel), var(--panel)), linear-gradient(to right, #b3c5ff, #571bc1);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+        .ai-pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .4; transform: scale(1.2); }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .risk-glow-red {
+            box-shadow: 0 0 20px rgba(214, 49, 53, 0.2);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#c4abff",
+                        "surface-container-high": "#282a2e",
+                        "secondary": "#d0bcff",
+                        "surface-container": "#1e2024",
+                        "surface-bright": "#37393e",
+                        "on-tertiary": "#68000a",
+                        "surface-dim": "#111318",
+                        "surface-variant": "#333539",
+                        "surface-container-low": "#1a1c20",
+                        "primary-fixed": "#dae1ff",
+                        "primary": "#b3c5ff",
+                        "secondary-container": "#571bc1",
+                        "on-primary": "#002b75",
+                        "on-secondary": "#3c0091",
+                        "on-error": "#690005",
+                        "outline": "#8c90a1",
+                        "on-surface": "#e2e2e8",
+                        "tertiary": "#ffb3ad",
+                        "on-primary-container": "#f8f7ff",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0c0e12",
+                        "secondary-fixed": "#e9ddff",
+                        "tertiary-container": "#d63135",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "on-background": "#e2e2e8",
+                        "surface-container-highest": "#333539",
+                        "on-primary-fixed-variant": "#003fa4",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "on-surface-variant": "#c2c6d8",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "primary-container": "#0066ff",
+                        "on-secondary-fixed": "#23005c",
+                        "on-tertiary-fixed": "#410004",
+                        "inverse-primary": "#0054d6",
+                        "inverse-on-surface": "#2f3035",
+                        "outline-variant": "#424656",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "surface-tint": "#b3c5ff",
+                        "inverse-surface": "#e2e2e8",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#b3c5ff",
+                        "on-primary-fixed": "#001849",
+                        "on-tertiary-container": "#fff6f5",
+                        "background": "#111318",
+                        "surface": "#111318"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "xl": "40px"
+                    },
+                    "fontFamily": {
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-dim/80 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="shield_lock">shield_lock</span>
+<h1 class="text-body-lg font-headline-lg tracking-tight text-on-surface">SecureDoc AI</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-xs px-md py-xs bg-surface-container-high rounded-full border border-white/5">
+<span class="w-2 h-2 rounded-full bg-green-500 ai-pulse-dot"></span>
+<span class="text-label-mono font-label-mono text-on-surface-variant">SYSTEM SECURE</span>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhsCVhl_RUkP8Wd1q39N354wDImDOAYZmwMVCiOEAloE_dhIxzlB_e0wVPQlTN0aWwhaxKlAnHeBQMdJIi3_4U0eVJkxuOUG068OXQ7cu-shrh-J5aRCsiRz2ro0HZacKZ0lam4eA4zxUaDteLbidFWrMsOTn0JUM2rFNDqHTBdqD_Mu-oziDCrjKuewYcxlmM7B9X3YTUmrQcBSLvKCa2WzIcwZJ36TfNxYmljsPzBEv33Is2EzLkGGYDnrfBU98qzxCKpMBylTQ"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto space-y-lg">
+<!-- Hero Section: Risk Score Summary & AI Insight -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Risk Score Card -->
+<div class="md:col-span-4 glass-card p-lg rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-tertiary-container/50 transition-colors">
+<div class="absolute inset-0 shimmer opacity-50 pointer-events-none"></div>
+<h3 class="text-label-mono font-label-mono text-on-surface-variant mb-lg uppercase tracking-widest">Global Risk Index</h3>
+<div class="relative w-48 h-48 mb-md">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-width="8"></circle>
+<circle class="risk-glow-red" cx="50" cy="50" fill="none" r="45" stroke="#d63135" stroke-dasharray="283" stroke-dashoffset="62" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-display-lg font-display-lg text-tertiary-container">78%</span>
+<span class="text-label-mono font-label-mono text-tertiary-container bg-tertiary-container/10 px-sm py-xs rounded">CRITICAL</span>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Elevated risk detected in Q3 batch processing.</p>
+</div>
+<!-- AI Neural Insight -->
+<div class="md:col-span-8 ai-pulse-border p-lg rounded-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="psychology">psychology</span>
+<h3 class="text-headline-md font-headline-md text-secondary">AI Neural Insight</h3>
+</div>
+<p class="text-body-lg font-body-lg text-on-surface leading-relaxed max-w-2xl">
+                        "Unusual metadata alignment detected in <span class="text-primary font-bold">Document #8821-X</span>. The cryptographic signature matches a known forensic fingerprint associated with recent invoice-padding fraud patterns in the EMEA region."
+                    </p>
+</div>
+<div class="mt-lg flex gap-md">
+<button class="bg-primary px-lg py-sm rounded-full text-on-primary font-label-mono text-label-mono hover:scale-95 transition-transform">INITIALIZE LOCKDOWN</button>
+<button class="border border-white/20 px-lg py-sm rounded-full text-on-surface font-label-mono text-label-mono hover:bg-white/5 transition-colors">DEEP FORENSICS</button>
+</div>
+</div>
+</section>
+<!-- Metric Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-gutter">
+<div class="glass-card p-lg rounded-xl">
+<div class="flex justify-between items-start mb-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="description">description</span>
+<span class="text-xs text-green-400 font-label-mono">+12.4%</span>
+</div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">Total Analyzed</p>
+<h4 class="text-headline-lg font-headline-lg">1,284,092</h4>
+</div>
+<div class="glass-card p-lg rounded-xl border-tertiary-container/30">
+<div class="flex justify-between items-start mb-md">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="warning" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-xs text-tertiary-container font-label-mono">HIGH PRIORITY</span>
+</div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">Anomalies Detected</p>
+<h4 class="text-headline-lg font-headline-lg text-tertiary-container">42</h4>
+</div>
+<div class="glass-card p-lg rounded-xl">
+<div class="flex justify-between items-start mb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="memory">memory</span>
+<span class="text-xs text-secondary font-label-mono">OPTIMAL</span>
+</div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">AI Confidence</p>
+<h4 class="text-headline-lg font-headline-lg text-secondary">99.8%</h4>
+</div>
+</section>
+<!-- Charts & Alert Feed -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Fraud Risk Trends -->
+<div class="md:col-span-8 glass-card p-lg rounded-xl overflow-hidden">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="text-headline-md font-headline-md">Fraud Risk Trends</h3>
+<div class="flex gap-sm">
+<span class="w-3 h-3 bg-primary rounded-full"></span>
+<span class="w-3 h-3 bg-secondary rounded-full"></span>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- Simple SVG Line Chart Mockup -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 200">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#b3c5ff" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#b3c5ff" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60 L1000,200 L0,200 Z" fill="url(#chartGradient)"></path>
+<path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60" fill="none" stroke="#b3c5ff" stroke-width="2"></path>
+<circle cx="200" cy="150" fill="#b3c5ff" r="4"></circle>
+<circle cx="800" cy="40" fill="#b3c5ff" r="4"></circle>
+</svg>
+<div class="absolute inset-0 flex justify-between items-end text-label-mono text-[10px] text-on-surface-variant/50 px-sm pb-1">
+<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+</div>
+</div>
+</div>
+<!-- Critical Red Flags -->
+<div class="md:col-span-4 glass-card rounded-xl flex flex-col h-full overflow-hidden">
+<div class="p-lg border-b border-white/5 flex items-center justify-between">
+<h3 class="text-headline-md font-headline-md">Alert Feed</h3>
+<span class="text-label-mono font-label-mono text-tertiary-container px-sm py-1 bg-tertiary-container/10 rounded">LIVE</span>
+</div>
+<div class="flex-1 overflow-y-auto p-md space-y-md">
+<div class="flex gap-md p-sm hover:bg-white/5 rounded-lg transition-colors border-l-2 border-tertiary-container">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="report">report</span>
+<div>
+<p class="text-body-sm font-body-sm text-on-surface">Signature Mismatch: ID-9981</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant text-[10px]">2m ago • Brussels, BE</p>
+</div>
+</div>
+<div class="flex gap-md p-sm hover:bg-white/5 rounded-lg transition-colors border-l-2 border-tertiary-container">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="fingerprint">fingerprint</span>
+<div>
+<p class="text-body-sm font-body-sm text-on-surface">Metadata Alteration: V-8821</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant text-[10px]">14m ago • Singapore, SG</p>
+</div>
+</div>
+<div class="flex gap-md p-sm hover:bg-white/5 rounded-lg transition-colors border-l-2 border-outline-variant">
+<span class="material-symbols-outlined text-outline" data-icon="info">info</span>
+<div>
+<p class="text-body-sm font-body-sm text-on-surface">Foreign Character Encoding</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant text-[10px]">45m ago • Remote IP</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm pb-safe h-20 bg-surface-container/90 backdrop-blur-xl border-t border-white/5 rounded-t-xl shadow-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="cloud_upload">cloud_upload</span>
+<span class="text-label-mono font-label-mono">Upload</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary fill-current scale-110">
+<span class="material-symbols-outlined" data-icon="grid_view" data-weight="fill" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-label-mono font-label-mono font-bold">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-label-mono font-label-mono">Reports</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="text-label-mono font-label-mono">Vault</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-white/5 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-label-mono font-label-mono">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions for chart values or dynamic states
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Simple animation to simulate live data updates
+        setInterval(() => {
+            const confidence = document.querySelector('h4.text-secondary');
+            if(confidence) {
+                const val = (99.7 + Math.random() * 0.2).toFixed(1);
+                confidence.innerText = val + '%';
+            }
+        }, 5000);
+    </script>
+</body></html>

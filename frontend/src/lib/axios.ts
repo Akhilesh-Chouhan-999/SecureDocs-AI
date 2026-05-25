@@ -1,24 +1,20 @@
-import axios, {
-  AxiosError,
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-} from "axios";
-import { ENV } from "../config/env";
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import { ENV } from '../config/env.config';
 
 /**
- * Pre-configured Axios instance for the application.
+ * Standard enterprise axios instance setup in lib/ folder
  */
-export const axiosInstance = axios.create({
+export const axiosInstance: AxiosInstance = axios.create({
   baseURL: ENV.API_URL,
+  timeout: 30000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-// Request Interceptor: Attach Token
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,21 +22,5 @@ axiosInstance.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  },
-);
-
-// Response Interceptor: Handle Global Errors (like 401 Unauthorized)
-axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear token and optionally redirect to login
-      localStorage.removeItem("token");
-      // A full reload or an event dispatcher can be used here instead of window.location
-      // window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  },
+  }
 );

@@ -1,53 +1,186 @@
 @import "tailwindcss";
 
 @theme {
-  --color-fraud: #ef4444;
-  --color-warning: #f59e0b;
-  --color-safe: #10b981;
-  --color-neutral: #6b7280;
+  /* Colors */
+  --color-background: var(--background);
+  --color-on-background: var(--on-background);
+  
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  
+  --color-tertiary-container: var(--tertiary-container);
+  
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
 
-  --font-sans: "Inter", system-ui, sans-serif;
+  /* Fonts */
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-label-mono: 'JetBrains Mono', monospace;
+  --font-headline-lg: 'Inter', system-ui, sans-serif;
+  --font-display-lg: 'Inter', system-ui, sans-serif;
+  --font-body-lg: 'Inter', system-ui, sans-serif;
+  --font-headline-md: 'Inter', system-ui, sans-serif;
+  --font-body-md: 'Inter', system-ui, sans-serif;
+  --font-body-sm: 'Inter', system-ui, sans-serif;
+
+  /* Spacing (from DESIGN.md) */
+  --spacing-base: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 48px;
 }
 
 @layer base {
   :root {
+    /* Light Mode (Derived for high contrast and readability) */
     --background: #f8fafc;
-    --foreground: #0f172a;
-    --card: #ffffff;
-    --card-foreground: #0f172a;
-    --border: #e2e8f0;
-    --ring: #3b82f6;
+    --on-background: #0f172a;
+    
+    --surface: #ffffff;
+    --surface-dim: #f1f5f9;
+    --surface-bright: #ffffff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f8fafc;
+    --surface-container: #ffffff;
+    --surface-container-high: #f1f5f9;
+    --surface-container-highest: #e2e8f0;
+    --on-surface: #0f172a;
+    --on-surface-variant: #475569;
+    
+    --primary: #0066ff;
+    --on-primary: #ffffff;
+    --primary-container: #dae1ff;
+    --on-primary-container: #001849;
+    
+    --secondary: #571bc1;
+    --on-secondary: #ffffff;
+    --secondary-container: #e9ddff;
+    
+    --tertiary-container: #d63135;
+    
+    --error: #ef4444;
+    --on-error: #ffffff;
+    
+    --outline: #94a3b8;
+    --outline-variant: #cbd5e1;
   }
 
   .dark {
-    --background: #020817;
-    --foreground: #f8fafc;
-    --card: #0f172a;
-    --card-foreground: #f8fafc;
-    --border: #1e293b;
-    --ring: #3b82f6;
+    /* Dark Mode (Obsidian Cipher) */
+    --background: #111318;
+    --on-background: #e2e2e8;
+    
+    --surface: #111318;
+    --surface-dim: #111318;
+    --surface-bright: #37393e;
+    --surface-container-lowest: #0c0e12;
+    --surface-container-low: #1a1c20;
+    --surface-container: #1e2024;
+    --surface-container-high: #282a2e;
+    --surface-container-highest: #333539;
+    --on-surface: #e2e2e8;
+    --on-surface-variant: #c2c6d8;
+    
+    --primary: #b3c5ff;
+    --on-primary: #002b75;
+    --primary-container: #0066ff;
+    --on-primary-container: #f8f7ff;
+    
+    --secondary: #d0bcff;
+    --on-secondary: #3c0091;
+    --secondary-container: #571bc1;
+    
+    --tertiary-container: #d63135;
+    
+    --error: #ffb4ab;
+    --on-error: #690005;
+    
+    --outline: #8c90a1;
+    --outline-variant: #424656;
   }
-}
 
-@layer base {
   body {
     background-color: var(--background);
-    color: var(--foreground);
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    color: var(--on-surface);
+    font-family: var(--font-inter);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100dvh;
+    @apply transition-colors duration-200;
   }
 }
 
-/* Glassmorphism utilities */
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Glassmorphism and Custom Utilities */
+@layer components {
+  .glass-card {
+    background-color: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
 
-.dark .glass {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  .ai-pulse-border {
+    position: relative;
+    border: 1px solid transparent;
+    background-image: linear-gradient(var(--surface-container-high), var(--surface-container-high)), linear-gradient(to right, var(--primary), var(--secondary));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .ai-pulse-dot {
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.2); }
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent);
+    background-size: 200% 100%;
+    animation: shimmer-anim 3s infinite linear;
+  }
+  
+  .dark .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+  }
+
+  @keyframes shimmer-anim {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes fill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+
+  .risk-glow-red {
+    box-shadow: 0 0 20px rgba(214, 49, 53, 0.2);
+  }
 }

@@ -1,58 +1,29 @@
-import React, { InputHTMLAttributes } from "react";
+import { InputHTMLAttributes, forwardRef } from 'react';
+import { cn } from '../../utils/cn';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  icon?: React.ReactNode;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, icon, className = "", id, ...props }, ref) => {
-    const inputId = id || label?.replace(/\s+/g, "-").toLowerCase();
-
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, label, error, ...props }, ref) => {
     return (
       <div className="w-full">
-        {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1"
-          >
-            {label}
-          </label>
-        )}
-        <div className="relative group">
-          {icon && (
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-blue-500 transition-colors">
-              {icon}
-            </div>
+        {label && <label className="block text-sm font-medium text-on-surface mb-1">{label}</label>}
+        <input
+          className={cn(
+            "flex h-10 w-full rounded-md border border-outline bg-surface px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-on-surface-variant focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-error focus-visible:ring-error",
+            className
           )}
-          <input
-            id={inputId}
-            ref={ref}
-            className={`
-              w-full px-4 py-3 bg-white/5 border rounded-xl 
-              transition-all duration-300 outline-none text-foreground
-              placeholder:text-neutral-500
-              ${icon ? "pl-11" : ""}
-              ${
-                error
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  : "border-white/10 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 hover:border-white/20"
-              }
-              ${className}
-            `}
-            {...props}
-          />
-        </div>
-        {error && (
-          <p className="mt-1.5 text-sm text-red-400 ml-1 flex items-center">
-            <span className="inline-block w-1 h-1 rounded-full bg-red-400 mr-2"></span>
-            {error}
-          </p>
-        )}
+          ref={ref}
+          {...props}
+        />
+        {error && <span className="text-xs text-error mt-1">{error}</span>}
       </div>
     );
-  },
+  }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';
