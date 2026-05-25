@@ -3,7 +3,7 @@ export function ProcessingOverlay({ isVisible }: { isVisible: boolean }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
-      <div className="glass-card p-xl rounded-2xl flex flex-col items-center max-w-md w-full mx-4 relative overflow-hidden border-primary/30 shadow-2xl shadow-primary/20">
+      <div className="glass-card p-xl rounded-2xl flex flex-col items-center max-w-[448px] w-full mx-4 relative overflow-hidden border-primary/30 shadow-2xl shadow-primary/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(179,197,255,0.1),transparent)] pointer-events-none"></div>
         
         <div className="ai-pulse w-24 h-24 rounded-full bg-primary-container/20 flex items-center justify-center mb-lg border border-primary/30 relative">

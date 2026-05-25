@@ -1,20 +1,15 @@
-import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { ROUTES } from "../constants/routes";
 import toast from "react-hot-toast";
-import { FiLock, FiMail } from "react-icons/fi";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
+import { FiLock } from "react-icons/fi";
+import { LoginForm } from "../components/forms/LoginForm";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const { login, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLoginSubmit = async (email: string, password: string) => {
     try {
       await login(email, password);
       toast.success("Login successful!");
@@ -25,12 +20,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
+    <div className="w-full min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
       {/* Background gradients */}
       <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-[40%] -right-[20%] w-[80%] h-[80%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md p-8 rounded-2xl glass relative z-10 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-500">
+      <div className="w-full max-w-[448px] p-8 rounded-2xl glass-card relative z-10 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mb-4 transform hover:scale-105 transition-transform">
             <FiLock className="text-white text-2xl" />
@@ -43,30 +38,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
-              icon={<FiMail />}
-            />
-            <Input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              icon={<FiLock />}
-            />
-          </div>
-
-          <Button type="submit" isLoading={isLoading} className="w-full">
-            Sign in
-          </Button>
-        </form>
+        <LoginForm onSubmit={handleLoginSubmit} isLoading={isLoading} />
 
         <p className="mt-8 text-center text-sm text-neutral-500">
           Don't have an account?{" "}

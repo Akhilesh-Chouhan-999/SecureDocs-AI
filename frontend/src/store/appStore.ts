@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { Alert } from '../types';
+import { Alert, UIDocument } from '../types';
+import { initialVaultDocuments } from '../data/mockDb';
 
 interface AppState {
   processingDocument: string | null;
@@ -7,9 +8,14 @@ interface AppState {
   alerts: Alert[];
   addAlert: (alert: Alert) => void;
   markAlertRead: (id: string) => void;
+  vaultDocuments: UIDocument[];
+  addDocument: (doc: UIDocument) => void;
+  deleteDocument: (id: string) => void;
+  updateDocument: (id: string, updates: Partial<UIDocument>) => void;
+  isLockdown: boolean;
+  toggleLockdown: () => void;
 }
 
-// Initial mock alerts based on the reference UI
 const mockAlerts: Alert[] = [
   { 
     id: '1', 
@@ -48,4 +54,34 @@ export const useAppStore = create<AppState>((set) => ({
   markAlertRead: (id) => set((state) => ({
     alerts: state.alerts.map(a => a.id === id ? { ...a, isRead: true } : a)
   })),
+  vaultDocuments: initialVaultDocuments,
+  addDocument: (doc) => set((state) => ({ vaultDocuments: [doc, ...state.vaultDocuments] })),
+  deleteDocument: (id) => set((state) => ({
+    vaultDocuments: state.vaultDocuments.filter(doc => doc.id !== id)
+  })),
+  updateDocument: (id, updates) => set((state) => ({
+    vaultDocuments: state.vaultDocuments.map(doc => doc.id === id ? { ...doc, ...updates } : doc)
+  })),
+  isLockdown: false,
+  toggleLockdown: () => set((state) => {
+    const nextLockdown = !state.isLockdown;
+    
+    // Auto-alert on lockdown initiation
+    const newAlert: Alert = {
+      id: Math.random().toString(),
+      type: 'system',
+      title: nextLockdown ? 'Lockdown Initiated' : 'Lockdown Lifted',
+      message: nextLockdown 
+        ? 'All vault operations restricted. Node authentication required.' 
+        : 'System returned to standard operation.',
+      severity: nextLockdown ? 'high' : 'low',
+      timestamp: new Date(),
+      isRead: false
+    };
+
+    return { 
+      isLockdown: nextLockdown,
+      alerts: [newAlert, ...state.alerts]
+    };
+  })
 }));

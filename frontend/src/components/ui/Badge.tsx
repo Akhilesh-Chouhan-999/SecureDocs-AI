@@ -7,15 +7,14 @@ interface BadgeProps {
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {
+  const variantClass = variant === 'success' ? 'bg-success/20 text-success' :
+                       variant === 'warning' ? 'bg-warning/20 text-warning' :
+                       variant === 'error' ? 'bg-error/20 text-error' :
+                       'bg-surface-container-highest text-on-surface';
   return (
     <span className={cn(
       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-      {
-        'bg-surface-container-highest text-on-surface': variant === 'default',
-        'bg-success/20 text-success': variant === 'success',
-        'bg-warning/20 text-warning': variant === 'warning',
-        'bg-error/20 text-error': variant === 'error',
-      },
+      variantClass,
       className
     )}>
       {children}

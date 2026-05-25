@@ -1,27 +1,25 @@
+import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { AppRouter } from "./routes/AppRouter";
 import { ProcessingOverlay } from "./components/ui/ProcessingOverlay";
 import { useAppStore } from "./store/appStore";
+import { useAuthStore } from "./store/authStore";
+import { AppProvider } from "./providers/AppProvider";
 
 export default function App() {
   const processingDocument = useAppStore((state) => state.processingDocument);
+  const initialize = useAuthStore((state) => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   return (
-    <BrowserRouter>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          className: "glass",
-          style: {
-            background: "var(--card)",
-            color: "var(--foreground)",
-            border: "1px solid var(--border)",
-          },
-        }}
-      />
-      <AppRouter />
-      <ProcessingOverlay isVisible={!!processingDocument} />
-    </BrowserRouter>
+    <AppProvider>
+      <BrowserRouter>
+        <AppRouter />
+        <ProcessingOverlay isVisible={!!processingDocument} />
+      </BrowserRouter>
+    </AppProvider>
   );
 }

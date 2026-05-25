@@ -61,7 +61,7 @@ export default function ReportsPage() {
         <h3 className="text-xl font-semibold text-foreground mb-2">
           Detailed Charts Coming Soon
         </h3>
-        <p className="max-w-md text-center">
+        <p className="max-w-[448px] text-center">
           We are currently integrating a comprehensive charting library to
           display temporal trends and risk distributions.
         </p>

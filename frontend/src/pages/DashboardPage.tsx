@@ -3,20 +3,13 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { RiskIndicator } from '../components/ui/RiskIndicator';
 import { AINeuralInsight } from '../components/ui/AINeuralInsight';
 import { useAppStore } from '../store/appStore';
-import { UIDocument } from '../types';
-import { MetricsGrid } from '../components/dashboard/MetricsGrid';
 import { AlertFeed } from '../components/dashboard/AlertFeed';
 import { RecentDocumentsTable } from '../components/dashboard/RecentDocumentsTable';
-
-const mockRecentDocuments: UIDocument[] = [
-  { id: '1', name: 'Invoice_4521.pdf', type: 'Invoice', riskScore: 89, status: 'High Risk', timestamp: new Date(Date.now() - 7200000), size: '1.2 MB' },
-  { id: '2', name: 'Contract_Q1_2024.pdf', type: 'Contract', riskScore: 45, status: 'Medium', timestamp: new Date(Date.now() - 18000000), size: '4.5 MB' },
-  { id: '3', name: 'Property_Title_789.pdf', type: 'Title', riskScore: 72, status: 'High Risk', timestamp: new Date(Date.now() - 86400000), size: '8.1 MB' },
-  { id: '4', name: 'Bank_Statement_March.pdf', type: 'Statement', riskScore: 23, status: 'Low Risk', timestamp: new Date(Date.now() - 172800000), size: '2.3 MB' },
-];
+import { RiskChart } from '../components/charts/RiskChart';
+import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
-  const alerts = useAppStore(state => state.alerts);
+  const { alerts, vaultDocuments, isLockdown, toggleLockdown } = useAppStore();
   const [confidence, setConfidence] = useState(99.8);
 
   useEffect(() => {
@@ -26,14 +19,63 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleLockdown = () => {
+    toggleLockdown();
+    if (!isLockdown) {
+      toast.error('LOCKDOWN INITIATED - ALL NODES LOCKED', {
+        icon: '⚠️',
+        duration: 4000,
+        style: {
+          background: '#93000a',
+          color: '#ffdad6',
+          border: '1px solid #ffb4ab'
+        }
+      });
+    } else {
+      toast.success('Lockdown lifted. Systems returned to normal.', {
+        icon: '🛡️',
+        duration: 3000
+      });
+    }
+  };
+
+  const handleDeepForensics = () => {
+    toast.loading('Initializing deep neural forensics scan...', { duration: 2000 });
+    setTimeout(() => {
+      toast.success('Forensic scan complete. No new vulnerabilities found.');
+    }, 2000);
+  };
+
+  // Dynamically calculate metrics
+  const anomaliesCount = vaultDocuments.filter(d => d.riskScore > 70).length;
+  const totalAnalyzed = 1284092 + vaultDocuments.length;
+  const globalRiskScore = isLockdown ? 100 : Math.round(
+    vaultDocuments.reduce((acc, d) => acc + d.riskScore, 0) / (vaultDocuments.length || 1)
+  );
+
   return (
     <div className="space-y-lg pb-safe">
+      {isLockdown && (
+        <div className="bg-error-container/20 text-error p-md rounded-xl border border-error-container flex items-center gap-md animate-pulse">
+          <span className="material-symbols-outlined">warning</span>
+          <div className="flex-1 text-sm">
+            <span className="font-bold">LOCKDOWN PROTOCOL ACTIVE:</span> All vault document downloads are frozen. Cryptographic node handshake required.
+          </div>
+        </div>
+      )}
+
       <section className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
         <div className="md:col-span-4 glass-card p-lg rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-tertiary-container/50 transition-colors">
           <div className="absolute inset-0 shimmer opacity-50 pointer-events-none"></div>
           <h3 className="text-label-mono font-label-mono text-on-surface-variant mb-lg uppercase tracking-widest">Global Risk Index</h3>
-          <RiskIndicator score={78} label="CRITICAL" className="mb-md" />
-          <p className="text-body-sm font-body-sm text-on-surface-variant">Elevated risk detected in Q3 batch processing.</p>
+          <RiskIndicator 
+            score={globalRiskScore} 
+            label={isLockdown ? "LOCKED" : globalRiskScore > 70 ? "CRITICAL" : globalRiskScore > 40 ? "ELEVATED" : "SECURE"} 
+            className="mb-md" 
+          />
+          <p className="text-body-sm font-body-sm text-on-surface-variant">
+            {isLockdown ? 'Emergency lockdown active.' : 'Elevated risk detected in Q3 batch processing.'}
+          </p>
         </div>
         
         <AINeuralInsight className="md:col-span-8 justify-between h-full">
@@ -43,17 +85,55 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="mt-lg flex flex-wrap gap-md">
-            <button className="bg-primary px-lg py-sm rounded-full text-on-primary font-label-mono text-label-mono hover:scale-95 transition-transform cursor-pointer shadow-lg shadow-primary/20">
-              INITIALIZE LOCKDOWN
+            <button 
+              onClick={handleLockdown}
+              className={`px-lg py-sm rounded-full font-label-mono text-label-mono hover:scale-95 transition-transform cursor-pointer shadow-lg ${
+                isLockdown 
+                  ? 'bg-secondary text-on-secondary shadow-secondary/20' 
+                  : 'bg-primary text-on-primary shadow-primary/20'
+              }`}
+            >
+              {isLockdown ? 'LIFT LOCKDOWN' : 'INITIALIZE LOCKDOWN'}
             </button>
-            <button className="border border-outline-variant px-lg py-sm rounded-full text-on-surface font-label-mono text-label-mono hover:bg-surface-container-highest transition-colors cursor-pointer">
+            <button 
+              onClick={handleDeepForensics}
+              className="border border-outline-variant px-lg py-sm rounded-full text-on-surface font-label-mono text-label-mono hover:bg-surface-container-highest transition-colors cursor-pointer"
+            >
               DEEP FORENSICS
             </button>
           </div>
         </AINeuralInsight>
       </section>
 
-      <MetricsGrid confidence={confidence} />
+      {/* Metrics Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-gutter">
+        <GlassCard className="p-lg">
+          <div className="flex justify-between items-start mb-md">
+            <span className="material-symbols-outlined text-on-surface-variant">description</span>
+            <span className="text-xs text-green-400 font-label-mono">+12.4%</span>
+          </div>
+          <p className="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">Total Analyzed</p>
+          <h4 className="text-headline-lg font-headline-lg">{totalAnalyzed.toLocaleString()}</h4>
+        </GlassCard>
+        
+        <GlassCard className="p-lg border-tertiary-container/30">
+          <div className="flex justify-between items-start mb-md">
+            <span className="material-symbols-outlined text-tertiary-container">warning</span>
+            <span className="text-xs text-tertiary-container font-label-mono">HIGH PRIORITY</span>
+          </div>
+          <p className="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">Anomalies Detected</p>
+          <h4 className="text-headline-lg font-headline-lg text-tertiary-container">{anomaliesCount}</h4>
+        </GlassCard>
+        
+        <GlassCard className="p-lg">
+          <div className="flex justify-between items-start mb-md">
+            <span className="material-symbols-outlined text-secondary">memory</span>
+            <span className="text-xs text-secondary font-label-mono">OPTIMAL</span>
+          </div>
+          <p className="text-label-mono font-label-mono text-on-surface-variant uppercase mb-xs">AI Confidence</p>
+          <h4 className="text-headline-lg font-headline-lg text-secondary">{confidence}%</h4>
+        </GlassCard>
+      </section>
 
       <section className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
         <GlassCard className="md:col-span-8 p-lg overflow-hidden flex flex-col">
@@ -64,23 +144,7 @@ export default function DashboardPage() {
               <span className="w-3 h-3 bg-secondary rounded-full"></span>
             </div>
           </div>
-          <div className="h-64 w-full relative flex-1">
-            <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 200">
-              <defs>
-                <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.3"></stop>
-                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0"></stop>
-                </linearGradient>
-              </defs>
-              <path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60 L1000,200 L0,200 Z" fill="url(#chartGradient)"></path>
-              <path d="M0,180 Q100,120 200,150 T400,80 T600,100 T800,40 T1000,60" fill="none" stroke="var(--color-primary)" strokeWidth="2"></path>
-              <circle cx="200" cy="150" fill="var(--color-primary)" r="4"></circle>
-              <circle cx="800" cy="40" fill="var(--color-primary)" r="4"></circle>
-            </svg>
-            <div className="absolute inset-0 flex justify-between items-end text-label-mono text-[10px] text-on-surface-variant/50 px-sm pb-1">
-              <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
-            </div>
-          </div>
+          <RiskChart className="h-64 flex-1" />
         </GlassCard>
 
         <GlassCard className="md:col-span-4 flex flex-col h-full overflow-hidden">
@@ -93,7 +157,7 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <RecentDocumentsTable documents={mockRecentDocuments} />
+        <RecentDocumentsTable documents={vaultDocuments.slice(0, 4)} />
       </section>
     </div>
   );

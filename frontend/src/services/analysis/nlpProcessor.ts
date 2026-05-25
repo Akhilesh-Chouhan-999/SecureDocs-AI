@@ -10,7 +10,7 @@ export interface NLPResult {
 }
 
 export const nlpProcessor = {
-  analyzeText: async (text: string): Promise<NLPResult> => {
+  analyzeText: async (_text: string): Promise<NLPResult> => {
     // Simulating API latency
     await new Promise(resolve => setTimeout(resolve, 2000));
     
